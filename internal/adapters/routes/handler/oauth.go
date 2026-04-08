@@ -21,12 +21,12 @@ func (h *OauthHandler) BasicLogin(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusBadRequest, "invalid request", err.Error())
 	}
 
-	token, err := h.svc.BasicLogin(c.Context(), &body)
+	result, err := h.svc.BasicLogin(c.Context(), &body)
 	if err != nil {
 		return ResError(c, fiber.StatusUnauthorized, "unauthorized", err.Error())
 	}
 
-	return ResOk(c, fiber.StatusOK, fiber.Map{"token": token}, nil, nil)
+	return ResOk(c, fiber.StatusOK, result, nil, nil)
 }
 
 func (h *OauthHandler) SocialLogin(c *fiber.Ctx) error {
@@ -35,12 +35,12 @@ func (h *OauthHandler) SocialLogin(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusBadRequest, "invalid request", err.Error())
 	}
 
-	token, err := h.svc.SocialLogin(c.Context(), &body)
+	result, err := h.svc.SocialLogin(c.Context(), &body)
 	if err != nil {
 		return ResError(c, fiber.StatusUnauthorized, "unauthorized", err.Error())
 	}
 
-	return ResOk(c, fiber.StatusOK, fiber.Map{"token": token}, nil, nil)
+	return ResOk(c, fiber.StatusOK, result, nil, nil)
 }
 
 func (h *OauthHandler) Register(c *fiber.Ctx) error {

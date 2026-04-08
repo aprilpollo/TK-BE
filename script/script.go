@@ -137,9 +137,9 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 	}
 
 	organizationMemberRoles := []models.OrganizationMemberRoleModel{
-		{ID: 1, Name: "owner", Description: "Owner", CanView: true, CanCreate: true, CanUpdate: true, CanDelete: true},
-		{ID: 2, Name: "admin", Description: "Admin", CanView: true, CanCreate: true, CanUpdate: true, CanDelete: true},
-		{ID: 3, Name: "member", Description: "Member", CanView: true, CanCreate: false, CanUpdate: false, CanDelete: false},
+		{ID: 1, Name: "owner", Description: "Owner"},
+		{ID: 2, Name: "admin", Description: "Admin"},
+		{ID: 3, Name: "member", Description: "Member"},
 	}
 
 	projectStatuses := []models.ProjectStatusModel{
@@ -174,6 +174,32 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 	for _, role := range organizationMemberRoles {
 		err := db.Create(&role).Error
 		appendResultRow(mTable, "ORG MEMBER ROLE ID: "+strconv.Itoa(int(role.ID)), err, failCount, successCount)
+	}
+
+	// Page permissions per role
+	// Pages: dashboard, members, projects, tasks
+	// owner(1): full access | admin(2): limited | member(3): view only
+	pagePermissions := []models.OrganizationMemberPagePermissionModel{
+		// owner — full access
+		{ID: 1, PageID: "dashboard", RoleID: 1, IsView: true, IsEdit: true, IsDelete: true},
+		{ID: 2, PageID: "members", RoleID: 1, IsView: true, IsEdit: true, IsDelete: true},
+		{ID: 3, PageID: "projects", RoleID: 1, IsView: true, IsEdit: true, IsDelete: true},
+		{ID: 4, PageID: "tasks", RoleID: 1, IsView: true, IsEdit: true, IsDelete: true},
+		// admin — no member management delete
+		{ID: 5, PageID: "dashboard", RoleID: 2, IsView: true, IsEdit: true, IsDelete: false},
+		{ID: 6, PageID: "members", RoleID: 2, IsView: true, IsEdit: false, IsDelete: false},
+		{ID: 7, PageID: "projects", RoleID: 2, IsView: true, IsEdit: true, IsDelete: true},
+		{ID: 8, PageID: "tasks", RoleID: 2, IsView: true, IsEdit: true, IsDelete: true},
+		// member — view only, can edit own tasks
+		{ID: 9, PageID: "dashboard", RoleID: 3, IsView: true, IsEdit: false, IsDelete: false},
+		{ID: 10, PageID: "members", RoleID: 3, IsView: true, IsEdit: false, IsDelete: false},
+		{ID: 11, PageID: "projects", RoleID: 3, IsView: true, IsEdit: false, IsDelete: false},
+		{ID: 12, PageID: "tasks", RoleID: 3, IsView: true, IsEdit: true, IsDelete: false},
+	}
+
+	for _, pp := range pagePermissions {
+		err := db.Create(&pp).Error
+		appendResultRow(mTable, "PAGE PERMISSION ID: "+strconv.Itoa(int(pp.ID)), err, failCount, successCount)
 	}
 
 	// Insert Project Statuses (fixed variable shadowing)

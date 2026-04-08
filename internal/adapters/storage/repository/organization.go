@@ -121,6 +121,68 @@ func (r *organizationRepository) FindByUserID(ctx context.Context, userID int64,
 	return result, total, nil
 }
 
+func (r *organizationRepository) FindByUserIDWithPrimaryDetails(ctx context.Context, userID int64) ([]domain.UserOrganizationWithDetail, error) {
+	var rows []models.OrganizationMemberModel
+
+	if err := r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Preload("Organization").
+		Preload("Role").
+		Find(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	// collect roleID of primary org to fetch page permissions
+	var primaryRoleID int64
+	for _, row := range rows {
+		if row.IsPrimary {
+			primaryRoleID = row.RoleID
+			break
+		}
+	}
+
+	var permMap map[int64][]domain.OrganizationMemberPagePermission
+	if primaryRoleID > 0 {
+		var perms []models.OrganizationMemberPagePermissionModel
+		if err := r.db.WithContext(ctx).
+			Where("role_id = ?", primaryRoleID).
+			Find(&perms).Error; err != nil {
+			return nil, err
+		}
+		permMap = make(map[int64][]domain.OrganizationMemberPagePermission)
+		for _, p := range perms {
+			permMap[p.RoleID] = append(permMap[p.RoleID], *p.ToDomain())
+		}
+	}
+
+	result := make([]domain.UserOrganizationWithDetail, 0, len(rows))
+	for _, row := range rows {
+		if row.Organization == nil {
+			continue
+		}
+		detail := domain.UserOrganizationWithDetail{
+			UserOrganization: domain.UserOrganization{
+				Organization: *row.Organization.ToDomain(),
+				MemberID:     row.ID,
+				RoleID:       row.RoleID,
+				StatusID:     row.StatusID,
+				IsOwner:      row.IsOwner,
+				IsPrimary:    row.IsPrimary,
+				JoinedAt:     row.JoinedAt,
+			},
+		}
+		if row.Role != nil {
+			detail.RoleName = row.Role.Name
+		}
+		if row.IsPrimary && permMap != nil {
+			detail.PagePermissions = permMap[row.RoleID]
+		}
+		result = append(result, detail)
+	}
+
+	return result, nil
+}
+
 func (r *organizationRepository) FindMembers(ctx context.Context, orgID int64, opts query.QueryOptions) ([]domain.OrganizationMember, int64, error) {
 	var rows []models.OrganizationMemberModel
 	var total int64

@@ -16,6 +16,7 @@ import (
 	"runtime/debug"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	fiberLogger "github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"gorm.io/gorm"
@@ -57,7 +58,7 @@ func main() {
 	// --- Services (core / use cases) ---
 	bookSvc := services.NewBookService(bookRepo)
 	googleVerifier := googleAdapter.NewGoogleVerifier(cfg.Oauth.GoogleProvider.ClientID)
-	oauthSvc := services.NewOauthService(oauthRepo, googleVerifier, utils.JWTConfig{
+	oauthSvc := services.NewOauthService(oauthRepo, orgRepo, googleVerifier, utils.JWTConfig{
 		SecretKey:  cfg.JWT.SecretKey,
 		Issuer:     cfg.JWT.Issuer,
 		Subject:    cfg.JWT.Subject,
@@ -80,6 +81,13 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: cfg.App.AppName,
 	})
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     cfg.App.AllowedCredentialOrigins,
+		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Organization-ID",
+		AllowCredentials: false,
+	}))
 
 	app.Use(fiberLogger.New(fiberLogger.Config{
 		Format: "${time} | ${status} | ${latency} | ${ip} | ${method} | ${path}\n",

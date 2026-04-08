@@ -39,6 +39,7 @@ func (m *UserModel) ToDomain() *domain.User {
 		DisplayName: m.DisplayName,
 		Bio:         m.Bio,
 		Avatar:      m.Avatar,
+		Role:        "user",
 		IsActive:    m.IsActive,
 		IsVerified:  m.IsVerified,
 		CreatedAt:   m.CreatedAt,

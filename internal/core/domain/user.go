@@ -10,6 +10,7 @@ type User struct {
 	DisplayName string    `json:"display_name"`
 	Bio         *string   `json:"bio"`
 	Avatar      *string   `json:"avatar"`
+	Role		string    `json:"role"`
 	IsActive    bool      `json:"is_active"`
 	IsVerified  bool      `json:"is_verified"`
 	CreatedAt   time.Time `json:"created_at"`

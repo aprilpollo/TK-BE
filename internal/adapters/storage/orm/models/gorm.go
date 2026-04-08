@@ -14,6 +14,7 @@ func All() ModelList {
 		&OrganizationMemberModel{},
 		&OrganizationMemberStatusModel{},
 		&OrganizationMemberRoleModel{},
+		&OrganizationMemberPagePermissionModel{},
 		&TasksModel{},
 		&TaskAssignModel{},
 		&TaskCommentModel{},

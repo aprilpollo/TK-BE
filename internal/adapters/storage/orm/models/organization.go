@@ -8,7 +8,7 @@ import (
 )
 
 type OrganizationModel struct {
-	ID           int64    `gorm:"primaryKey"`
+	ID           int64   `gorm:"primaryKey"`
 	Name         string  `gorm:"not null;size:255"`
 	Slug         string  `gorm:"not null;uniqueIndex;size:100"`
 	Description  string  `gorm:"type:text"`
@@ -22,7 +22,7 @@ type OrganizationModel struct {
 }
 
 type OrganizationMemberModel struct {
-	ID             int64  `gorm:"primaryKey"`
+	ID             int64 `gorm:"primaryKey"`
 	OrganizationID int64 `gorm:"not null;uniqueIndex:idx_org_user"`
 	UserID         int64 `gorm:"not null;uniqueIndex:idx_org_user;index"`
 	RoleID         int64 `gorm:"not null;index"`
@@ -55,14 +55,54 @@ type OrganizationMemberRoleModel struct {
 	ID          int64  `gorm:"primaryKey;autoIncrement:false"` // manually set IDs
 	Name        string `gorm:"not null;uniqueIndex;size:50"`   // user, admin, owner
 	Description string `gorm:"type:text;size:255"`
-	CanView     bool   `gorm:"default:true"`
-	CanCreate   bool   `gorm:"default:false"`
-	CanUpdate   bool   `gorm:"default:false"`
-	CanDelete   bool   `gorm:"default:false"`
+}
+
+type OrganizationMemberPagePermissionModel struct {
+	ID       int64  `gorm:"primaryKey;autoIncrement:false"` // manually set IDs
+	PageID   string `gorm:"not null;index"`
+	RoleID   int64  `gorm:"not null;index"`
+	IsView   bool   `gorm:"default:false"`
+	IsEdit   bool   `gorm:"default:false"`
+	IsDelete bool   `gorm:"default:false"`
 }
 
 func (OrganizationModel) TableName() string {
 	return "organizations"
+}
+
+func (OrganizationMemberStatusModel) TableName() string {
+	return "organization_member_statuses"
+}
+
+func (OrganizationMemberRoleModel) TableName() string {
+	return "organization_member_roles"
+}
+
+func (m *OrganizationMemberRoleModel) ToDomain() *domain.OrganizationMemberRole {
+	return &domain.OrganizationMemberRole{
+		ID:          m.ID,
+		Name:        m.Name,
+		Description: m.Description,
+	}
+}
+
+func (OrganizationMemberPagePermissionModel) TableName() string {
+	return "organization_member_page_permissions"
+}
+
+func (m *OrganizationMemberPagePermissionModel) ToDomain() *domain.OrganizationMemberPagePermission {
+	return &domain.OrganizationMemberPagePermission{
+		ID:       m.ID,
+		PageID:   m.PageID,
+		RoleID:   m.RoleID,
+		IsView:   m.IsView,
+		IsEdit:   m.IsEdit,
+		IsDelete: m.IsDelete,
+	}
+}
+
+func (OrganizationMemberModel) TableName() string {
+	return "organization_members"
 }
 
 func (m *OrganizationModel) ToDomain() *domain.Organization {
@@ -91,10 +131,6 @@ func FromOrganizationDomain(d *domain.Organization) *OrganizationModel {
 	}
 }
 
-func (OrganizationMemberModel) TableName() string {
-	return "organization_members"
-}
-
 func (m *OrganizationMemberModel) ToDomain() *domain.OrganizationMember {
 	return &domain.OrganizationMember{
 		ID:             m.ID,
@@ -110,12 +146,4 @@ func (m *OrganizationMemberModel) ToDomain() *domain.OrganizationMember {
 		CreatedAt:      m.CreatedAt,
 		UpdatedAt:      m.UpdatedAt,
 	}
-}
-
-func (OrganizationMemberStatusModel) TableName() string {
-	return "organization_member_statuses"
-}
-
-func (OrganizationMemberRoleModel) TableName() string {
-	return "organization_member_roles"
 }

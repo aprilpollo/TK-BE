@@ -16,6 +16,7 @@ type OrganizationRepository interface {
 
 	FindByUserID(ctx context.Context, userID int64, opts query.QueryOptions) ([]domain.UserOrganization, int64, error)
 	FindByUserIDWithPrimaryDetails(ctx context.Context, userID int64) ([]domain.UserOrganizationWithDetail, error)
+	FindPrimaryOrgWithDetails(ctx context.Context, userID int64) (*domain.PrimaryOrgPermissions, error)
 	FindMembers(ctx context.Context, orgID int64, opts query.QueryOptions) ([]domain.OrganizationMember, int64, error)
 	CreateMember(ctx context.Context, member *domain.OrganizationMember) error
 	UpdateMember(ctx context.Context, orgID int64, memberID int64, req *domain.UpdateMemberReq) error

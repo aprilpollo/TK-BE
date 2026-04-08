@@ -83,6 +83,21 @@ func (h *UserHandler) GetMyOrganizations(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, orgs, &total, &opts)
 }
 
+// GET /api/v1/users/me/organizations/permissions
+func (h *UserHandler) GetMyPrimaryOrgPermissions(c *fiber.Ctx) error {
+	userID := getCallerID(c)
+
+	perms, err := h.svc.GetMyPrimaryOrgPermissions(c.Context(), userID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch permissions", err.Error())
+	}
+	if perms == nil {
+		return ResError(c, fiber.StatusNotFound, "no primary organization found", "record not found")
+	}
+
+	return ResOk(c, fiber.StatusOK, perms, nil, nil)
+}
+
 // PUT /api/v1/users/me
 func (h *UserHandler) UpdateMe(c *fiber.Ctx) error {
 	userID := getCallerID(c)

@@ -31,11 +31,6 @@ type OauthUser struct {
 	Avatar      *string `json:"avatar,omitempty"`
 }
 
-type LoginResult struct {
-	Token         string                       `json:"token"`
-	Organizations []UserOrganizationWithDetail `json:"organizations"`
-}
-
 type GoogleUserInfo struct {
 	ProviderID  string
 	Email       string

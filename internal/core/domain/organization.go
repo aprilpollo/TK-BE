@@ -56,8 +56,14 @@ type OrganizationMemberPagePermission struct {
 
 type UserOrganizationWithDetail struct {
 	UserOrganization
-	RoleName        string                      `json:"role_name"`
+	RoleName        string                             `json:"role_name"`
 	PagePermissions []OrganizationMemberPagePermission `json:"page_permissions,omitempty"`
+}
+
+type PrimaryOrgPermissions struct {
+	OrganizationID int64                              `json:"organization_id"`
+	RoleName       string                             `json:"role_name"`
+	PagePermissions []OrganizationMemberPagePermission `json:"page_permissions"`
 }
 
 type CreateOrganizationReq struct {

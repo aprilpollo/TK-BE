@@ -12,4 +12,5 @@ type UserService interface {
 	GetByID(ctx context.Context, id int64) (*domain.User, error)
 	Update(ctx context.Context, id int64, req *domain.UpdateUserReq) (*domain.User, error)
 	ListMyOrganizations(ctx context.Context, userID int64, opts query.QueryOptions) ([]domain.UserOrganization, int64, error)
+	GetMyPrimaryOrgPermissions(ctx context.Context, userID int64) (*domain.PrimaryOrgPermissions, error)
 }

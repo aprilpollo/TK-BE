@@ -31,6 +31,10 @@ func (s *userService) ListMyOrganizations(ctx context.Context, userID int64, opt
 	return s.orgRepo.FindByUserID(ctx, userID, opts)
 }
 
+func (s *userService) GetMyPrimaryOrgPermissions(ctx context.Context, userID int64) (*domain.PrimaryOrgPermissions, error) {
+	return s.orgRepo.FindPrimaryOrgWithDetails(ctx, userID)
+}
+
 func (s *userService) Update(ctx context.Context, id int64, req *domain.UpdateUserReq) (*domain.User, error) {
 	user, err := s.repo.FindByID(ctx, id)
 	if err != nil {

@@ -6,25 +6,22 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-
-
-func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fiber.Handler) {
-	api := app.Group("/api/v1")
-
-	users := api.Group("/users", jwtMiddleware)
-	users.Get("/", h.Gets)
-	users.Get("/me", h.GetMe)
-	users.Get("/me/organizations", h.GetMyOrganizations)
-	users.Get("/:id", h.GetByID)
-	users.Put("/me", h.UpdateMe)
-}
-
 func RegisterOauthRoutes(app *fiber.App, h *handler.OauthHandler) {
 	api := app.Group("/api/v1")
 
 	oauth := api.Group("/auth")
 	oauth.Post("/basiclogin", h.BasicLogin)
 	oauth.Post("/sociallogin", h.SocialLogin)
+}
+
+func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fiber.Handler) {
+	api := app.Group("/api/v1")
+
+	users := api.Group("/users", jwtMiddleware)
+	users.Get("/me", h.GetMe)
+	users.Get("/me/organizations", h.GetMyOrganizations)
+	users.Get("/me/organizations/permissions", h.GetMyPrimaryOrgPermissions)
+	users.Put("/me", h.UpdateMe)
 }
 
 func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, jwtMiddleware fiber.Handler) {

@@ -58,7 +58,7 @@ func main() {
 	// --- Services (core / use cases) ---
 	bookSvc := services.NewBookService(bookRepo)
 	googleVerifier := googleAdapter.NewGoogleVerifier(cfg.Oauth.GoogleProvider.ClientID)
-	oauthSvc := services.NewOauthService(oauthRepo, orgRepo, googleVerifier, utils.JWTConfig{
+	oauthSvc := services.NewOauthService(oauthRepo, googleVerifier, utils.JWTConfig{
 		SecretKey:  cfg.JWT.SecretKey,
 		Issuer:     cfg.JWT.Issuer,
 		Subject:    cfg.JWT.Subject,

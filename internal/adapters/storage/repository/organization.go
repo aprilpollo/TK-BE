@@ -183,6 +183,46 @@ func (r *organizationRepository) FindByUserIDWithPrimaryDetails(ctx context.Cont
 	return result, nil
 }
 
+func (r *organizationRepository) FindPrimaryOrgWithDetails(ctx context.Context, userID int64) (*domain.PrimaryOrgPermissions, error) {
+	var row models.OrganizationMemberModel
+
+	err := r.db.WithContext(ctx).
+		Where("user_id = ? AND is_primary = ?", userID, true).
+		Preload("Organization").
+		Preload("Role").
+		First(&row).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var perms []models.OrganizationMemberPagePermissionModel
+	if err := r.db.WithContext(ctx).
+		Where("role_id = ?", row.RoleID).
+		Find(&perms).Error; err != nil {
+		return nil, err
+	}
+
+	pagePermissions := make([]domain.OrganizationMemberPagePermission, len(perms))
+	for i, p := range perms {
+		pagePermissions[i] = *p.ToDomain()
+	}
+
+	result := &domain.PrimaryOrgPermissions{
+		PagePermissions: pagePermissions,
+	}
+	if row.Organization != nil {
+		result.OrganizationID = row.Organization.ID
+	}
+	if row.Role != nil {
+		result.RoleName = row.Role.Name
+	}
+
+	return result, nil
+}
+
 func (r *organizationRepository) FindMembers(ctx context.Context, orgID int64, opts query.QueryOptions) ([]domain.OrganizationMember, int64, error) {
 	var rows []models.OrganizationMemberModel
 	var total int64

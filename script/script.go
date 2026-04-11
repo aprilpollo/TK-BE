@@ -7,13 +7,13 @@ import (
 	"aprilpollo/internal/utils"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
-	"strconv"
-    "time"
-	"regexp"
-	"os"
-	"log"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"log"
+	"os"
+	"regexp"
+	"strconv"
+	"time"
 )
 
 // parseErrorMessage extracts the essential error information
@@ -60,7 +60,7 @@ func appendResultRow(mTable table.Writer, name string, err error, failCount *int
 	}
 }
 
-func main(){
+func main() {
 	cfg, err := config.GetConfig()
 	if err != nil {
 		log.Fatal(err)
@@ -248,25 +248,32 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 	}
 
 	// Insert Default Organizations
+	var logo1URL = "https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png"
+	var logo2URL = "https://elysiajs.com/assets/elysia.svg"
+	var logo3URL = "https://avatars.githubusercontent.com/u/158476440?v=4"
+	
 	defaultOrganizations := []models.OrganizationModel{
 		{
-			Name:         "Default Organization 01",
+			Name:         "Organization 01",
 			Description:  "Default Organization",
 			Slug:         "default-organization-01",
+			LogoURL:      &logo1URL,
 			IsActive:     true,
 			ContactEmail: "phonsing@gmail.com",
 		},
 		{
-			Name:         "Default Organization 02",
+			Name:         "Organization 02",
 			Description:  "Default Organization",
 			Slug:         "default-organization-02",
+			LogoURL:      &logo2URL,
 			IsActive:     true,
 			ContactEmail: "phonsing@gmail.com",
 		},
 		{
-			Name:         "Default Organization 03",
+			Name:         "Organization 03",
 			Description:  "Default Organization",
 			Slug:         "default-organization-03",
+			LogoURL:      &logo3URL,
 			IsActive:     true,
 			ContactEmail: "phonsing@gmail.com",
 		},

@@ -22,6 +22,7 @@ func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fi
 	users.Get("/me/organizations", h.GetMyOrganizations)
 	users.Get("/me/organizations/permissions", h.GetMyPrimaryOrgPermissions)
 	users.Put("/me", h.UpdateMe)
+	users.Put("/me/organizations/primary/:id", h.UpdatePrimaryOrganization)
 }
 
 func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, jwtMiddleware fiber.Handler) {
@@ -38,15 +39,4 @@ func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, 
 	orgs.Post("/:id/members", h.InviteMember)
 	orgs.Put("/:id/members/:memberID", h.UpdateMember)
 	orgs.Delete("/:id/members/:memberID", h.RemoveMember)
-}
-
-func RegisterBookRoutes(app *fiber.App, h *handler.BookHandler, jwtMiddleware fiber.Handler) {
-	api := app.Group("/api/v1")
-
-	books := api.Group("/books", jwtMiddleware)
-	books.Get("/", h.Gets)
-	books.Get("/:id", h.GetByID)
-	books.Post("/", h.Create)
-	books.Put("/:id", h.Update)
-	books.Delete("/:id", h.Delete)
 }

@@ -2,7 +2,6 @@ package handler
 
 import (
 	"strconv"
-
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
@@ -12,10 +11,11 @@ import (
 
 type UserHandler struct {
 	svc input.UserService
+	svcOrg input.OrganizationService
 }
 
-func NewUserHandler(svc input.UserService) *UserHandler {
-	return &UserHandler{svc: svc}
+func NewUserHandler(svc input.UserService, svcOrg input.OrganizationService) *UserHandler {
+	return &UserHandler{svc: svc, svcOrg: svcOrg}
 }
 
 // GET /api/v1/users
@@ -113,4 +113,19 @@ func (h *UserHandler) UpdateMe(c *fiber.Ctx) error {
 	}
 
 	return ResOk(c, fiber.StatusOK, user, nil, nil)
+}
+
+func (h *UserHandler) UpdatePrimaryOrganization(c *fiber.Ctx) error {
+	userID := getCallerID(c)
+	orgID, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid organization id", err.Error())
+	}
+
+	err = h.svcOrg.UpdatePrimary(c.Context(), orgID, userID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to update primary organization", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }

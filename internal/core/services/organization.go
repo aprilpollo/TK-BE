@@ -103,6 +103,10 @@ func (s *organizationService) UpdateMember(ctx context.Context, orgID int64, mem
 	return &members[0], nil
 }
 
+func (s *organizationService) UpdatePrimary(ctx context.Context, orgID int64, memberID int64) error {
+	return s.repo.UpdatePrimary(ctx, orgID, memberID)
+}
+
 func (s *organizationService) RemoveMember(ctx context.Context, orgID int64, memberID int64) error {
 	return s.repo.DeleteMember(ctx, orgID, memberID)
 }

@@ -270,6 +270,21 @@ func (r *organizationRepository) UpdateMember(ctx context.Context, orgID int64, 
 		Updates(utils.StructToMap(req)).Error
 }
 
+func (r *organizationRepository) UpdatePrimary(ctx context.Context, orgID int64, memberID int64) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		// set all other members' is_primary to false
+		if err := tx.Model(&models.OrganizationMemberModel{}).
+			Where("user_id = ?", memberID).
+			Update("is_primary", false).Error; err != nil {
+			return err
+		}
+		// set the specified member's is_primary to true
+		return tx.Model(&models.OrganizationMemberModel{}).
+			Where("user_id = ? AND organization_id = ?", memberID, orgID).
+			Update("is_primary", true).Error
+	})
+}
+
 func (r *organizationRepository) DeleteMember(ctx context.Context, orgID int64, memberID int64) error {
 	return r.db.WithContext(ctx).
 		Where("id = ? AND organization_id = ?", memberID, orgID).

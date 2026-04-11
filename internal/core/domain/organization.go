@@ -61,8 +61,8 @@ type UserOrganizationWithDetail struct {
 }
 
 type PrimaryOrgPermissions struct {
-	OrganizationID int64                              `json:"organization_id"`
-	RoleName       string                             `json:"role_name"`
+	OrganizationID  int64                              `json:"organization_id"`
+	RoleName        string                             `json:"role_name"`
 	PagePermissions []OrganizationMemberPagePermission `json:"page_permissions"`
 }
 
@@ -88,6 +88,7 @@ type InviteMemberReq struct {
 }
 
 type UpdateMemberReq struct {
-	RoleID   int64 `json:"role_id"`
-	StatusID int64 `json:"status_id"`
+	RoleID    int64 `json:"role_id"`
+	StatusID  int64 `json:"status_id"`
+	IsPrimary bool  `json:"is_primary"`
 }

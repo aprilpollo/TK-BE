@@ -20,5 +20,6 @@ type OrganizationRepository interface {
 	FindMembers(ctx context.Context, orgID int64, opts query.QueryOptions) ([]domain.OrganizationMember, int64, error)
 	CreateMember(ctx context.Context, member *domain.OrganizationMember) error
 	UpdateMember(ctx context.Context, orgID int64, memberID int64, req *domain.UpdateMemberReq) error
+	UpdatePrimary(ctx context.Context, orgID int64, memberID int64) error
 	DeleteMember(ctx context.Context, orgID int64, memberID int64) error
 }

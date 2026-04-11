@@ -50,13 +50,11 @@ func main() {
 	fmt.Println("✔ [INFO] Redis Connection")
 
 	// --- Repositories (output adapters) ---
-	bookRepo := repository.NewBookRepository(db.GetDB())
 	oauthRepo := repository.NewOauthRepository(db.GetDB())
 	orgRepo := repository.NewOrganizationRepository(db.GetDB())
 	userRepo := repository.NewUserRepository(db.GetDB())
 
 	// --- Services (core / use cases) ---
-	bookSvc := services.NewBookService(bookRepo)
 	googleVerifier := googleAdapter.NewGoogleVerifier(cfg.Oauth.GoogleProvider.ClientID)
 	oauthSvc := services.NewOauthService(oauthRepo, googleVerifier, utils.JWTConfig{
 		SecretKey:  cfg.JWT.SecretKey,
@@ -72,10 +70,9 @@ func main() {
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)
 
 	// --- Handlers (input adapters) ---
-	bookHandler := handler.NewBookHandler(bookSvc)
 	oauthHandler := handler.NewOauthHandler(oauthSvc)
 	orgHandler := handler.NewOrganizationHandler(orgSvc)
-	userHandler := handler.NewUserHandler(userSvc)
+	userHandler := handler.NewUserHandler(userSvc, orgSvc)
 
 	// --- Fiber app ---
 	app := fiber.New(fiber.Config{
@@ -119,7 +116,6 @@ func main() {
 	routes.RegisterOauthRoutes(app, oauthHandler)
 	routes.RegisterUserRoutes(app, userHandler, jwtMiddleware)
 	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware)
-	routes.RegisterBookRoutes(app, bookHandler, jwtMiddleware)
 
 	if err := app.Listen(fmt.Sprintf(":%s", cfg.App.ApiPort)); err != nil {
 		log.Println(err)

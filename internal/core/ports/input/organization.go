@@ -17,5 +17,6 @@ type OrganizationService interface {
 	ListMembers(ctx context.Context, orgID int64, opts query.QueryOptions) ([]domain.OrganizationMember, int64, error)
 	InviteMember(ctx context.Context, orgID int64, req *domain.InviteMemberReq, invitedBy int64) (*domain.OrganizationMember, error)
 	UpdateMember(ctx context.Context, orgID int64, memberID int64, req *domain.UpdateMemberReq) (*domain.OrganizationMember, error)
+	UpdatePrimary(ctx context.Context, orgID int64, memberID int64) error
 	RemoveMember(ctx context.Context, orgID int64, memberID int64) error
 }

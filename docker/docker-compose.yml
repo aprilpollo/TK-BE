@@ -14,6 +14,8 @@ services:
         required: false
     networks:
       - aprilpollo-network
+    extra_hosts:
+      - "localhost:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy

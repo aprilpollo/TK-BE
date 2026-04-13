@@ -7,6 +7,7 @@ import (
 	"aprilpollo/internal/adapters/routes"
 	"aprilpollo/internal/adapters/routes/handler"
 	"aprilpollo/internal/adapters/storage/cache"
+	minioAdapter "aprilpollo/internal/adapters/storage/minio"
 	"aprilpollo/internal/adapters/storage/orm"
 	"aprilpollo/internal/adapters/storage/repository"
 	"aprilpollo/internal/core/services"
@@ -48,6 +49,14 @@ func main() {
 	defer redis.Close()
 
 	fmt.Println("✔ [INFO] Redis Connection")
+
+	minioClient, err := minioAdapter.NewMinIOClient(cfg.Minios3)
+	if err != nil {
+		log.Fatal(err)
+	}
+	_ = minioClient
+
+	fmt.Println("✔ [INFO] MinIO Connection")
 
 	// --- Repositories (output adapters) ---
 	oauthRepo := repository.NewOauthRepository(db.GetDB())

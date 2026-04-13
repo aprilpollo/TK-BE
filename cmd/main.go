@@ -54,7 +54,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_ = minioClient
 
 	fmt.Println("✔ [INFO] MinIO Connection")
 
@@ -73,7 +72,7 @@ func main() {
 	})
 
 	orgSvc := services.NewOrganizationService(orgRepo)
-	userSvc := services.NewUserService(userRepo, orgRepo)
+	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
 
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)

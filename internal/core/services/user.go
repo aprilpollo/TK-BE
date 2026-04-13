@@ -8,15 +8,17 @@ import (
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
+	"aprilpollo/internal/utils"
 )
 
 type userService struct {
 	repo    output.UserRepository
 	orgRepo output.OrganizationRepository
+	minio   output.FileStorage
 }
 
-func NewUserService(repo output.UserRepository, orgRepo output.OrganizationRepository) input.UserService {
-	return &userService{repo: repo, orgRepo: orgRepo}
+func NewUserService(repo output.UserRepository, orgRepo output.OrganizationRepository, minio output.FileStorage) input.UserService {
+	return &userService{repo: repo, orgRepo: orgRepo, minio: minio}
 }
 
 func (s *userService) List(ctx context.Context, opts query.QueryOptions) ([]domain.User, int64, error) {
@@ -49,4 +51,26 @@ func (s *userService) Update(ctx context.Context, id int64, req *domain.UpdateUs
 	}
 
 	return s.repo.FindByID(ctx, id)
+}
+
+func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *domain.AvatarUploadReq) error {
+	if file.ContentType != "image/webp" {
+		var err error
+		file.File, _, err = utils.ConvertToWebP(file.File, 80)
+		if err != nil {
+			return err
+		}
+	}
+	url, err := s.minio.UploadFile(ctx, "avatars", file.File, file.Size, file.ContentType)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.Update(ctx, userID, &domain.UpdateUserReq{
+		Avatar: &url,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

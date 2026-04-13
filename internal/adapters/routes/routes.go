@@ -21,6 +21,7 @@ func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fi
 	users.Get("/me", h.GetMe)
 	users.Get("/me/organizations", h.GetMyOrganizations)
 	users.Get("/me/organizations/permissions", h.GetMyPrimaryOrgPermissions)
+	users.Post("/me/avatar", h.UpdateAvatar)
 	users.Put("/me", h.UpdateMe)
 	users.Put("/me/organizations/primary/:id", h.UpdatePrimaryOrganization)
 }

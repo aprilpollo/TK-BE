@@ -1,16 +1,16 @@
 package handler
 
 import (
-	"strconv"
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 type UserHandler struct {
-	svc input.UserService
+	svc    input.UserService
 	svcOrg input.OrganizationService
 }
 
@@ -125,6 +125,44 @@ func (h *UserHandler) UpdatePrimaryOrganization(c *fiber.Ctx) error {
 	err = h.svcOrg.UpdatePrimary(c.Context(), orgID, userID)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to update primary organization", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}
+
+func (h *UserHandler) UpdateAvatar(c *fiber.Ctx) error {
+	userID := getCallerID(c)
+
+	fileHeader, err := c.FormFile("avatar")
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "avatar file is required", err.Error())
+	}
+
+	const maxSize = 2 << 20 // 2MB
+	if fileHeader.Size > maxSize {
+		return ResError(c, fiber.StatusBadRequest, "file too large", "maximum allowed size is 2MB")
+	}
+
+	contentType := fileHeader.Header.Get("Content-Type")
+	if contentType != "image/jpeg" && contentType != "image/png" {
+		return ResError(c, fiber.StatusBadRequest, "invalid file type", "only jpg and png are allowed")
+	}
+
+	file, err := fileHeader.Open()
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to open file", err.Error())
+	}
+	defer file.Close()
+
+	req := &domain.AvatarUploadReq{
+		File:        file,
+		Size:        fileHeader.Size,
+		ContentType: contentType,
+		Filename:    fileHeader.Filename,
+	}
+
+	if err := h.svc.UpdateAvatar(c.Context(), userID, req); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to update avatar", err.Error())
 	}
 
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)

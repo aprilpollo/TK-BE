@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"io"
+	"time"
+)
 
 type User struct {
 	ID          int64     `json:"id"`
@@ -22,4 +25,11 @@ type UpdateUserReq struct {
 	DisplayName string  `json:"display_name"`
 	Bio         *string `json:"bio"`
 	Avatar      *string `json:"avatar"`
+}
+
+type AvatarUploadReq struct {
+	File        io.Reader
+	Size        int64
+	ContentType string
+	Filename    string
 }

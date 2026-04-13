@@ -67,6 +67,7 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *doma
 
 	// remove old avatar if exists
 	if user.Avatar != nil && *user.Avatar != "" {
+		fmt.Printf("Deleting old avatar: %s\n", *user.Avatar)
 		s.minio.DeleteFile(ctx, *user.Avatar)
 	}
 

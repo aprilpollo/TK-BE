@@ -3,12 +3,14 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
 	"aprilpollo/internal/utils"
+	"github.com/google/uuid"
 )
 
 type userService struct {
@@ -62,7 +64,8 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *doma
 		}
 		file.ContentType = "image/webp"
 	}
-	url, err := s.minio.UploadFile(ctx, "avatars", file.File, file.Size, file.ContentType)
+	objectName := fmt.Sprintf("avatars/%d/%s.webp", userID, uuid.New().String())
+	url, err := s.minio.UploadFile(ctx, objectName, file.File, file.Size, file.ContentType)
 	if err != nil {
 		return err
 	}

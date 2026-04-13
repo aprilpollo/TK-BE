@@ -56,10 +56,11 @@ func (s *userService) Update(ctx context.Context, id int64, req *domain.UpdateUs
 func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *domain.AvatarUploadReq) error {
 	if file.ContentType != "image/webp" {
 		var err error
-		file.File, _, err = utils.ConvertToWebP(file.File, 80)
+		file.File, file.Size, err = utils.ConvertToWebP(file.File, 80)
 		if err != nil {
 			return err
 		}
+		file.ContentType = "image/webp"
 	}
 	url, err := s.minio.UploadFile(ctx, "avatars", file.File, file.Size, file.ContentType)
 	if err != nil {

@@ -68,7 +68,10 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *doma
 	// remove old avatar if exists
 	if user.Avatar != nil && *user.Avatar != "" {
 		fmt.Printf("Deleting old avatar: %s\n", *user.Avatar)
-		s.minio.DeleteFile(ctx, *user.Avatar)
+		if err := s.minio.DeleteFile(ctx, *user.Avatar); err != nil {
+			fmt.Printf("Failed to delete old avatar: %v\n", err)
+		}
+
 	}
 
 	if file.ContentType != "image/webp" {

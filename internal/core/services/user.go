@@ -10,6 +10,7 @@ import (
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
 	"aprilpollo/internal/utils"
+
 	"github.com/google/uuid"
 )
 
@@ -56,15 +57,29 @@ func (s *userService) Update(ctx context.Context, id int64, req *domain.UpdateUs
 }
 
 func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *domain.AvatarUploadReq) error {
+	user, err := s.repo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return errors.New("user not found")
+	}
+
+	// remove old avatar if exists
+	if user.Avatar != nil && *user.Avatar != "" {
+		s.minio.DeleteFile(ctx, *user.Avatar)
+	}
+
 	if file.ContentType != "image/webp" {
-		var err error
 		file.File, file.Size, err = utils.ConvertToWebP(file.File, 80)
 		if err != nil {
 			return err
 		}
 		file.ContentType = "image/webp"
 	}
+
 	objectName := fmt.Sprintf("avatars/%d/%s.webp", userID, uuid.New().String())
+
 	url, err := s.minio.UploadFile(ctx, objectName, file.File, file.Size, file.ContentType)
 	if err != nil {
 		return err

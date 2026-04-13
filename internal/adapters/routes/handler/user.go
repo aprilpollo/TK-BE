@@ -152,6 +152,7 @@ func (h *UserHandler) UpdateAvatar(c *fiber.Ctx) error {
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to open file", err.Error())
 	}
+	
 	defer file.Close()
 
 	req := &domain.AvatarUploadReq{

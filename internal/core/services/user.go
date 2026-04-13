@@ -65,13 +65,12 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID int64, file *doma
 		return errors.New("user not found")
 	}
 
-	// remove old avatar if exists
 	if user.Avatar != nil && *user.Avatar != "" {
-		fmt.Printf("Deleting old avatar: %s\n", *user.Avatar)
-		if err := s.minio.DeleteFile(ctx, *user.Avatar); err != nil {
-			fmt.Printf("Failed to delete old avatar: %v\n", err)
+		if objectName, err := utils.ExtractObjectName(*user.Avatar); err == nil {
+			if err := s.minio.DeleteFile(ctx, objectName); err != nil {
+				fmt.Printf("Failed to delete old avatar: %v\n", err)
+			}
 		}
-
 	}
 
 	if file.ContentType != "image/webp" {

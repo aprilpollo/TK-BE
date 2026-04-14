@@ -34,6 +34,15 @@ func (h *ProjectHandler) Gets(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, projects, &total, &opts)
 }
 
+func (h *ProjectHandler) GetStatuses(c *fiber.Ctx) error {
+	statuses, err := h.svc.ListStatuses(c.Context())
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch project statuses", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, statuses, nil, nil)
+}
+
 func (h *ProjectHandler) GetByID(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {

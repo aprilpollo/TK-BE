@@ -47,6 +47,7 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 
 	projects := api.Group("/projects", jwtMiddleware, orgMiddleware)
 	projects.Get("/", h.Gets)
+	projects.Get("/statuses", h.GetStatuses)
 	projects.Get("/:id", h.GetByID)
 	projects.Post("/", h.Create)
 	projects.Put("/:id", h.Update)

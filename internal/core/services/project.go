@@ -21,6 +21,10 @@ func (s *projectService) List(ctx context.Context, opts query.QueryOptions, orgI
 	return s.repo.FindAll(ctx, opts, orgId)
 }
 
+func (s *projectService) ListStatuses(ctx context.Context) ([]domain.ProjectStatus, error) {
+	return s.repo.FindStatuses(ctx)
+}
+
 func (s *projectService) GetByID(ctx context.Context, id int64, orgId int64) (*domain.Project, error) {
 	return s.repo.FindByID(ctx, id, orgId)
 }

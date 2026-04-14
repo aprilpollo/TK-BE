@@ -44,6 +44,20 @@ func (r *projectRepository) FindAll(ctx context.Context, opts query.QueryOptions
 	return projects, total, nil
 }
 
+func (r *projectRepository) FindStatuses(ctx context.Context) ([]domain.ProjectStatus, error) {
+	var rows []models.ProjectStatusModel
+	if err := r.db.WithContext(ctx).Find(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	statuses := make([]domain.ProjectStatus, len(rows))
+	for i, row := range rows {
+		statuses[i] = *row.ToDomain()
+	}
+
+	return statuses, nil
+}
+
 func (r *projectRepository) FindByID(ctx context.Context, id int64, orgId int64) (*domain.Project, error) {
 	var row models.ProjectModel
 	if err := r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", id, orgId).First(&row).Error; err != nil {

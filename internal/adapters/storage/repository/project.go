@@ -32,7 +32,7 @@ func (r *projectRepository) FindAll(ctx context.Context, opts query.QueryOptions
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(r.db.WithContext(ctx).Model(&models.ProjectModel{}), opts).Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(r.db.WithContext(ctx).Model(&models.ProjectModel{}), opts).Preload("Status").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

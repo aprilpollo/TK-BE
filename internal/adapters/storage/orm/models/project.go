@@ -3,16 +3,19 @@ package models
 import (
 	"time"
 
+	"aprilpollo/internal/core/domain"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type ProjectModel struct {
-	ID             int64    `gorm:"primaryKey"`
-	OrganizationID int64   `gorm:"not null;index"`
-	Name           string  `gorm:"not null;size:255"`
-	Key            string  `gorm:"not null;uniqueIndex;size:255"` // e.g., "PROJ", "WEB" for ticket prefixes
-	Description    string  `gorm:"type:text"`
-	LogoURL        *string `gorm:"type:text"`
+	ID             int64     `gorm:"primaryKey"`
+	OrganizationID int64     `gorm:"not null;index"`
+	Name           string    `gorm:"not null;size:255"`
+	Key            uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
+	Description    string    `gorm:"type:text"`
+	LogoURL        *string   `gorm:"type:text"`
 	DueDate        *time.Time
 	StatusID       int64 `gorm:"not null;index;default:1"`
 
@@ -37,4 +40,28 @@ func (ProjectModel) TableName() string {
 
 func (ProjectStatusModel) TableName() string {
 	return "project_statuses"
+}
+
+func (m *ProjectModel) ToDomain() *domain.Project {
+	status := domain.ProjectStatus{ID: m.StatusID}
+	if m.Status != nil {
+		status = domain.ProjectStatus{
+			ID:          m.Status.ID,
+			Name:        m.Status.Name,
+			Description: m.Status.Description,
+		}
+	}
+
+	return &domain.Project{
+		ID:             m.ID,
+		OrganizationID: m.OrganizationID,
+		Name:           m.Name,
+		Key:            m.Key,
+		Description:    m.Description,
+		LogoURL:        m.LogoURL,
+		DueDate:        m.DueDate,
+		Status:         status,
+		CreatedAt:      m.CreatedAt,
+		UpdatedAt:      m.UpdatedAt,
+	}
 }

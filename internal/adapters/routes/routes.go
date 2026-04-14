@@ -41,3 +41,14 @@ func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, 
 	orgs.Put("/:id/members/:memberID", h.UpdateMember)
 	orgs.Delete("/:id/members/:memberID", h.RemoveMember)
 }
+
+func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
+	api := app.Group("/api/v1")
+
+	projects := api.Group("/projects", jwtMiddleware, orgMiddleware)
+	projects.Get("/", h.Gets)
+	projects.Get("/:id", h.GetByID)
+	projects.Post("/", h.Create)
+	projects.Put("/:id", h.Update)
+	projects.Delete("/:id", h.Delete)
+}

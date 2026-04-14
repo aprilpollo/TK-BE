@@ -13,6 +13,11 @@ func getCallerID(c *fiber.Ctx) int64 {
 	return id
 }
 
+func getCallerOrgID(c *fiber.Ctx) int64 {
+	orgID, _ := c.Locals(middleware.LocalsOrgID).(int64)
+	return orgID
+}
+
 func ResOk(ctx *fiber.Ctx, status int, payload any, total *int64, opts *query.QueryOptions) error {
 	if total != nil && opts != nil {
 		page := uint(1)

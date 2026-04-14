@@ -11,6 +11,7 @@ import (
 const (
 	LocalsUserID = "user_id"
 	LocalsEmail  = "email"
+	LocalsOrgID  = "organization_id"
 )
 
 func JWTProtected(secretKey string) fiber.Handler {
@@ -45,8 +46,8 @@ func JWTProtected(secretKey string) fiber.Handler {
 
 func OrganizationProtected() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		org_uuid := c.Get("Organization")
-		if org_uuid == "" || !utils.IsValidUUID(org_uuid) {
+		org_id := c.Get("Organization-ID")
+		if org_id == "" || !utils.IsValidInt64(org_id) {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"code":    fiber.StatusUnauthorized,
 				"message": "unauthorized",
@@ -54,6 +55,7 @@ func OrganizationProtected() fiber.Handler {
 				"payload": nil,
 			})
 		}
+		c.Locals(LocalsOrgID, org_id)
 		return c.Next()
 	}
 }

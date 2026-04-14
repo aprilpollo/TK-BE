@@ -61,6 +61,7 @@ func main() {
 	oauthRepo := repository.NewOauthRepository(db.GetDB())
 	orgRepo := repository.NewOrganizationRepository(db.GetDB())
 	userRepo := repository.NewUserRepository(db.GetDB())
+	projectRepo := repository.NewProjectRepository(db.GetDB())
 
 	// --- Services (core / use cases) ---
 	googleVerifier := googleAdapter.NewGoogleVerifier(cfg.Oauth.GoogleProvider.ClientID)
@@ -73,14 +74,17 @@ func main() {
 
 	orgSvc := services.NewOrganizationService(orgRepo)
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
+	projectSvc := services.NewProjectService(projectRepo)
 
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)
+	orgMiddleware := middleware.OrganizationProtected()
 
 	// --- Handlers (input adapters) ---
 	oauthHandler := handler.NewOauthHandler(oauthSvc)
 	orgHandler := handler.NewOrganizationHandler(orgSvc)
 	userHandler := handler.NewUserHandler(userSvc, orgSvc)
+	projectHandler := handler.NewProjectHandler(projectSvc)
 
 	// --- Fiber app ---
 	app := fiber.New(fiber.Config{
@@ -124,7 +128,7 @@ func main() {
 	routes.RegisterOauthRoutes(app, oauthHandler)
 	routes.RegisterUserRoutes(app, userHandler, jwtMiddleware)
 	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware)
-
+	routes.RegisterProjectRoutes(app, projectHandler, jwtMiddleware, orgMiddleware)
 	if err := app.Listen(fmt.Sprintf(":%s", cfg.App.ApiPort)); err != nil {
 		log.Println(err)
 	}

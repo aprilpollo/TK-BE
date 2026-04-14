@@ -4,17 +4,19 @@ import (
 	"time"
 
 	"aprilpollo/internal/core/domain"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type OrganizationModel struct {
-	ID           int64   `gorm:"primaryKey"`
-	Name         string  `gorm:"not null;size:255"`
-	Slug         string  `gorm:"not null;uniqueIndex;size:100"`
-	Description  string  `gorm:"type:text"`
-	LogoURL      *string `gorm:"type:text"`
-	ContactEmail string  `gorm:"size:255"`
-	IsActive     bool    `gorm:"default:true;index"`
+	ID           int64     `gorm:"primaryKey"`
+	Name         string    `gorm:"not null;size:255"`
+	Slug         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
+	Description  string    `gorm:"type:text"`
+	LogoURL      *string   `gorm:"type:text"`
+	ContactEmail string    `gorm:"size:255"`
+	IsActive     bool      `gorm:"default:true;index"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`

@@ -1,11 +1,15 @@
 package domain
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Organization struct {
 	ID           int64     `json:"id"`
 	Name         string    `json:"name"`
-	Slug         string    `json:"slug"`
+	Slug         uuid.UUID    `json:"slug"`
 	Description  string    `json:"description"`
 	LogoURL      *string   `json:"logo_url"`
 	ContactEmail string    `json:"contact_email"`
@@ -68,7 +72,6 @@ type PrimaryOrgPermissions struct {
 
 type CreateOrganizationReq struct {
 	Name         string  `json:"name"`
-	Slug         string  `json:"slug"`
 	Description  string  `json:"description"`
 	LogoURL      *string `json:"logo_url"`
 	ContactEmail string  `json:"contact_email"`

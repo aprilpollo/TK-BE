@@ -256,7 +256,6 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 		{
 			Name:         "Organization 01",
 			Description:  "Default Organization",
-			Slug:         "default-organization-01",
 			LogoURL:      &logo1URL,
 			IsActive:     true,
 			ContactEmail: "phonsing@gmail.com",
@@ -264,7 +263,6 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 		{
 			Name:         "Organization 02",
 			Description:  "Default Organization",
-			Slug:         "default-organization-02",
 			LogoURL:      &logo2URL,
 			IsActive:     true,
 			ContactEmail: "phonsing@gmail.com",
@@ -272,7 +270,6 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 		{
 			Name:         "Organization 03",
 			Description:  "Default Organization",
-			Slug:         "default-organization-03",
 			LogoURL:      &logo3URL,
 			IsActive:     true,
 			ContactEmail: "phonsing@gmail.com",
@@ -282,7 +279,7 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 	now := time.Now()
 	for index, org := range defaultOrganizations {
 		if err := db.Create(&org).Error; err != nil {
-			appendResultRow(mTable, "ORGANIZATION: "+org.Slug, err, failCount, successCount)
+			appendResultRow(mTable, "ORGANIZATION: "+org.Name, err, failCount, successCount)
 			if !isDuplicateError(err) {
 				continue
 			}
@@ -291,7 +288,7 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 				continue
 			}
 		} else {
-			appendResultRow(mTable, "ORGANIZATION: "+org.Slug, nil, failCount, successCount)
+			appendResultRow(mTable, "ORGANIZATION: "+org.Name, nil, failCount, successCount)
 		}
 
 		isPrimary := index == 0
@@ -308,9 +305,9 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 		}
 
 		if err := db.Create(&defaultOrganizationMember).Error; err != nil {
-			appendResultRow(mTable, "ORG MEMBER: "+org.Slug, err, failCount, successCount)
+			appendResultRow(mTable, "ORG MEMBER: "+org.Name, err, failCount, successCount)
 		} else {
-			appendResultRow(mTable, "ORG MEMBER: "+org.Slug, nil, failCount, successCount)
+			appendResultRow(mTable, "ORG MEMBER: "+org.Name, nil, failCount, successCount)
 		}
 	}
 }

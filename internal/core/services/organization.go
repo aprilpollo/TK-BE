@@ -29,7 +29,6 @@ func (s *organizationService) GetByID(ctx context.Context, id int64) (*domain.Or
 func (s *organizationService) Create(ctx context.Context, req *domain.CreateOrganizationReq, ownerUserID int64) (*domain.Organization, error) {
 	org := &domain.Organization{
 		Name:         req.Name,
-		Slug:         req.Slug,
 		Description:  req.Description,
 		LogoURL:      req.LogoURL,
 		ContactEmail: req.ContactEmail,

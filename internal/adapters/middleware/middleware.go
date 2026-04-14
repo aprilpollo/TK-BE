@@ -42,3 +42,18 @@ func JWTProtected(secretKey string) fiber.Handler {
 		return c.Next()
 	}
 }
+
+func OrganizationProtected() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		org_uuid := c.Get("Organization")
+		if org_uuid == "" || !utils.IsValidUUID(org_uuid) {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"code":    fiber.StatusUnauthorized,
+				"message": "unauthorized",
+				"error":   "missing organization header",
+				"payload": nil,
+			})
+		}
+		return c.Next()
+	}
+}

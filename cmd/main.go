@@ -94,7 +94,7 @@ func main() {
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     cfg.App.AllowedCredentialOrigins,
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,X-Organization-ID",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,Organization-ID",
 		AllowCredentials: false,
 	}))
 

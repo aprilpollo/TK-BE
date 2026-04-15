@@ -7,6 +7,7 @@ import (
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
+	"github.com/google/uuid"
 )
 
 type projectService struct {
@@ -27,6 +28,10 @@ func (s *projectService) ListStatuses(ctx context.Context) ([]domain.ProjectStat
 
 func (s *projectService) GetByID(ctx context.Context, id int64, orgId int64) (*domain.Project, error) {
 	return s.repo.FindByID(ctx, id, orgId)
+}
+
+func (s *projectService) GetByKey(ctx context.Context, key uuid.UUID, orgId int64) (*domain.Project, error) {
+	return s.repo.FindByKey(ctx, key, orgId)
 }
 
 func (s *projectService) Create(ctx context.Context, req *domain.CreateProjectReq) (*domain.Project, error) {

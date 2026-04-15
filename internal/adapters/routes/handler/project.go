@@ -6,6 +6,7 @@ import (
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
+	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -51,6 +52,26 @@ func (h *ProjectHandler) GetByID(c *fiber.Ctx) error {
 	orgId := getCallerOrgID(c)
 
 	project, err := h.svc.GetByID(c.Context(), id, orgId)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch project", err.Error())
+	}
+
+	if project == nil {
+		return ResError(c, fiber.StatusNotFound, "project not found", "record not found")
+	}
+
+	return ResOk(c, fiber.StatusOK, project, nil, nil)
+
+}
+
+func (h *ProjectHandler) GetByKey(c *fiber.Ctx) error {
+	key, err := uuid.Parse(c.Params("key"))
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid key", err.Error())
+	}
+	orgId := getCallerOrgID(c)
+
+	project, err := h.svc.GetByKey(c.Context(), key, orgId)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to fetch project", err.Error())
 	}

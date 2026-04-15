@@ -72,7 +72,7 @@ func (r *projectRepository) FindByID(ctx context.Context, id int64, orgId int64)
 
 func (r *projectRepository) FindByKey(ctx context.Context, key uuid.UUID, orgId int64) (*domain.Project, error) {
 	var row models.ProjectModel
-	if err := r.db.WithContext(ctx).Where("`key` = ? AND organization_id = ?", key, orgId).Preload("Status").First(&row).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("key = ? AND organization_id = ?", key, orgId).Preload("Status").First(&row).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}

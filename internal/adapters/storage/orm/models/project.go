@@ -43,6 +43,11 @@ func (ProjectStatusModel) TableName() string {
 }
 
 func (m *ProjectModel) ToDomain() *domain.Project {
+	status := domain.ProjectStatus{ID: m.StatusID}
+	if m.Status != nil {
+		status = *m.Status.ToDomain()
+	}
+
 	return &domain.Project{
 		ID:             m.ID,
 		OrganizationID: m.OrganizationID,
@@ -51,7 +56,7 @@ func (m *ProjectModel) ToDomain() *domain.Project {
 		Description:    m.Description,
 		LogoURL:        m.LogoURL,
 		DueDate:        m.DueDate,
-		Status:         *m.Status.ToDomain(),
+		Status:         status,
 		CreatedAt:      m.CreatedAt,
 		UpdatedAt:      m.UpdatedAt,
 	}

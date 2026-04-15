@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"strconv"
 	"strings"
 
 	"aprilpollo/internal/utils"
@@ -46,8 +47,8 @@ func JWTProtected(secretKey string) fiber.Handler {
 
 func OrganizationProtected() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		org_id := c.Get("Organization-ID")
-		if org_id == "" || !utils.IsValidInt64(org_id) {
+		orgID := c.Get("Organization-ID")
+		if orgID == "" || !utils.IsValidInt64(orgID) {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"code":    fiber.StatusUnauthorized,
 				"message": "unauthorized",
@@ -55,7 +56,9 @@ func OrganizationProtected() fiber.Handler {
 				"payload": nil,
 			})
 		}
-		c.Locals(LocalsOrgID, org_id)
+
+		parsedOrgID, _ := strconv.ParseInt(orgID, 10, 64)
+		c.Locals(LocalsOrgID, parsedOrgID)
 		return c.Next()
 	}
 }

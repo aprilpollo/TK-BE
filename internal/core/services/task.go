@@ -37,3 +37,7 @@ func (s *taskService) CreateStatus(ctx context.Context, req *domain.CreateTaskSt
 func (s *taskService) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
 	return s.repo.ReorderStatus(ctx, req, project_id)
 }
+
+func (s *taskService) ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error {
+	return s.repo.ReorderTask(ctx, req, project_id)
+}

@@ -14,4 +14,5 @@ type TaskService interface {
 	CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error)
 
 	ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error
+	ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error
 }

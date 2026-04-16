@@ -110,3 +110,25 @@ func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReord
 		return nil
 	})
 }
+
+func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		for _, item := range req.Updates {
+			var status models.TaskStatusModel
+			if err := tx.Where("uuid = ? AND project_id = ?", item.StatusID, project_id).First(&status).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Model(&models.TasksModel{}).
+				Where("id = ?", item.ID).
+				Updates(map[string]interface{}{
+					"position":  item.Position,
+					"status_id": status.ID,
+				}).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}

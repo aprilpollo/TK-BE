@@ -48,9 +48,18 @@ type CreateTaskStatusReq struct {
 }
 
 type ReqReorderTaskStatus struct {
-	Updates []ReqReorderItem `json:"updates"`
+	Updates []ReorderTaskStatus `json:"updates"`
 }
-type ReqReorderItem struct {
+type ReorderTaskStatus struct {
 	ID       int64 `json:"id"`
 	Position int   `json:"position"`
+}
+
+type ReqReorderTask struct {
+	Updates []ReorderTask `json:"updates" validate:"required,min=1"`
+}
+type ReorderTask struct {
+	ID       int64  `json:"id" validate:"required"`
+	Position int    `json:"position" validate:"required,min=1"`
+	StatusID string `json:"status_id" validate:"required"` // UUID of the new status
 }

@@ -108,3 +108,21 @@ func (h *TaskHandler) ReorderStatus(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
+
+func (h *TaskHandler) ReorderTask(c *fiber.Ctx) error {
+	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var req domain.ReqReorderTask
+	if err := c.BodyParser(&req); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
+	}
+
+	if err := h.svc.ReorderTask(c.Context(), &req, projectID); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to reorder tasks", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}

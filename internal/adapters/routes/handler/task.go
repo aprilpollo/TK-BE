@@ -51,6 +51,20 @@ func (h *TaskHandler) ListPriority(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, priorities, nil, nil)
 }
 
+func (h *TaskHandler) ListStatus(c *fiber.Ctx) error {
+	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	statuses, err := h.svc.ListStatus(c.Context(), projectID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch task statuses", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, statuses, nil, nil)
+}
+
 func (h *TaskHandler) CreateStatus(c *fiber.Ctx) error {
 	var req domain.CreateTaskStatusReq
 	if err := c.BodyParser(&req); err != nil {

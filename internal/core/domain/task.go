@@ -42,3 +42,11 @@ type CreateTaskStatusReq struct {
 	Description string `json:"description"`
 	Color       string `json:"color"`
 }
+
+type ReqReorderTaskStatus struct {
+	Updates []ReqReorderItem `json:"updates"`
+}
+type ReqReorderItem struct {
+	ID       int64 `json:"id"`
+	Position int   `json:"position"`
+}

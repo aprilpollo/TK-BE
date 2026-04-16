@@ -2,15 +2,12 @@ package repository
 
 import (
 	"context"
-	// "errors"
 
 	"aprilpollo/internal/adapters/storage/orm/models"
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
 	"aprilpollo/internal/pkg/query/gormq"
-	// "aprilpollo/internal/utils"
-	// "github.com/google/uuid"
 
 	"gorm.io/gorm"
 )
@@ -74,11 +71,24 @@ func (r *taskRepository) FindStatus(ctx context.Context, project_id int64) ([]do
 }
 
 func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error) {
+	var maxPosition *int
+
+	r.db.WithContext(ctx).Model(&models.TaskStatusModel{}).
+		Where(&models.TaskStatusModel{ProjectID: req.ProjectID}).
+		Select("MAX(position)").
+		Scan(&maxPosition)
+
+	nextPosition := 1
+	if maxPosition != nil {
+		nextPosition = *maxPosition + 1
+	}
+
 	model := models.TaskStatusModel{
 		ProjectID:   req.ProjectID,
 		Name:        req.Name,
 		Description: req.Description,
 		Color:       req.Color,
+		Position:    nextPosition,
 	}
 
 	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
@@ -86,4 +96,17 @@ func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTas
 	}
 
 	return model.ToDomain(), nil
+}
+
+func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		for _, item := range req.Updates {
+			if err := tx.Model(&models.TaskStatusModel{}).
+				Where("id = ? AND project_id = ?", item.ID, project_id).
+				Update("position", item.Position).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }

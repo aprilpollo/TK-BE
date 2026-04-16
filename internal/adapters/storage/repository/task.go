@@ -56,9 +56,11 @@ func (r *taskRepository) FindPriority(ctx context.Context) ([]domain.TaskPriorit
 	return domains, nil
 }
 
-func (r *taskRepository) FindStatus(ctx context.Context, project_id int64) ([]domain.TaskStatus, error) {
+func (r *taskRepository) FindStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error) {
 	var models []models.TaskStatusModel
-	if err := r.db.WithContext(ctx).Where("project_id = ?", project_id).Find(&models).Error; err != nil {
+	base := r.db.WithContext(ctx).Where("project_id = ?", project_id)
+
+	if err := gormq.ApplyToGorm(base, opts).Find(&models).Error; err != nil {
 		return nil, err
 	}
 

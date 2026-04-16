@@ -25,8 +25,8 @@ func (s *taskService) ListPriority(ctx context.Context) ([]domain.TaskPriority, 
 	return s.repo.FindPriority(ctx)
 }
 
-func (s *taskService) ListStatus(ctx context.Context, project_id int64) ([]domain.TaskStatus, error) {
-	return s.repo.FindStatus(ctx, project_id)
+func (s *taskService) ListStatus(ctx context.Context,opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error) {
+	return s.repo.FindStatus(ctx, opts, project_id)
 }
 
 func (s *taskService) CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error) {

@@ -69,7 +69,12 @@ func (h *TaskHandler) ListStatus(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
 
-	statuses, err := h.svc.ListStatus(c.Context(), projectID)
+	opts, err := query.Parse(c.Queries())
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid query", err.Error())
+	}
+
+	statuses, err := h.svc.ListStatus(c.Context(), opts, projectID)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to fetch task statuses", err.Error())
 	}

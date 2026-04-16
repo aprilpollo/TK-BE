@@ -133,6 +133,7 @@ func (m *TaskStatusModel) ToDomain() *domain.TaskStatus {
 	return &domain.TaskStatus{
 		ID:          m.ID,
 		UUID:        m.UUID,
+		ProjectID:   m.ProjectID,
 		Name:        m.Name,
 		Description: m.Description,
 		Color:       m.Color,

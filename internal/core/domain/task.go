@@ -18,11 +18,15 @@ type Task struct {
 	DueDate     *time.Time `json:"due_date"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
+
+	Status      TaskStatus   `json:"status"`
+	Priority    TaskPriority `json:"priority"`
 }
 
 type TaskStatus struct {
 	ID          int64     `json:"id"`
 	UUID        uuid.UUID `json:"uuid"`
+	ProjectID   int64     `json:"project_id"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`
 	Color       string    `json:"color"`

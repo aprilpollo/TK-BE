@@ -89,8 +89,9 @@ func (h *ProjectHandler) Create(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request", err.Error())
 	}
-
-	project, err := h.svc.Create(c.Context(), &body)
+    orgId := getCallerOrgID(c)
+	
+	project, err := h.svc.Create(c.Context(), &body, orgId)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to create project", err.Error())
 	}

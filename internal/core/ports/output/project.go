@@ -13,7 +13,7 @@ type ProjectRepository interface {
 	FindStatuses(ctx context.Context) ([]domain.ProjectStatus, error)
 	FindByID(ctx context.Context, id int64, orgId int64) (*domain.Project, error)
 	FindByKey(ctx context.Context, key uuid.UUID, orgId int64) (*domain.Project, error)
-	Create(ctx context.Context, project *domain.CreateProjectReq) (*domain.Project, error)
+	Create(ctx context.Context, project *domain.CreateProjectReq, orgId int64) (*domain.Project, error)
 	Update(ctx context.Context, id int64, req *domain.UpdateProjectReq, orgId int64) error
 	Delete(ctx context.Context, id int64, orgId int64) error
 }

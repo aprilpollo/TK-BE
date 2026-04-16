@@ -34,8 +34,8 @@ func (s *projectService) GetByKey(ctx context.Context, key uuid.UUID, orgId int6
 	return s.repo.FindByKey(ctx, key, orgId)
 }
 
-func (s *projectService) Create(ctx context.Context, req *domain.CreateProjectReq) (*domain.Project, error) {
-	return s.repo.Create(ctx, req)
+func (s *projectService) Create(ctx context.Context, req *domain.CreateProjectReq, orgId int64) (*domain.Project, error) {
+	return s.repo.Create(ctx, req, orgId)
 }
 
 func (s *projectService) Update(ctx context.Context, id int64, req *domain.UpdateProjectReq, orgId int64) error {

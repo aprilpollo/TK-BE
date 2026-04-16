@@ -26,7 +26,6 @@ type Project struct {
 }
 
 type CreateProjectReq struct {
-	OrganizationID int64      `json:"organization_id"`
 	Name           string     `json:"name" validate:"required,min=3,max=255"`
 	Description    string     `json:"description,omitempty"`
 	LogoURL        *string    `json:"logo_url,omitempty"`

@@ -81,9 +81,9 @@ func (r *projectRepository) FindByKey(ctx context.Context, key uuid.UUID, orgId 
 	return row.ToDomain(), nil
 }
 
-func (r *projectRepository) Create(ctx context.Context, project *domain.CreateProjectReq) (*domain.Project, error) {
+func (r *projectRepository) Create(ctx context.Context, project *domain.CreateProjectReq, orgId int64) (*domain.Project, error) {
 	model := models.ProjectModel{
-		OrganizationID: project.OrganizationID,
+		OrganizationID: orgId,
 		Name:           project.Name,
 		Description:    project.Description,
 		LogoURL:        project.LogoURL,

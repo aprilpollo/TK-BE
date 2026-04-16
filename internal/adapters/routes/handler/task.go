@@ -1,11 +1,11 @@
 package handler
 
 import (
-	// "strconv"
+	"strconv"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
-	// "aprilpollo/internal/pkg/query"
+	"aprilpollo/internal/pkg/query"
 	// "github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
@@ -17,6 +17,29 @@ type TaskHandler struct {
 
 func NewTaskHandler(svc input.TaskService) *TaskHandler {
 	return &TaskHandler{svc: svc}
+}
+
+func (h *TaskHandler) List(c *fiber.Ctx) error {
+	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	opts, err := query.Parse(c.Queries())
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid query", err.Error())
+	}
+
+	tasks, total, err := h.svc.List(c.Context(), opts, projectID, statusID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch tasks", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, tasks, &total, &opts)
 }
 
 func (h *TaskHandler) ListPriority(c *fiber.Ctx) error {

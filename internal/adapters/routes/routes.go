@@ -21,7 +21,9 @@ func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fi
 	users.Get("/me", h.GetMe)
 	users.Get("/me/organizations", h.GetMyOrganizations)
 	users.Get("/me/organizations/permissions", h.GetMyPrimaryOrgPermissions)
+
 	users.Post("/me/avatar", h.UpdateAvatar)
+
 	users.Put("/me", h.UpdateMe)
 	users.Put("/me/organizations/primary/:id", h.UpdatePrimaryOrganization)
 }
@@ -32,13 +34,15 @@ func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, 
 	orgs := api.Group("/organizations", jwtMiddleware)
 	orgs.Get("/", h.Gets)
 	orgs.Get("/:id", h.GetByID)
-	orgs.Post("/", h.Create)
-	orgs.Put("/:id", h.Update)
-	orgs.Delete("/:id", h.Delete)
-
 	orgs.Get("/:id/members", h.GetMembers)
+
+	orgs.Post("/", h.Create)
 	orgs.Post("/:id/members", h.InviteMember)
+
+	orgs.Put("/:id", h.Update)
 	orgs.Put("/:id/members/:memberID", h.UpdateMember)
+
+	orgs.Delete("/:id", h.Delete)
 	orgs.Delete("/:id/members/:memberID", h.RemoveMember)
 }
 
@@ -50,8 +54,11 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Get("/statuses", h.GetStatuses)
 	projects.Get("/key/:key", h.GetByKey)
 	projects.Get("/:id", h.GetByID)
+
 	projects.Post("/", h.Create)
+
 	projects.Put("/:id", h.Update)
+
 	projects.Delete("/:id", h.Delete)
 }
 
@@ -61,5 +68,8 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 
 	tasks := api.Group("/tasks", jwtMiddleware, orgMiddleware)
 	tasks.Get("/priorities", h.ListPriority)
+	tasks.Get("/:project_id/:status_id", h.List)
+
 	tasks.Post("/statuses", h.CreateStatus)
+
 }

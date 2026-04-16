@@ -2,27 +2,43 @@ package domain
 
 import (
 	"github.com/google/uuid"
+	"time"
 )
+
+type Task struct {
+	ID          int64      `json:"id"`
+	ProjectID   int64      `json:"project_id"`
+	Key         uuid.UUID  `json:"key"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	StatusID    int64      `json:"status_id"`
+	PriorityID  int64      `json:"priority_id"`
+	ParentID    *int64     `json:"parent_id"`
+	Position    int        `json:"position"`
+	DueDate     *time.Time `json:"due_date"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"`
+}
 
 type TaskStatus struct {
 	ID          int64     `json:"id"`
 	UUID        uuid.UUID `json:"uuid"`
 	Name        string    `json:"name"`
-	Description string    `json:"description,omitempty"`
-	Color       string    `json:"color,omitempty"`
-	Position    int       `json:"position,omitempty"`
+	Description string    `json:"description"`
+	Color       string    `json:"color"`
+	Position    int       `json:"position"`
 }
 
 type TaskPriority struct {
 	ID          int64  `json:"id"`
 	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Color       string `json:"color,omitempty"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
 }
 
 type CreateTaskStatusReq struct {
 	ProjectID   int64  `json:"project_id"`
 	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
-	Color       string `json:"color,omitempty"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
 }

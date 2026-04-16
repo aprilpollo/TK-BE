@@ -151,3 +151,23 @@ func (m *TaskPriorityModel) ToDomain() *domain.TaskPriority {
 		Color:       m.Color,
 	}
 }
+
+func (m *TasksModel) ToDomain() *domain.Task {
+	if m == nil {
+		return nil
+	}
+	return &domain.Task{
+		ID:          m.ID,
+		ProjectID:   m.ProjectID,
+		Key:         m.Key,
+		Title:       m.Title,
+		Description: m.Description,
+		StatusID:    m.StatusID,
+		PriorityID:  m.PriorityID,
+		ParentID:    m.ParentID,
+		Position:    m.Position,
+		DueDate:     m.DueDate,
+		CreatedAt:   m.CreatedAt,
+		UpdatedAt:   m.UpdatedAt,
+	}
+}

@@ -11,11 +11,12 @@ import (
 )
 
 type projectService struct {
-	repo output.ProjectRepository
+	repo     output.ProjectRepository
+	taskRepo output.TaskRepository
 }
 
-func NewProjectService(repo output.ProjectRepository) input.ProjectService {
-	return &projectService{repo: repo}
+func NewProjectService(repo output.ProjectRepository, taskRepo output.TaskRepository) input.ProjectService {
+	return &projectService{repo: repo, taskRepo: taskRepo}
 }
 
 func (s *projectService) List(ctx context.Context, opts query.QueryOptions, orgId int64) ([]domain.Project, int64, error) {
@@ -35,7 +36,25 @@ func (s *projectService) GetByKey(ctx context.Context, key uuid.UUID, orgId int6
 }
 
 func (s *projectService) Create(ctx context.Context, req *domain.CreateProjectReq, orgId int64) (*domain.Project, error) {
-	return s.repo.Create(ctx, req, orgId)
+	pRepo, err := s.repo.Create(ctx, req, orgId)
+	if err != nil {
+		return nil, err
+	}
+
+	// Create default task statuses for the new project
+	defaultStatuses := domain.CreateTaskStatusReq{
+		ProjectID:   pRepo.ID,
+		Name:        "To Do",
+		Description: "Tasks that need to be done",
+		Color:       "#52525B",
+	}
+
+	_, err = s.taskRepo.CreateStatus(ctx, &defaultStatuses)
+	if err != nil {
+		return nil, err
+	}
+
+	return pRepo, nil
 }
 
 func (s *projectService) Update(ctx context.Context, id int64, req *domain.UpdateProjectReq, orgId int64) error {

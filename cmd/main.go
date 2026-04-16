@@ -62,6 +62,7 @@ func main() {
 	orgRepo := repository.NewOrganizationRepository(db.GetDB())
 	userRepo := repository.NewUserRepository(db.GetDB())
 	projectRepo := repository.NewProjectRepository(db.GetDB())
+	taskRepo := repository.NewTaskRepository(db.GetDB())
 
 	// --- Services (core / use cases) ---
 	googleVerifier := googleAdapter.NewGoogleVerifier(cfg.Oauth.GoogleProvider.ClientID)
@@ -74,7 +75,7 @@ func main() {
 
 	orgSvc := services.NewOrganizationService(orgRepo)
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
-	projectSvc := services.NewProjectService(projectRepo)
+	projectSvc := services.NewProjectService(projectRepo, taskRepo)
 
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)

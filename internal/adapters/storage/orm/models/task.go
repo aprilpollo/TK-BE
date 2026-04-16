@@ -1,14 +1,14 @@
 package models
 
 import (
+	"aprilpollo/internal/core/domain"
 	"github.com/google/uuid"
-	"time"
-
 	"gorm.io/gorm"
+	"time"
 )
 
 type TasksModel struct {
-	ID          int64      `gorm:"primaryKey"`
+	ID          int64     `gorm:"primaryKey"`
 	ProjectID   int64     `gorm:"not null;index:idx_ticket_project"`
 	Title       string    `gorm:"not null;size:500"`
 	Description string    `gorm:"type:text"`
@@ -31,7 +31,7 @@ type TasksModel struct {
 }
 
 type TaskAssignModel struct {
-	ID        int64  `gorm:"primaryKey"`
+	ID        int64 `gorm:"primaryKey"`
 	TaskID    int64 `gorm:"not null;index"`
 	UserID    int64 `gorm:"not null;index"`
 	StatusID  int64 `gorm:"not null;index;default:1"`
@@ -49,7 +49,7 @@ type TaskAssignModel struct {
 }
 
 type TaskCommentModel struct {
-	ID      int64   `gorm:"primaryKey"`
+	ID      int64  `gorm:"primaryKey"`
 	TaskID  int64  `gorm:"not null;index:idx_comment_task"`
 	UserID  int64  `gorm:"not null;index"`
 	Content string `gorm:"not null;type:text"`
@@ -63,7 +63,7 @@ type TaskCommentModel struct {
 }
 
 type TaskAttachmentModel struct {
-	ID         int64   `gorm:"primaryKey"`
+	ID         int64  `gorm:"primaryKey"`
 	TaskID     int64  `gorm:"not null;index:idx_attachment_task"`
 	Filename   string `gorm:"not null;size:255"`
 	FilePath   string `gorm:"not null;size:500"`
@@ -124,4 +124,18 @@ func (TaskStatusModel) TableName() string {
 
 func (TaskPriorityModel) TableName() string {
 	return "task_priorities"
+}
+
+func (m *TaskStatusModel) ToDomain() *domain.TaskStatus {
+	if m == nil {
+		return nil
+	}
+	return &domain.TaskStatus{
+		ID:          m.ID,
+		UUID:        m.UUID,
+		Name:        m.Name,
+		Description: m.Description,
+		Color:       m.Color,
+		Position:    m.Position,
+	}
 }

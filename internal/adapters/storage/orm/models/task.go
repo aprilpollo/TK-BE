@@ -82,7 +82,7 @@ type TaskAttachmentModel struct {
 type TaskStatusModel struct {
 	ID          int64     `gorm:"primaryKey"`
 	UUID        uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
-	ProjectID   int64     `gorm:"not null;uniqueIndex:idx_status_project_name"`
+	ProjectID   int64     `gorm:"not null"`
 	Name        string    `gorm:"not null;size:50;"`
 	Description string    `gorm:"type:text;size:255"`
 	Color       string    `gorm:"size:7;default:'#52525B'"`

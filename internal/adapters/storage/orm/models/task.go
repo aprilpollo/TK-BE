@@ -157,6 +157,17 @@ func (m *TasksModel) ToDomain() *domain.Task {
 	if m == nil {
 		return nil
 	}
+	
+	status := domain.TaskStatus{ID: m.StatusID}
+	if m.Status != nil {
+		status = *m.Status.ToDomain()
+	}
+
+	priority := domain.TaskPriority{ID: m.PriorityID}
+	if m.Priority != nil {
+		priority = *m.Priority.ToDomain()
+	}
+
 	return &domain.Task{
 		ID:          m.ID,
 		ProjectID:   m.ProjectID,
@@ -170,5 +181,7 @@ func (m *TasksModel) ToDomain() *domain.Task {
 		DueDate:     m.DueDate,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
+		Status:      status,
+		Priority:    priority,
 	}
 }

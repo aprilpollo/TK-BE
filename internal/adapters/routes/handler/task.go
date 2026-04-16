@@ -38,8 +38,20 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to fetch tasks", err.Error())
 	}
+	taskMap := make([]map[string]interface{}, 0)
+	for _, v := range tasks {
+		taskMap = append(taskMap, map[string]interface{}{
+			"id":          v.ID,
+			"columnId":    v.Status.UUID,
+			"title":       v.Title,
+			"description": v.Description,
+			"priority":    v.Priority,
+			"dueDate":     v.DueDate,
+			"subtasks":    v.ParentID,
+		})
+	}
 
-	return ResOk(c, fiber.StatusOK, tasks, &total, &opts)
+	return ResOk(c, fiber.StatusOK, taskMap, &total, &opts)
 }
 
 func (h *TaskHandler) ListPriority(c *fiber.Ctx) error {

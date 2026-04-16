@@ -54,3 +54,12 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Put("/:id", h.Update)
 	projects.Delete("/:id", h.Delete)
 }
+
+
+func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
+	api := app.Group("/api/v1")
+
+	tasks := api.Group("/tasks", jwtMiddleware, orgMiddleware)
+	tasks.Get("/priorities", h.ListPriority)
+	tasks.Post("/statuses", h.CreateStatus)
+}

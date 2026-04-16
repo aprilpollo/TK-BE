@@ -76,6 +76,7 @@ func main() {
 	orgSvc := services.NewOrganizationService(orgRepo)
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
 	projectSvc := services.NewProjectService(projectRepo, taskRepo)
+	taskSvc := services.NewTaskService(taskRepo)
 
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)
@@ -86,6 +87,7 @@ func main() {
 	orgHandler := handler.NewOrganizationHandler(orgSvc)
 	userHandler := handler.NewUserHandler(userSvc, orgSvc)
 	projectHandler := handler.NewProjectHandler(projectSvc)
+	taskHandler := handler.NewTaskHandler(taskSvc)
 
 	// --- Fiber app ---
 	app := fiber.New(fiber.Config{
@@ -130,6 +132,8 @@ func main() {
 	routes.RegisterUserRoutes(app, userHandler, jwtMiddleware)
 	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware)
 	routes.RegisterProjectRoutes(app, projectHandler, jwtMiddleware, orgMiddleware)
+	routes.RegisterTaskRoutes(app, taskHandler, jwtMiddleware, orgMiddleware)
+	
 	if err := app.Listen(fmt.Sprintf(":%s", cfg.App.ApiPort)); err != nil {
 		log.Println(err)
 	}

@@ -23,6 +23,22 @@ func NewTaskRepository(db *gorm.DB) output.TaskRepository {
 	return &taskRepository{db: db}
 }
 
+
+
+func (r *taskRepository) FindPriority(ctx context.Context) ([]domain.TaskPriority, error) {
+	var models []models.TaskPriorityModel
+	if err := r.db.WithContext(ctx).Find(&models).Error; err != nil {
+		return nil, err
+	}
+
+	domains := make([]domain.TaskPriority, len(models))
+	for i, model := range models {
+		domains[i] = *model.ToDomain()
+	}
+
+	return domains, nil
+}
+
 func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error) {
 	model := models.TaskStatusModel{
 		ProjectID: req.ProjectID,

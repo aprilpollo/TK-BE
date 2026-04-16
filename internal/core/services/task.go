@@ -18,6 +18,10 @@ func NewTaskService(repo output.TaskRepository) input.TaskService {
 	return &taskService{repo: repo}
 }
 
+func (s *taskService) ListPriority(ctx context.Context) ([]domain.TaskPriority, error) {
+	return s.repo.FindPriority(ctx)
+}
+
 func (s *taskService) CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error) {
 	return s.repo.CreateStatus(ctx, req)
 }

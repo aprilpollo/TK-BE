@@ -13,6 +13,13 @@ type TaskStatus struct {
 	Position    int       `json:"position,omitempty"`
 }
 
+type TaskPriority struct {
+	ID          int64  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Color       string `json:"color,omitempty"`
+}
+
 type CreateTaskStatusReq struct {
 	ProjectID   int64  `json:"project_id"`
 	Name        string `json:"name"`

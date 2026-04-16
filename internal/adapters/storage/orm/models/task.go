@@ -139,3 +139,15 @@ func (m *TaskStatusModel) ToDomain() *domain.TaskStatus {
 		Position:    m.Position,
 	}
 }
+
+func (m *TaskPriorityModel) ToDomain() *domain.TaskPriority {
+	if m == nil {
+		return nil
+	}
+	return &domain.TaskPriority{
+		ID:          m.ID,
+		Name:        m.Name,
+		Description: m.Description,
+		Color:       m.Color,
+	}
+}

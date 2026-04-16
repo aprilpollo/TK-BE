@@ -10,5 +10,6 @@ import (
 )
 
 type TaskRepository interface {
+	FindPriority(ctx context.Context) ([]domain.TaskPriority, error)
 	CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error)
 }

@@ -56,10 +56,21 @@ type ReorderTaskStatus struct {
 }
 
 type ReqReorderTask struct {
-	Updates []ReorderTask `json:"updates" validate:"required,min=1"`
+	Updates []ReorderTask `json:"updates"`
 }
 type ReorderTask struct {
-	ID       int64  `json:"id" validate:"required"`
-	Position int    `json:"position" validate:"required,min=1"`
-	StatusID string `json:"status_id" validate:"required"` // UUID of the new status
+	ID       int64  `json:"id"`
+	Position int    `json:"position"`
+	StatusID string `json:"status_id"` // UUID of the new status
+}
+
+type TaskReq struct {
+    ProjectID   int64      `json:"project_id"`
+    Title       string     `json:"title"`
+    Description string     `json:"description"`
+    StatusID    int64      `json:"status_id"`
+    PriorityID  int64      `json:"priority_id"`
+    ParentID    *int64     `json:"parent_id"`
+    DueDate     *time.Time `json:"due_date"`
+	AssigneeIDs []int64    `json:"assignee_ids"`
 }

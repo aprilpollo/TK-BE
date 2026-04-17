@@ -33,6 +33,10 @@ func (s *taskService) CreateStatus(ctx context.Context, req *domain.CreateTaskSt
 	return s.repo.CreateStatus(ctx, req)
 }
 
+func (s *taskService) Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error) {
+	return s.repo.Create(ctx, req)
+}
+
 
 func (s *taskService) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
 	return s.repo.ReorderStatus(ctx, req, project_id)

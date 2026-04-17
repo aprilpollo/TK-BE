@@ -100,6 +100,36 @@ func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTas
 	return model.ToDomain(), nil
 }
 
+func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error) {
+	var maxPosition *int
+	r.db.WithContext(ctx).Model(&models.TasksModel{}).
+		Where(&models.TasksModel{ProjectID: req.ProjectID, StatusID: req.StatusID}).
+		Select("MAX(position)").
+		Scan(&maxPosition)
+
+	nextPosition := 1
+	if maxPosition != nil {
+		nextPosition = *maxPosition + 1
+	}
+
+	model := models.TasksModel{
+		ProjectID:   req.ProjectID,
+		Title:       req.Title,
+		Description: req.Description,
+		StatusID:    req.StatusID,
+		PriorityID:  req.PriorityID,
+		ParentID:    req.ParentID,
+		DueDate:     req.DueDate,
+		Position:    nextPosition,
+	}
+
+	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		return nil, err
+	}
+
+	return model.ToDomain(), nil
+}
+
 func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {

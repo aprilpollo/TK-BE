@@ -15,6 +15,8 @@ type TaskService interface {
 	UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, status_id int64) (*domain.TaskStatus, error)
 	DeleteStatus(ctx context.Context, status_id int64) error
 	Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error)
+	Update(ctx context.Context, req *domain.UpdateTaskReq, task_id int64) (*domain.Task, error)
+	Delete(ctx context.Context, task_id int64) error
 	ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error
 	ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error
 }

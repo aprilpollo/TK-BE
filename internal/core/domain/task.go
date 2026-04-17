@@ -19,8 +19,8 @@ type Task struct {
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 
-	Status      TaskStatus   `json:"status"`
-	Priority    TaskPriority `json:"priority"`
+	Status   TaskStatus   `json:"status"`
+	Priority TaskPriority `json:"priority"`
 }
 
 type TaskStatus struct {
@@ -65,13 +65,13 @@ type ReorderTask struct {
 }
 
 type TaskReq struct {
-    ProjectID   int64      `json:"project_id"`
-    Title       string     `json:"title"`
-    Description string     `json:"description"`
-    StatusID    int64      `json:"status_id"`
-    PriorityID  int64      `json:"priority_id"`
-    ParentID    *int64     `json:"parent_id"`
-    DueDate     *time.Time `json:"due_date"`
+	ProjectID   int64      `json:"project_id"`
+	Title       string     `json:"title"`
+	Description string     `json:"description"`
+	StatusID    int64      `json:"status_id"`
+	PriorityID  int64      `json:"priority_id"`
+	ParentID    *int64     `json:"parent_id"`
+	DueDate     *time.Time `json:"due_date"`
 	AssigneeIDs []int64    `json:"assignee_ids"`
 }
 
@@ -79,4 +79,12 @@ type UpdateTaskStatusReq struct {
 	Name        string `json:"name,omitempty"`
 	Description string `json:"description,omitempty"`
 	Color       string `json:"color,omitempty"`
+}
+
+type UpdateTaskReq struct {
+	Title       string    `json:"title,omitempty"`
+	Description string    `json:"description,omitempty"`
+	StatusID    int64     `json:"status_id,omitempty"`
+	PriorityID  int64     `json:"priority_id,omitempty"`
+	DueDate     time.Time `json:"due_date,omitempty"`
 }

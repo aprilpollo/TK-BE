@@ -45,6 +45,14 @@ func (s *taskService) Create(ctx context.Context, req *domain.TaskReq) (*domain.
 	return s.repo.Create(ctx, req)
 }
 
+func (s *taskService) Update(ctx context.Context, req *domain.UpdateTaskReq, task_id int64) (*domain.Task, error) {
+	return s.repo.Update(ctx, req, task_id)
+}
+
+func (s *taskService) Delete(ctx context.Context, task_id int64) error {
+	return s.repo.Delete(ctx, task_id)
+}
+
 func (s *taskService) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
 	return s.repo.ReorderStatus(ctx, req, project_id)
 }

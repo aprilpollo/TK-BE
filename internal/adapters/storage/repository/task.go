@@ -161,6 +161,33 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq) (*doma
 	return model.ToDomain(), nil
 }
 
+func (r *taskRepository) Update(ctx context.Context, req *domain.UpdateTaskReq, task_id int64) (*domain.Task, error) {
+	var model models.TasksModel
+	if err := r.db.WithContext(ctx).Where("id = ?", task_id).First(&model).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Model(&model).Updates(utils.StructToMap(req)).Error; err != nil {
+		return nil, err
+	}
+
+	return model.ToDomain(), nil
+}
+
+func (r *taskRepository) Delete(ctx context.Context, task_id int64) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("parent_id = ?", task_id).Delete(&models.TasksModel{}).Error; err != nil {
+			return err
+		}
+
+		if err := tx.Where("id = ?", task_id).Delete(&models.TasksModel{}).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {

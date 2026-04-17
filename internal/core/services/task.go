@@ -37,6 +37,10 @@ func (s *taskService) UpdateStatus(ctx context.Context, req *domain.UpdateTaskSt
 	return s.repo.UpdateStatus(ctx, req, status_id)
 }
 
+func (s *taskService) DeleteStatus(ctx context.Context, status_id int64) error {
+	return s.repo.DeleteStatus(ctx, status_id)
+}
+
 func (s *taskService) Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error) {
 	return s.repo.Create(ctx, req)
 }

@@ -115,6 +115,19 @@ func (h *TaskHandler) UpdateStatus(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, status, nil, nil)
 }
 
+func (h *TaskHandler) DeleteStatus(c *fiber.Ctx) error {
+	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	if err := h.svc.DeleteStatus(c.Context(), statusID); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to delete task status", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}
+
 func (h *TaskHandler) Create(c *fiber.Ctx) error {
 	var req domain.TaskReq
 	if err := c.BodyParser(&req); err != nil {

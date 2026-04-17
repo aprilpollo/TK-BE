@@ -79,4 +79,6 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 
 	tasks.Put("/reorder/:project_id", h.ReorderTask)
 
+	tasks.Delete("/statuses/:status_id", h.DeleteStatus)
+
 }

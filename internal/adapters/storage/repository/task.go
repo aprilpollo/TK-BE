@@ -114,6 +114,19 @@ func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTas
 	return model.ToDomain(), nil
 }
 
+func (r *taskRepository) DeleteStatus(ctx context.Context, status_id int64) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(&models.TasksModel{}).Where("status_id = ?", status_id).Error; err != nil {
+			return err
+		}
+		if err := tx.Delete(&models.TaskStatusModel{}).Where("id = ?", status_id).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+}
+
 func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error) {
 	var maxPosition *int
 	r.db.WithContext(ctx).Model(&models.TasksModel{}).

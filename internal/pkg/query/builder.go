@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-const defaultLimit = 20
+const defaultLimit = 10
 
 // Parse builds a QueryOptions from Fiber query params (map[string]string via c.Queries())
 func Parse(params map[string]string) (QueryOptions, error) {

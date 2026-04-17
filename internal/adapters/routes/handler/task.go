@@ -96,6 +96,25 @@ func (h *TaskHandler) CreateStatus(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, status, nil, nil)
 }
 
+func (h *TaskHandler) UpdateStatus(c *fiber.Ctx) error {
+	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var req domain.UpdateTaskStatusReq
+	if err := c.BodyParser(&req); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
+	}
+
+	status, err := h.svc.UpdateStatus(c.Context(), &req, statusID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to update task status", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, status, nil, nil)
+}
+
 func (h *TaskHandler) Create(c *fiber.Ctx) error {
 	var req domain.TaskReq
 	if err := c.BodyParser(&req); err != nil {

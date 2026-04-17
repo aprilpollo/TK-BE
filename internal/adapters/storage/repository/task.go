@@ -8,6 +8,7 @@ import (
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
 	"aprilpollo/internal/pkg/query/gormq"
+	"aprilpollo/internal/utils"
 
 	"gorm.io/gorm"
 )
@@ -94,6 +95,19 @@ func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTas
 	}
 
 	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		return nil, err
+	}
+
+	return model.ToDomain(), nil
+}
+
+func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, status_id int64) (*domain.TaskStatus, error) {
+	var model models.TaskStatusModel
+	if err := r.db.WithContext(ctx).Where("id = ?", status_id).First(&model).Error; err != nil {
+		return nil, err
+	}
+
+	if err := r.db.WithContext(ctx).Model(&model).Updates(utils.StructToMap(req)).Error; err != nil {
 		return nil, err
 	}
 

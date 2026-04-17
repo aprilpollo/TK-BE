@@ -74,3 +74,9 @@ type TaskReq struct {
     DueDate     *time.Time `json:"due_date"`
 	AssigneeIDs []int64    `json:"assignee_ids"`
 }
+
+type UpdateTaskStatusReq struct {
+	Name        string `json:"name,omitempty"`
+	Description string `json:"description,omitempty"`
+	Color       string `json:"color,omitempty"`
+}

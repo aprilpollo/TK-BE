@@ -116,10 +116,10 @@ func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTas
 
 func (r *taskRepository) DeleteStatus(ctx context.Context, status_id int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Delete(&models.TasksModel{}).Where("status_id = ?", status_id).Error; err != nil {
+		if err := tx.Where("status_id = ?", status_id).Delete(&models.TasksModel{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Delete(&models.TaskStatusModel{}).Where("id = ?", status_id).Error; err != nil {
+		if err := tx.Where("id = ?", status_id).Delete(&models.TaskStatusModel{}).Error; err != nil {
 			return err
 		}
 

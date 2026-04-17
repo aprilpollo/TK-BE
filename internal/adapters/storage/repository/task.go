@@ -112,6 +112,10 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq) (*doma
 		nextPosition = *maxPosition + 1
 	}
 
+	if req.PriorityID == 0 {
+		req.PriorityID = 1
+	}
+
 	model := models.TasksModel{
 		ProjectID:   req.ProjectID,
 		Title:       req.Title,

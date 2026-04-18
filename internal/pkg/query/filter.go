@@ -34,17 +34,20 @@ type Filter struct {
 
 // QueryOptions holds all parsed options from query params
 type QueryOptions struct {
-	Table   string
-	Filters []Filter
-	Sort    string
-	Order   string // "ASC" or "DESC"
-	Limit   int
-	Offset  int
+	Table        string
+	Filters      []Filter
+	Sort         string
+	Order        string // "ASC" or "DESC"
+	Limit        int
+	Offset       int
+	Search       string // keyword for OR search across SearchFields
+	SearchFields []string
 }
 
 // reserved params that are not filters
 var reservedParams = map[string]bool{
 	"_limit": true, "_offset": true, "_sort": true, "_order": true, "_page": true,
+	"_q": true, "_search_fields": true,
 }
 
 // ParseFilters extracts filter conditions from query params

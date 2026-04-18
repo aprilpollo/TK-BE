@@ -22,6 +22,18 @@ func Parse(params map[string]string) (QueryOptions, error) {
 		Order:   "ASC",
 	}
 
+	if v, ok := params["_q"]; ok {
+		opts.Search = strings.TrimSpace(v)
+	}
+	if v, ok := params["_search_fields"]; ok {
+		for _, field := range strings.Split(v, ",") {
+			f := strings.TrimSpace(field)
+			if f != "" && isValidIdentifier(f) {
+				opts.SearchFields = append(opts.SearchFields, f)
+			}
+		}
+	}
+
 	if v, ok := params["_sort"]; ok && isValidIdentifier(v) {
 		opts.Sort = v
 	}
@@ -90,6 +102,19 @@ func Build(opts QueryOptions) (query string, args []interface{}, err error) {
 			args = append(args, f.Value)
 			argIdx++
 		}
+	}
+
+	if opts.Search != "" && len(opts.SearchFields) > 0 {
+		orParts := make([]string, 0, len(opts.SearchFields))
+		for _, field := range opts.SearchFields {
+			if !isValidIdentifier(field) {
+				return "", nil, fmt.Errorf("invalid search field: %q", field)
+			}
+			orParts = append(orParts, fmt.Sprintf("%s LIKE $%d", field, argIdx))
+			args = append(args, "%"+opts.Search+"%")
+			argIdx++
+		}
+		conditions = append(conditions, "("+strings.Join(orParts, " OR ")+")")
 	}
 
 	if len(conditions) > 0 {

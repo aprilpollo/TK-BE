@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"aprilpollo/internal/pkg/query"
+
 	"gorm.io/gorm"
 )
 
@@ -13,6 +14,16 @@ import (
 func ApplyToGorm(db *gorm.DB, opts query.QueryOptions) *gorm.DB {
 	for _, f := range opts.Filters {
 		db = applyFilter(db, f)
+	}
+
+	if opts.Search != "" && len(opts.SearchFields) > 0 {
+		parts := make([]string, 0, len(opts.SearchFields))
+		args := make([]interface{}, 0, len(opts.SearchFields))
+		for _, field := range opts.SearchFields {
+			parts = append(parts, fmt.Sprintf("%s LIKE ?", field))
+			args = append(args, "%"+opts.Search+"%")
+		}
+		db = db.Where("("+strings.Join(parts, " OR ")+")", args...)
 	}
 
 	if opts.Sort != "" {

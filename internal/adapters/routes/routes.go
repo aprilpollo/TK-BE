@@ -33,11 +33,11 @@ func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, 
 
 	orgs := api.Group("/organizations", jwtMiddleware)
 	orgs.Get("/", h.Gets)
-	orgs.Get("/members", h.GetMembers)
+	orgs.Get("/members", orgMiddleware, h.GetMembers)
 	orgs.Get("/:id", h.GetByID)
 
 	orgs.Post("/", h.Create)
-	orgs.Post("/:id/members", orgMiddleware, h.InviteMember)
+	orgs.Post("/:id/members", h.InviteMember)
 
 	orgs.Put("/:id", h.Update)
 	orgs.Put("/:id/members/:memberID", h.UpdateMember)

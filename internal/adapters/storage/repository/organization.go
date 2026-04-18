@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"aprilpollo/internal/adapters/storage/orm/models"
+	"aprilpollo/internal/adapters/storage/orm/views"
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
@@ -224,16 +225,16 @@ func (r *organizationRepository) FindPrimaryOrgWithDetails(ctx context.Context, 
 }
 
 func (r *organizationRepository) FindMembers(ctx context.Context, orgID int64, opts query.QueryOptions) ([]domain.OrganizationMember, int64, error) {
-	var rows []models.OrganizationMemberModel
+	var rows []views.OrganizationMemberView
 	var total int64
 
-	base := r.db.WithContext(ctx).Model(&models.OrganizationMemberModel{}).Where("organization_id = ?", orgID)
+	base := r.db.WithContext(ctx).Model(&views.OrganizationMemberView{}).Where("organization_id = ?", orgID)
 
 	if err := base.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Preload("User").Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(base, opts).Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

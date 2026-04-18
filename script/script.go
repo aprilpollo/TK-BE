@@ -4,7 +4,9 @@ import (
 	"aprilpollo/internal/adapters/config"
 	"aprilpollo/internal/adapters/storage/orm"
 	"aprilpollo/internal/adapters/storage/orm/models"
+	"aprilpollo/internal/adapters/storage/orm/views"
 	"aprilpollo/internal/utils"
+	"fmt"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"gorm.io/gorm"
@@ -113,6 +115,21 @@ func main() {
 				text.Colors{text.FgGreen}.Sprint("✓ Migrated"),
 				"SUCCESS",
 			})
+			successCount++
+		}
+	}
+
+	mTable.AppendRow(table.Row{"", "", ""})
+	mTable.AppendRow(table.Row{"VIEWS", "", "MIGRATION VIEWS"})
+	mTable.AppendRow(table.Row{"-", "-", "-"})
+
+	for viewName, viewSQL := range views.Views {
+		db.GetDB().Exec(fmt.Sprintf("DROP VIEW IF EXISTS %q", viewName))
+		if err := db.GetDB().Exec(viewSQL).Error; err != nil {
+			mTable.AppendRow(table.Row{viewName, text.Colors{text.FgRed}.Sprint("✗ Failed"), parseErrorMessage(err)})
+			failCount++
+		} else {
+			mTable.AppendRow(table.Row{viewName, text.Colors{text.FgGreen}.Sprint("✓ Migrated"), "SUCCESS"})
 			successCount++
 		}
 	}
@@ -251,7 +268,7 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 	var logo1URL = "https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png"
 	var logo2URL = "https://elysiajs.com/assets/elysia.svg"
 	var logo3URL = "https://avatars.githubusercontent.com/u/158476440?v=4"
-	
+
 	defaultOrganizations := []models.OrganizationModel{
 		{
 			Name:         "Organization 01",

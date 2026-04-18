@@ -160,12 +160,12 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, create
 		return nil, err
 	}
 
-	if req.AssigneeIDs != nil {
+	if len(req.AssigneeIDs) > 0 {
 		var taskAssignees []models.TaskAssignModel
 		for _, assigneeID := range req.AssigneeIDs {
 			taskAssignees = append(taskAssignees, models.TaskAssignModel{
-				TaskID:   model.ID,
-				UserID:   assigneeID,
+				TaskID:    model.ID,
+				UserID:    assigneeID,
 				InvitedBy: &createBy,
 				InvitedAt: &now,
 				JoinedAt:  &now,

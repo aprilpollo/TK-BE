@@ -129,51 +129,64 @@ func (r *taskRepository) DeleteStatus(ctx context.Context, status_id int64) erro
 }
 
 func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, createBy int64) (*domain.Task, error) {
-	var maxPosition *int
 	now := time.Now()
-	r.db.WithContext(ctx).Model(&models.TasksModel{}).
-		Where(&models.TasksModel{ProjectID: req.ProjectID, StatusID: req.StatusID}).
-		Select("MAX(position)").
-		Scan(&maxPosition)
+	var model models.TasksModel
 
-	nextPosition := 1
-	if maxPosition != nil {
-		nextPosition = *maxPosition + 1
-	}
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var maxPosition *int
+		if err := tx.Model(&models.TasksModel{}).
+			Where(&models.TasksModel{ProjectID: req.ProjectID, StatusID: req.StatusID}).
+			Select("MAX(position)").
+			Scan(&maxPosition).Error; err != nil {
+			return err
+		}
 
-	if req.PriorityID == 0 {
-		req.PriorityID = 1
-	}
+		nextPosition := 1
+		if maxPosition != nil {
+			nextPosition = *maxPosition + 1
+		}
 
-	model := models.TasksModel{
-		ProjectID:   req.ProjectID,
-		Title:       req.Title,
-		Description: req.Description,
-		StatusID:    req.StatusID,
-		PriorityID:  req.PriorityID,
-		ParentID:    req.ParentID,
-		DueDate:     req.DueDate,
-		Position:    nextPosition,
-	}
+		priorityID := req.PriorityID
+		if priorityID == 0 {
+			priorityID = 1
+		}
 
-	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		model = models.TasksModel{
+			ProjectID:   req.ProjectID,
+			Title:       req.Title,
+			Description: req.Description,
+			StatusID:    req.StatusID,
+			PriorityID:  priorityID,
+			ParentID:    req.ParentID,
+			DueDate:     req.DueDate,
+			Position:    nextPosition,
+		}
+
+		if err := tx.Create(&model).Error; err != nil {
+			return err
+		}
+
+		//if len(req.AssigneeIDs) > 0 {
+		if req.AssigneeIDs != nil {
+			var taskAssignees []models.TaskAssignModel
+			for _, assigneeID := range req.AssigneeIDs {
+				taskAssignees = append(taskAssignees, models.TaskAssignModel{
+					TaskID:    model.ID,
+					UserID:    assigneeID,
+					InvitedBy: &createBy,
+					InvitedAt: &now,
+					JoinedAt:  &now,
+				})
+			}
+			if err := tx.Create(&taskAssignees).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
 		return nil, err
-	}
-
-	if len(req.AssigneeIDs) > 0 {
-		var taskAssignees []models.TaskAssignModel
-		for _, assigneeID := range req.AssigneeIDs {
-			taskAssignees = append(taskAssignees, models.TaskAssignModel{
-				TaskID:    model.ID,
-				UserID:    assigneeID,
-				InvitedBy: &createBy,
-				InvitedAt: &now,
-				JoinedAt:  &now,
-			})
-		}
-		if err := r.db.WithContext(ctx).Create(&taskAssignees).Error; err != nil {
-			return nil, err
-		}
 	}
 
 	return model.ToDomain(), nil

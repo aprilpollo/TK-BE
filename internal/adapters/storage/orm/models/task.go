@@ -2,9 +2,10 @@ package models
 
 import (
 	"aprilpollo/internal/core/domain"
+	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type TasksModel struct {
@@ -157,7 +158,7 @@ func (m *TasksModel) ToDomain() *domain.Task {
 	if m == nil {
 		return nil
 	}
-	
+
 	status := domain.TaskStatus{ID: m.StatusID}
 	if m.Status != nil {
 		status = *m.Status.ToDomain()
@@ -166,6 +167,21 @@ func (m *TasksModel) ToDomain() *domain.Task {
 	priority := domain.TaskPriority{ID: m.PriorityID}
 	if m.Priority != nil {
 		priority = *m.Priority.ToDomain()
+	}
+
+	assigns := make([]domain.TaskAssign, 0, len(m.Assigns))
+	for _, assign := range m.Assigns {
+		item := domain.TaskAssign{ID: assign.UserID}
+
+		if assign.User != nil {
+			item.Name = assign.User.DisplayName
+			item.Email = assign.User.Email
+			if assign.User.Avatar != nil {
+				item.Avatar = *assign.User.Avatar
+			}
+		}
+
+		assigns = append(assigns, item)
 	}
 
 	return &domain.Task{
@@ -183,5 +199,6 @@ func (m *TasksModel) ToDomain() *domain.Task {
 		UpdatedAt:   m.UpdatedAt,
 		Status:      status,
 		Priority:    priority,
+		Assigns:     assigns,
 	}
 }

@@ -21,6 +21,14 @@ type Task struct {
 
 	Status   TaskStatus   `json:"status"`
 	Priority TaskPriority `json:"priority"`
+	Assigns  []TaskAssign `json:"assignees"`
+}
+
+type TaskAssign struct {
+	ID     int64 `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Avatar string `json:"avatar"`
 }
 
 type TaskStatus struct {

@@ -141,7 +141,7 @@ func (h *TaskHandler) Create(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusInternalServerError, "failed to create task", err.Error())
 	}
 
-	return ResOk(c, fiber.StatusOK, task, nil, nil)
+	return ResOk(c, fiber.StatusCreated, task, nil, nil)
 }
 
 func (h *TaskHandler) Update(c *fiber.Ctx) error {

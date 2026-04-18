@@ -32,7 +32,7 @@ func (r *taskRepository) Find(ctx context.Context, opts query.QueryOptions, proj
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Preload("Status").Preload("Priority").Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(base, opts).Preload("Status").Preload("Priority").Preload("Assigns.User").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

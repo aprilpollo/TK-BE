@@ -166,8 +166,7 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, create
 			return err
 		}
 
-		//if len(req.AssigneeIDs) > 0 {
-		if req.AssigneeIDs != nil {
+		if len(req.AssigneeIDs) > 0 {
 			var taskAssignees []models.TaskAssignModel
 			for _, assigneeID := range req.AssigneeIDs {
 				taskAssignees = append(taskAssignees, models.TaskAssignModel{

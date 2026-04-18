@@ -41,8 +41,8 @@ func (s *taskService) DeleteStatus(ctx context.Context, status_id int64) error {
 	return s.repo.DeleteStatus(ctx, status_id)
 }
 
-func (s *taskService) Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error) {
-	return s.repo.Create(ctx, req)
+func (s *taskService) Create(ctx context.Context, req *domain.TaskReq, createBy int64) (*domain.Task, error) {
+	return s.repo.Create(ctx, req, createBy)
 }
 
 func (s *taskService) Update(ctx context.Context, req *domain.UpdateTaskReq, task_id int64) (*domain.Task, error) {

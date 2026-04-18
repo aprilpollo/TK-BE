@@ -134,7 +134,9 @@ func (h *TaskHandler) Create(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
 
-	task, err := h.svc.Create(c.Context(), &req)
+	userID := getCallerID(c)
+
+	task, err := h.svc.Create(c.Context(), &req, userID)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to create task", err.Error())
 	}

@@ -233,7 +233,7 @@ func (r *organizationRepository) FindMembers(ctx context.Context, orgID int64, o
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(base, opts).Preload("User").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

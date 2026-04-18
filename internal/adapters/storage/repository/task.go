@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"aprilpollo/internal/adapters/storage/orm/models"
 	"aprilpollo/internal/core/domain"
@@ -127,8 +128,9 @@ func (r *taskRepository) DeleteStatus(ctx context.Context, status_id int64) erro
 	})
 }
 
-func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq) (*domain.Task, error) {
+func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, createBy int64) (*domain.Task, error) {
 	var maxPosition *int
+	now := time.Now()
 	r.db.WithContext(ctx).Model(&models.TasksModel{}).
 		Where(&models.TasksModel{ProjectID: req.ProjectID, StatusID: req.StatusID}).
 		Select("MAX(position)").
@@ -156,6 +158,22 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq) (*doma
 
 	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
 		return nil, err
+	}
+
+	if req.AssigneeIDs != nil {
+		var taskAssignees []models.TaskAssignModel
+		for _, assigneeID := range req.AssigneeIDs {
+			taskAssignees = append(taskAssignees, models.TaskAssignModel{
+				TaskID:   model.ID,
+				UserID:   assigneeID,
+				InvitedBy: &createBy,
+				InvitedAt: &now,
+				JoinedAt:  &now,
+			})
+		}
+		if err := r.db.WithContext(ctx).Create(&taskAssignees).Error; err != nil {
+			return nil, err
+		}
 	}
 
 	return model.ToDomain(), nil

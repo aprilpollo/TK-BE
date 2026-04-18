@@ -9,7 +9,7 @@ import (
 type Organization struct {
 	ID           int64     `json:"id"`
 	Name         string    `json:"name"`
-	Slug         uuid.UUID    `json:"slug"`
+	Slug         uuid.UUID `json:"slug"`
 	Description  string    `json:"description"`
 	LogoURL      *string   `json:"logo_url"`
 	ContactEmail string    `json:"contact_email"`
@@ -22,6 +22,11 @@ type OrganizationMember struct {
 	ID             int64      `json:"id"`
 	OrganizationID int64      `json:"organization_id"`
 	UserID         int64      `json:"user_id"`
+	Email          string     `json:"email"`
+	FirstName      string     `json:"first_name"`
+	LastName       string     `json:"last_name"`
+	DisplayName    string     `json:"display_name"`
+	Avatar         *string    `json:"avatar"`
 	RoleID         int64      `json:"role_id"`
 	StatusID       int64      `json:"status_id"`
 	IsOwner        bool       `json:"is_owner"`

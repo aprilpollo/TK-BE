@@ -48,6 +48,7 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 			"priority":    v.Priority,
 			"dueDate":     v.DueDate,
 			"subtasks":    v.ParentID,
+			"assignees":   v.Assigns,
 		})
 	}
 

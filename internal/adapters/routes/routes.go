@@ -28,16 +28,16 @@ func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fi
 	users.Put("/me/organizations/primary/:id", h.UpdatePrimaryOrganization)
 }
 
-func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, jwtMiddleware fiber.Handler) {
+func RegisterOrganizationRoutes(app *fiber.App, h *handler.OrganizationHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
 	api := app.Group("/api/v1")
 
 	orgs := api.Group("/organizations", jwtMiddleware)
 	orgs.Get("/", h.Gets)
+	orgs.Get("/members", h.GetMembers)
 	orgs.Get("/:id", h.GetByID)
-	orgs.Get("/:id/members", h.GetMembers)
 
 	orgs.Post("/", h.Create)
-	orgs.Post("/:id/members", h.InviteMember)
+	orgs.Post("/:id/members", orgMiddleware, h.InviteMember)
 
 	orgs.Put("/:id", h.Update)
 	orgs.Put("/:id/members/:memberID", h.UpdateMember)

@@ -130,7 +130,7 @@ func main() {
 
 	routes.RegisterOauthRoutes(app, oauthHandler)
 	routes.RegisterUserRoutes(app, userHandler, jwtMiddleware)
-	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware)
+	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterProjectRoutes(app, projectHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterTaskRoutes(app, taskHandler, jwtMiddleware, orgMiddleware)
 	

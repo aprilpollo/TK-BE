@@ -100,12 +100,9 @@ func (h *OrganizationHandler) Delete(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
-// GET /api/v1/organizations/:id/members
+// GET /api/v1/organizations/members
 func (h *OrganizationHandler) GetMembers(c *fiber.Ctx) error {
-	orgID, err := strconv.ParseInt(c.Params("id"), 10, 64)
-	if err != nil {
-		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
-	}
+	orgID := getCallerOrgID(c)
 
 	opts, err := query.Parse(c.Queries())
 	if err != nil {

@@ -1,4 +1,4 @@
-name: aprilpollo
+name: aprilpollo-api
 services:
   app:
     container_name: app

@@ -1,0 +1,42 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment variables (สำคัญมาก: ป้องกันไม่ให้ไฟล์ .env ติดเข้าไปใน Image)
+.env
+.env.*
+!.env.example
+
+# Docker-related
+docker/
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build outputs (ถ้ามีการ build ไว้ในเครื่อง)
+bin/
+build/
+out/
+*.exe
+*.test
+*.prof
+
+# Documentation and scripts (ถ้าไม่จำเป็นต้องใช้ตอนรันหรือ build ใน container)
+README.md
+LICENSE

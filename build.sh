@@ -110,6 +110,7 @@ build_and_push() {
   DOCKER_BUILDKIT=1 docker build \
     -f docker/Dockerfile \
     -t "$image_name" \
+    -t "${REGISTRY}/task-manager:latest" \
     --platform "$PLATFORM" \
     . \
     --push

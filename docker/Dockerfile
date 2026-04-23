@@ -19,6 +19,4 @@ WORKDIR /app
 
 COPY --from=builder /app/server .
 
-EXPOSE 3000
-
 CMD ["./server"]

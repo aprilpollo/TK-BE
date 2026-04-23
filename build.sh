@@ -86,23 +86,10 @@ build() {
   print_status "Build completed successfully!"
 }
 
-build_service() {
-  local service=$1
-  if [ -z "$service" ]; then
-    print_error "Service name is required"
-    print_info "Available services: backend, backend-lpr, backend-rtsp"
-    exit 1
-  fi
-  
-  print_status "Building $service..."
-  $COMPOSE -f "$COMPOSE_FILE" build "$service"
-  print_status "Build completed for $service!"
-}
-
 build_and_push() {
   print_header "Building & Pushing"
   
-  local image_name="${REGISTRY}/task-manager:${IMAGE_TAG}"
+  local image_name="${REGISTRY}/task-manager-api:${IMAGE_TAG}"
   
   print_step "Building image: $image_name"
   print_info "Platform: $PLATFORM"
@@ -110,7 +97,7 @@ build_and_push() {
   DOCKER_BUILDKIT=1 docker build \
     -f docker/Dockerfile \
     -t "$image_name" \
-    -t "${REGISTRY}/task-manager:latest" \
+    -t "${REGISTRY}/task-manager-api:latest" \
     --platform "$PLATFORM" \
     . \
     --push

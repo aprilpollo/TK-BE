@@ -63,6 +63,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db.GetDB())
 	projectRepo := repository.NewProjectRepository(db.GetDB())
 	taskRepo := repository.NewTaskRepository(db.GetDB())
+	calendarRepo := repository.NewCalendarRepository(db.GetDB())
 
 	// --- Services (core / use cases) ---
 	googleVerifier := googleAdapter.NewGoogleVerifier(cfg.Oauth.GoogleProvider.ClientID)
@@ -77,7 +78,7 @@ func main() {
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
 	projectSvc := services.NewProjectService(projectRepo, taskRepo)
 	taskSvc := services.NewTaskService(taskRepo)
-
+	calendarSvc := services.NewCalendarService(calendarRepo)
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)
 	orgMiddleware := middleware.OrganizationProtected()
@@ -88,6 +89,7 @@ func main() {
 	userHandler := handler.NewUserHandler(userSvc, orgSvc)
 	projectHandler := handler.NewProjectHandler(projectSvc)
 	taskHandler := handler.NewTaskHandler(taskSvc)
+	calendarHandler := handler.NewCalendarHandler(calendarSvc)
 
 	// --- Fiber app ---
 	app := fiber.New(fiber.Config{
@@ -133,7 +135,7 @@ func main() {
 	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterProjectRoutes(app, projectHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterTaskRoutes(app, taskHandler, jwtMiddleware, orgMiddleware)
-	
+	routes.RegisterCalendarRoutes(app, calendarHandler, jwtMiddleware, orgMiddleware)
 	if err := app.Listen(fmt.Sprintf(":%s", cfg.App.ApiPort)); err != nil {
 		log.Println(err)
 	}

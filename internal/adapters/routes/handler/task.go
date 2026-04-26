@@ -1,11 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"strconv"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
+
 	// "github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
@@ -46,7 +48,9 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 			"title":       v.Title,
 			"description": v.Description,
 			"priority":    v.Priority,
-			"dueDate":     v.DueDate,
+			"startDate":   v.StartDate,
+			"endDate":     v.EndDate,
+			"allDay":      v.AllDay,
 			"subtasks":    v.ParentID,
 			"assignees":   v.Assigns,
 		})
@@ -155,6 +159,8 @@ func (h *TaskHandler) Update(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
+
+	fmt.Printf("Received update request: %+v\n", req)
 
 	task, err := h.svc.Update(c.Context(), &req, taskID)
 	if err != nil {

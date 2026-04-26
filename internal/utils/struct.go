@@ -74,6 +74,25 @@ func StructToMap(v any) map[string]any {
 			}
 		}
 
+		// Check if it's a Nullable type (has IsSet and IsNull methods)
+		if isNullable := fieldVal.MethodByName("IsSet"); isNullable.IsValid() {
+			if isSetResult := isNullable.Call(nil); len(isSetResult) > 0 && isSetResult[0].Bool() {
+				// Field was in JSON
+				if isNull := fieldVal.MethodByName("IsNull"); isNull.IsValid() {
+					if isNullResult := isNull.Call(nil); len(isNullResult) > 0 && isNullResult[0].Bool() {
+						// Explicitly set to NULL
+						result[key] = nil
+					} else {
+						// Has a value, get it from the Value field
+						if valueField := fieldVal.FieldByName("Value"); valueField.IsValid() {
+							result[key] = valueField.Interface()
+						}
+					}
+				}
+			}
+			continue
+		}
+
 		if fieldVal.Kind() == reflect.Ptr {
 			// pointer nil → skip (client didn't send this field)
 			// pointer non-nil → include with dereferenced value

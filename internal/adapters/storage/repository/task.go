@@ -158,7 +158,9 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, create
 			StatusID:    req.StatusID,
 			PriorityID:  priorityID,
 			ParentID:    req.ParentID,
-			DueDate:     req.DueDate,
+			StartDate:   req.StartDate,
+			EndDate:     req.EndDate,
+			AllDay:      req.AllDay,
 			Position:    nextPosition,
 		}
 

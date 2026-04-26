@@ -82,3 +82,14 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 	tasks.Delete("/:task_id", h.Delete)
 	tasks.Delete("/statuses/:status_id", h.DeleteStatus)
 }
+
+
+func RegisterCalendarRoutes(app *fiber.App, h *handler.CalendarHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
+	api := app.Group("/api/v1")
+
+	calendar := api.Group("/calendar", jwtMiddleware, orgMiddleware)
+	calendar.Get("/priorities", h.ListPriority)
+	calendar.Get("/statuses/:project_id", h.ListStatus)
+	calendar.Get("/:project_id", h.List)
+
+}

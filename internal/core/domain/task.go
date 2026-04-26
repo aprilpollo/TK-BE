@@ -1,8 +1,10 @@
 package domain
 
 import (
-	"github.com/google/uuid"
+	"aprilpollo/internal/utils"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type Task struct {
@@ -15,7 +17,9 @@ type Task struct {
 	PriorityID  int64      `json:"priority_id"`
 	ParentID    *int64     `json:"parent_id"`
 	Position    int        `json:"position"`
-	DueDate     *time.Time `json:"due_date"`
+	StartDate   *time.Time `json:"start_date"`
+	EndDate     *time.Time `json:"end_date"`
+	AllDay      bool       `json:"all_day"`
 	CreatedAt   time.Time  `json:"created_at"`
 	UpdatedAt   time.Time  `json:"updated_at"`
 
@@ -25,7 +29,7 @@ type Task struct {
 }
 
 type TaskAssign struct {
-	ID     int64 `json:"id"`
+	ID     int64  `json:"id"`
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
@@ -79,20 +83,24 @@ type TaskReq struct {
 	StatusID    int64      `json:"status_id"`
 	PriorityID  int64      `json:"priority_id"`
 	ParentID    *int64     `json:"parent_id"`
-	DueDate     *time.Time `json:"due_date"`
+	StartDate   *time.Time `json:"start_date"`
+	EndDate     *time.Time `json:"end_date"`
+	AllDay      bool       `json:"all_day"`
 	AssigneeIDs []int64    `json:"assignee_ids"`
 }
 
 type UpdateTaskStatusReq struct {
-	Name        string `json:"name,omitempty"`
-	Description string `json:"description,omitempty"`
-	Color       string `json:"color,omitempty"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Color       string `json:"color"`
 }
 
 type UpdateTaskReq struct {
-	Title       string    `json:"title,omitempty"`
-	Description string    `json:"description,omitempty"`
-	StatusID    int64     `json:"status_id,omitempty"`
-	PriorityID  int64     `json:"priority_id,omitempty"`
-	DueDate     time.Time `json:"due_date,omitempty"`
+	Title       string                    `json:"title"`
+	Description string                    `json:"description"`
+	StatusID    int64                     `json:"status_id"`
+	PriorityID  int64                     `json:"priority_id"`
+	StartDate   utils.Nullable[time.Time] `json:"start_date"`
+	EndDate     utils.Nullable[time.Time] `json:"end_date"`
+	AllDay      *bool                     `json:"all_day"`
 }

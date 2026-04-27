@@ -20,7 +20,7 @@ type TasksModel struct {
 	Position    int        `gorm:"default:0;index"`
 	StartDate   *time.Time `gorm:"index"`
 	EndDate     *time.Time `gorm:"index"`
-	AllDay      bool       `gorm:"default:false"`
+	AllDay      bool       `gorm:"default:true"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`

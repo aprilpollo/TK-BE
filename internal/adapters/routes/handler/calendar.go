@@ -38,16 +38,16 @@ func (h *CalendarHandler) List(c *fiber.Ctx) error {
 	taskMap := make([]map[string]interface{}, 0)
 	for _, v := range tasks {
 		taskMap = append(taskMap, map[string]interface{}{
-			"id":          strconv.FormatInt(v.ID, 10),
+			"id":          v.Key,
 			"title":       v.Title,
 			"description": v.Description,
 			"start":       v.StartDate,
 			"end":         v.EndDate,
-			//"allDay":      v.AllDay,
-			"allDay":      true,
+			"allDay":      v.AllDay,
 			"category":    "task",
 			"priority":    v.Priority,
 			"assignees":   v.Assigns,
+			"status":      v.Status,
 		})
 	}
 

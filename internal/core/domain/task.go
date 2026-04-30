@@ -8,20 +8,20 @@ import (
 )
 
 type Task struct {
-	ID          int64      `json:"id"`
-	ProjectID   int64      `json:"project_id"`
-	Key         uuid.UUID  `json:"key"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	StatusID    int64      `json:"status_id"`
-	PriorityID  int64      `json:"priority_id"`
-	ParentID    *int64     `json:"parent_id"`
-	Position    int        `json:"position"`
-	StartDate   *time.Time `json:"start_date"`
-	EndDate     *time.Time `json:"end_date"`
-	AllDay      bool       `json:"all_day"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	ID          int64     `json:"id"`
+	ProjectID   int64     `json:"project_id"`
+	Key         uuid.UUID `json:"key"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	StatusID    int64     `json:"status_id"`
+	PriorityID  int64     `json:"priority_id"`
+	ParentID    *int64    `json:"parent_id"`
+	Position    int       `json:"position"`
+	StartDate   *int64    `json:"start_date"`
+	EndDate     *int64    `json:"end_date"`
+	AllDay      bool      `json:"all_day"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 
 	Status   TaskStatus   `json:"status"`
 	Priority TaskPriority `json:"priority"`
@@ -77,16 +77,16 @@ type ReorderTask struct {
 }
 
 type TaskReq struct {
-	ProjectID   int64      `json:"project_id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	StatusID    int64      `json:"status_id"`
-	PriorityID  int64      `json:"priority_id"`
-	ParentID    *int64     `json:"parent_id"`
-	StartDate   *time.Time `json:"start_date"`
-	EndDate     *time.Time `json:"end_date"`
-	AllDay      bool       `json:"all_day"`
-	AssigneeIDs []int64    `json:"assignee_ids"`
+	ProjectID   int64   `json:"project_id"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	StatusID    int64   `json:"status_id"`
+	PriorityID  int64   `json:"priority_id"`
+	ParentID    *int64  `json:"parent_id"`
+	StartDate   *int64  `json:"start_date"`
+	EndDate     *int64  `json:"end_date"`
+	AllDay      *bool   `json:"all_day"`
+	AssigneeIDs []int64 `json:"assignee_ids"`
 }
 
 type UpdateTaskStatusReq struct {
@@ -96,11 +96,11 @@ type UpdateTaskStatusReq struct {
 }
 
 type UpdateTaskReq struct {
-	Title       string                    `json:"title"`
-	Description string                    `json:"description"`
-	StatusID    int64                     `json:"status_id"`
-	PriorityID  int64                     `json:"priority_id"`
-	StartDate   utils.Nullable[time.Time] `json:"start_date"`
-	EndDate     utils.Nullable[time.Time] `json:"end_date"`
-	AllDay      *bool                     `json:"all_day"`
+	Title       string                `json:"title"`
+	Description string                `json:"description"`
+	StatusID    int64                 `json:"status_id"`
+	PriorityID  int64                 `json:"priority_id"`
+	StartDate   utils.Nullable[int64] `json:"start_date"`
+	EndDate     utils.Nullable[int64] `json:"end_date"`
+	AllDay      *bool                 `json:"all_day"`
 }

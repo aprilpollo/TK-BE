@@ -9,18 +9,18 @@ import (
 )
 
 type TasksModel struct {
-	ID          int64      `gorm:"primaryKey"`
-	ProjectID   int64      `gorm:"not null;index:idx_ticket_project"`
-	Title       string     `gorm:"not null;size:500"`
-	Description string     `gorm:"type:text"`
-	Key         uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid()"`
-	StatusID    int64      `gorm:"not null;index"`
-	PriorityID  int64      `gorm:"not null;index"`
-	ParentID    *int64     `gorm:"index"`
-	Position    int        `gorm:"default:0;index"`
-	StartDate   *time.Time `gorm:"index"`
-	EndDate     *time.Time `gorm:"index"`
-	AllDay      bool       `gorm:"default:true"`
+	ID          int64     `gorm:"primaryKey"`
+	ProjectID   int64     `gorm:"not null;index:idx_ticket_project"`
+	Title       string    `gorm:"not null;size:500"`
+	Description string    `gorm:"type:text"`
+	Key         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
+	StatusID    int64     `gorm:"not null;index"`
+	PriorityID  int64     `gorm:"not null;index"`
+	ParentID    *int64    `gorm:"index"`
+	Position    int       `gorm:"default:0;index"`
+	StartDate   *int64    `gorm:"index"`
+	EndDate     *int64    `gorm:"index"`
+	AllDay      *bool     `gorm:"default:true"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`
@@ -198,7 +198,7 @@ func (m *TasksModel) ToDomain() *domain.Task {
 		Position:    m.Position,
 		StartDate:   m.StartDate,
 		EndDate:     m.EndDate,
-		AllDay:      m.AllDay,
+		AllDay:      m.AllDay != nil && *m.AllDay,
 		CreatedAt:   m.CreatedAt,
 		UpdatedAt:   m.UpdatedAt,
 		Status:      status,

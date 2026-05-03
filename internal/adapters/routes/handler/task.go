@@ -101,6 +101,24 @@ func (h *TaskHandler) CreateStatus(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, status, nil, nil)
 }
 
+func (h *TaskHandler) CreateListStatus(c *fiber.Ctx) error {
+	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var req []domain.CreateListTaskStatusReq
+	if err := c.BodyParser(&req); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
+	}
+
+	if err := h.svc.CreateListStatus(c.Context(), projectID, req); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to create task statuses", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}
+
 func (h *TaskHandler) UpdateStatus(c *fiber.Ctx) error {
 	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
 	if err != nil {

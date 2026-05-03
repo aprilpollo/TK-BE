@@ -59,6 +59,13 @@ type CreateTaskStatusReq struct {
 	Color       string `json:"color"`
 }
 
+type CreateListTaskStatusReq struct {
+	UUID        *uuid.UUID `json:"uuid"`
+	Name        string     `json:"name"`
+	Description string     `json:"description"`
+	Color       string     `json:"color"`
+}
+
 type ReqReorderTaskStatus struct {
 	Updates []ReorderTaskStatus `json:"updates"`
 }

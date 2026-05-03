@@ -33,6 +33,10 @@ func (s *taskService) CreateStatus(ctx context.Context, req *domain.CreateTaskSt
 	return s.repo.CreateStatus(ctx, req)
 }
 
+func (s *taskService) CreateListStatus(ctx context.Context, project_id int64, req []domain.CreateListTaskStatusReq) error {
+	return s.repo.CreateListStatus(ctx, project_id, req)
+}
+
 func (s *taskService) UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, status_id int64) (*domain.TaskStatus, error) {
 	return s.repo.UpdateStatus(ctx, req, status_id)
 }

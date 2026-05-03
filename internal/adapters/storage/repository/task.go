@@ -102,6 +102,43 @@ func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTas
 	return model.ToDomain(), nil
 }
 
+func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64, req []domain.CreateListTaskStatusReq) error {
+	var toCreate []models.TaskStatusModel
+
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		for i, item := range req {
+			if item.UUID != nil {
+				if err := tx.Model(&models.TaskStatusModel{}).
+					Where("uuid = ? AND project_id = ?", item.UUID, project_id).
+					Updates(map[string]any{
+						"name":        item.Name,
+						"description": item.Description,
+						"color":       item.Color,
+						"position":    i,
+					}).Error; err != nil {
+					return err
+				}
+			} else {
+				toCreate = append(toCreate, models.TaskStatusModel{
+					ProjectID:   project_id,
+					Name:        item.Name,
+					Description: item.Description,
+					Color:       item.Color,
+					Position:    i,
+				})
+			}
+		}
+
+		if len(toCreate) > 0 {
+			if err := tx.Create(&toCreate).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+}
+
 func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, status_id int64) (*domain.TaskStatus, error) {
 	var model models.TaskStatusModel
 	if err := r.db.WithContext(ctx).Where("id = ?", status_id).First(&model).Error; err != nil {
@@ -243,7 +280,7 @@ func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorder
 
 			if err := tx.Model(&models.TasksModel{}).
 				Where("id = ?", item.ID).
-				Updates(map[string]interface{}{
+				Updates(map[string]any{
 					"position":  item.Position,
 					"status_id": status.ID,
 				}).Error; err != nil {

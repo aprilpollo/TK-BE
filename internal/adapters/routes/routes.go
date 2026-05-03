@@ -56,6 +56,7 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Get("/:id", h.GetByID)
 
 	projects.Post("/", h.Create)
+	projects.Post("/:id/logo", h.UpdateLogo)
 
 	projects.Put("/:id", h.Update)
 
@@ -72,6 +73,7 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 
 	tasks.Post("/", h.Create)
 	tasks.Post("/statuses", h.CreateStatus)
+	tasks.Post("/statuses/list/:project_id", h.CreateListStatus)
 
 	tasks.Put("/:task_id", h.Update)
 	tasks.Put("/statuses/reorder/:project_id", h.ReorderStatus)

@@ -12,6 +12,7 @@ type TaskService interface {
 	ListPriority(ctx context.Context) ([]domain.TaskPriority, error)
 	ListStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error)
 	CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error)
+	CreateListStatus(ctx context.Context, project_id int64, req []domain.CreateListTaskStatusReq) error
 	UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, status_id int64) (*domain.TaskStatus, error)
 	DeleteStatus(ctx context.Context, status_id int64) error
 	Create(ctx context.Context, req *domain.TaskReq, createBy int64) (*domain.Task, error)

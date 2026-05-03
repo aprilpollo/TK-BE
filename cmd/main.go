@@ -76,7 +76,7 @@ func main() {
 
 	orgSvc := services.NewOrganizationService(orgRepo)
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
-	projectSvc := services.NewProjectService(projectRepo, taskRepo)
+	projectSvc := services.NewProjectService(projectRepo, taskRepo, minioClient)
 	taskSvc := services.NewTaskService(taskRepo)
 	calendarSvc := services.NewCalendarService(calendarRepo)
 	// --- Middleware ---

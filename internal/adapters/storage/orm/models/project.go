@@ -16,7 +16,8 @@ type ProjectModel struct {
 	Key            uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
 	Description    string    `gorm:"type:text"`
 	LogoURL        *string   `gorm:"type:text"`
-	DueDate        *time.Time
+	StartDate      *int64 
+	EndDate        *int64 
 	StatusID       int64 `gorm:"not null;index;default:1"`
 
 	CreatedAt time.Time      `gorm:"not null"`
@@ -55,7 +56,8 @@ func (m *ProjectModel) ToDomain() *domain.Project {
 		Key:            m.Key,
 		Description:    m.Description,
 		LogoURL:        m.LogoURL,
-		DueDate:        m.DueDate,
+		StartDate:      m.StartDate,
+		EndDate:        m.EndDate,
 		Status:         status,
 		CreatedAt:      m.CreatedAt,
 		UpdatedAt:      m.UpdatedAt,

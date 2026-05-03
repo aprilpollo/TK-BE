@@ -59,9 +59,9 @@ func (r *projectRepository) FindStatuses(ctx context.Context) ([]domain.ProjectS
 	return statuses, nil
 }
 
-func (r *projectRepository) FindByID(ctx context.Context, id int64, orgId int64) (*domain.Project, error) {
+func (r *projectRepository) FindByID(ctx context.Context, projectId int64, orgId int64) (*domain.Project, error) {
 	var row models.ProjectModel
-	if err := r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", id, orgId).First(&row).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", projectId, orgId).First(&row).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -81,13 +81,14 @@ func (r *projectRepository) FindByKey(ctx context.Context, key uuid.UUID, orgId 
 	return row.ToDomain(), nil
 }
 
-func (r *projectRepository) Create(ctx context.Context, project *domain.CreateProjectReq, orgId int64) (*domain.Project, error) {
+func (r *projectRepository) Create(ctx context.Context, orgId int64, project *domain.CreateProjectReq) (*domain.Project, error) {
 	model := models.ProjectModel{
 		OrganizationID: orgId,
 		Name:           project.Name,
 		Description:    project.Description,
 		LogoURL:        project.LogoURL,
-		DueDate:        project.DueDate,
+		StartDate:      project.StartDate,
+		EndDate:        project.EndDate,
 	}
 
 	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
@@ -97,10 +98,10 @@ func (r *projectRepository) Create(ctx context.Context, project *domain.CreatePr
 	return model.ToDomain(), nil
 }
 
-func (r *projectRepository) Update(ctx context.Context, id int64, req *domain.UpdateProjectReq, orgId int64) error {
-	return r.db.WithContext(ctx).Model(&models.ProjectModel{}).Where("id = ? AND organization_id = ?", id, orgId).Updates(utils.StructToMap(req)).Error
+func (r *projectRepository) Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error {
+	return r.db.WithContext(ctx).Model(&models.ProjectModel{}).Where("id = ? AND organization_id = ?", projectId, orgId).Updates(utils.StructToMap(req)).Error
 }
 
-func (r *projectRepository) Delete(ctx context.Context, id int64, orgId int64) error {
-	return r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", id, orgId).Delete(&models.ProjectModel{}).Error
+func (r *projectRepository) Delete(ctx context.Context, projectId int64, orgId int64) error {
+	return r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", projectId, orgId).Delete(&models.ProjectModel{}).Error
 }

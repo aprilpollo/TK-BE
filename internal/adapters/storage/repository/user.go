@@ -27,12 +27,13 @@ func (r *userRepository) FindAll(ctx context.Context, opts query.QueryOptions) (
 	var total int64
 
 	base := r.db.WithContext(ctx).Model(&models.UserModel{})
+	filtered := gormq.ApplyToGorm(base, opts)
 
-	if err := base.Count(&total).Error; err != nil {
+	if err := filtered.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(r.db.WithContext(ctx).Model(&models.UserModel{}), opts).Find(&rows).Error; err != nil {
+	if err := filtered.Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

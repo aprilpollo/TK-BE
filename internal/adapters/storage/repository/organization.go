@@ -29,12 +29,13 @@ func (r *organizationRepository) FindAll(ctx context.Context, opts query.QueryOp
 	var total int64
 
 	base := r.db.WithContext(ctx).Model(&models.OrganizationModel{})
+	filtered := gormq.ApplyToGorm(base, opts)
 
-	if err := base.Count(&total).Error; err != nil {
+	if err := filtered.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(r.db.WithContext(ctx).Model(&models.OrganizationModel{}), opts).Find(&rows).Error; err != nil {
+	if err := filtered.Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -94,12 +95,13 @@ func (r *organizationRepository) FindByUserID(ctx context.Context, userID int64,
 
 	base := r.db.WithContext(ctx).Model(&models.OrganizationMemberModel{}).
 		Where("user_id = ?", userID)
+	filtered := gormq.ApplyToGorm(base, opts)
 
-	if err := base.Count(&total).Error; err != nil {
+	if err := filtered.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Preload("Organization").Find(&rows).Error; err != nil {
+	if err := filtered.Preload("Organization").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -229,12 +231,13 @@ func (r *organizationRepository) FindMembers(ctx context.Context, orgID int64, o
 	var total int64
 
 	base := r.db.WithContext(ctx).Model(&views.OrganizationMemberView{}).Where("organization_id = ?", orgID)
+	filtered := gormq.ApplyToGorm(base, opts)
 
-	if err := base.Count(&total).Error; err != nil {
+	if err := filtered.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Find(&rows).Error; err != nil {
+	if err := filtered.Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

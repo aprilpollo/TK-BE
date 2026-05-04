@@ -28,12 +28,14 @@ func (r *projectRepository) FindAll(ctx context.Context, opts query.QueryOptions
 	var total int64
 
 	base := r.db.WithContext(ctx).Model(&models.ProjectModel{}).Where("organization_id = ?", orgId)
+	
+	filtered := gormq.ApplyToGorm(base, opts)
 
-	if err := base.Count(&total).Error; err != nil {
+	if err := filtered.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Preload("Status").Find(&rows).Error; err != nil {
+	if err := filtered.Preload("Status").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

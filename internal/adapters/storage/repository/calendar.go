@@ -28,13 +28,12 @@ func (r *calendarRepository) Find(ctx context.Context, opts query.QueryOptions, 
 	var total int64
 
 	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).Where("project_id = ?", project_id)
-	filtered := gormq.ApplyToGorm(base, opts)
 
-	if err := filtered.Count(&total).Error; err != nil {
+	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	if err := filtered.Preload("Status").Preload("Priority").Preload("Assigns.User").Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(base, opts).Preload("Status").Preload("Priority").Preload("Assigns.User").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

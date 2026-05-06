@@ -9,9 +9,9 @@ import (
 	"gorm.io/gorm"
 )
 
-// ApplyToGorm chains filters, sort, limit, offset onto a *gorm.DB scope.
-// The caller is responsible for calling .Find(), .Scan(), etc. afterward.
-func ApplyToGorm(db *gorm.DB, opts query.QueryOptions) *gorm.DB {
+// ApplyFilters chains filters and sort onto a *gorm.DB scope without pagination.
+// Use this for COUNT queries so total is not capped by LIMIT/OFFSET.
+func ApplyFilters(db *gorm.DB, opts query.QueryOptions) *gorm.DB {
 	for _, f := range opts.Filters {
 		db = applyFilter(db, f)
 	}
@@ -33,6 +33,14 @@ func ApplyToGorm(db *gorm.DB, opts query.QueryOptions) *gorm.DB {
 		}
 		db = db.Order(order)
 	}
+
+	return db
+}
+
+// ApplyToGorm chains filters, sort, limit, offset onto a *gorm.DB scope.
+// The caller is responsible for calling .Find(), .Scan(), etc. afterward.
+func ApplyToGorm(db *gorm.DB, opts query.QueryOptions) *gorm.DB {
+	db = ApplyFilters(db, opts)
 
 	if opts.Limit > 0 {
 		db = db.Limit(opts.Limit)

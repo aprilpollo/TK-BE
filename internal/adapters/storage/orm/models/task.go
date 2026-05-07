@@ -90,6 +90,7 @@ type TaskStatusModel struct {
 	Description string    `gorm:"type:text;size:255"`
 	Color       string    `gorm:"size:7;default:'#52525B'"`
 	Position    int       `gorm:"default:0;index"`
+	IsComplete  bool      `gorm:"default:false"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`
@@ -141,6 +142,7 @@ func (m *TaskStatusModel) ToDomain() *domain.TaskStatus {
 		Description: m.Description,
 		Color:       m.Color,
 		Position:    m.Position,
+		IsComplete:  m.IsComplete,
 	}
 }
 

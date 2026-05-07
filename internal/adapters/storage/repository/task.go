@@ -60,7 +60,7 @@ func (r *taskRepository) FindPriority(ctx context.Context) ([]domain.TaskPriorit
 
 func (r *taskRepository) FindStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error) {
 	var models []models.TaskStatusModel
-	base := r.db.WithContext(ctx).Where("project_id = ?", project_id)
+	base := r.db.WithContext(ctx).Where("project_id = ?", project_id).Order("is_complete ASC, position ASC")
 
 	if err := gormq.ApplyToGorm(base, opts).Find(&models).Error; err != nil {
 		return nil, err
@@ -75,31 +75,57 @@ func (r *taskRepository) FindStatus(ctx context.Context, opts query.QueryOptions
 }
 
 func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error) {
-	var maxPosition *int
+	var result models.TaskStatusModel
 
-	r.db.WithContext(ctx).Model(&models.TaskStatusModel{}).
-		Where(&models.TaskStatusModel{ProjectID: req.ProjectID}).
-		Select("MAX(position)").
-		Scan(&maxPosition)
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var maxPosition *int
 
-	nextPosition := 1
-	if maxPosition != nil {
-		nextPosition = *maxPosition + 1
-	}
+		tx.Model(&models.TaskStatusModel{}).
+			Where("project_id = ? AND is_complete = ?", req.ProjectID, false).
+			Select("MAX(position)").
+			Scan(&maxPosition)
 
-	model := models.TaskStatusModel{
-		ProjectID:   req.ProjectID,
-		Name:        req.Name,
-		Description: req.Description,
-		Color:       req.Color,
-		Position:    nextPosition,
-	}
+		nextPosition := 1
+		if maxPosition != nil {
+			nextPosition = *maxPosition + 1
+		}
 
-	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
+		if !req.IsComplete {
+			
+			if err := tx.Model(&models.TaskStatusModel{}).
+				Where("project_id = ? AND is_complete = ?", req.ProjectID, true).
+				UpdateColumn("position", gorm.Expr("position + 1")).Error; err != nil {
+				return err
+			}
+		} else {
+			
+			tx.Model(&models.TaskStatusModel{}).
+				Where("project_id = ?", req.ProjectID).
+				Select("MAX(position)").
+				Scan(&maxPosition)
+
+			nextPosition = 1
+			if maxPosition != nil {
+				nextPosition = *maxPosition + 1
+			}
+		}
+
+		result = models.TaskStatusModel{
+			ProjectID:   req.ProjectID,
+			Name:        req.Name,
+			Description: req.Description,
+			Color:       req.Color,
+			Position:    nextPosition,
+			IsComplete:  req.IsComplete,
+		}
+
+		return tx.Create(&result).Error
+	})
+	if err != nil {
 		return nil, err
 	}
 
-	return model.ToDomain(), nil
+	return result.ToDomain(), nil
 }
 
 func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64, req []domain.CreateListTaskStatusReq) error {
@@ -114,7 +140,8 @@ func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64,
 						"name":        item.Name,
 						"description": item.Description,
 						"color":       item.Color,
-						"position":    i,
+						"position":    i + 1,
+						"is_complete": item.IsComplete,
 					}).Error; err != nil {
 					return err
 				}
@@ -124,7 +151,8 @@ func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64,
 					Name:        item.Name,
 					Description: item.Description,
 					Color:       item.Color,
-					Position:    i,
+					IsComplete:  item.IsComplete,
+					Position:    i + 1,
 				})
 			}
 		}

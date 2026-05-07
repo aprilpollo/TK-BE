@@ -45,14 +45,22 @@ func (s *projectService) Create(ctx context.Context, orgId int64, req *domain.Cr
 	}
 
 	// Create default task statuses for the new project
-	defaultStatuses := domain.CreateTaskStatusReq{
-		ProjectID:   pRepo.ID,
-		Name:        "To Do",
-		Description: "Tasks that need to be done",
-		Color:       "#52525B",
+	defaultStatuses := []domain.CreateListTaskStatusReq{
+		{
+			Name:        "To Do",
+			Description: "Tasks that need to be done",
+			Color:       "#52525B",
+			IsComplete:  false,
+		},
+		{
+			Name:        "Complete",
+			Description: "Tasks that have been completed",
+			Color:       "#12A150",
+			IsComplete:  true,
+		},
 	}
 
-	_, err = s.taskRepo.CreateStatus(ctx, &defaultStatuses)
+	err = s.taskRepo.CreateListStatus(ctx, pRepo.ID, defaultStatuses)
 	if err != nil {
 		return nil, err
 	}

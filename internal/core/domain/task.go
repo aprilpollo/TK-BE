@@ -43,6 +43,7 @@ type TaskStatus struct {
 	Description string    `json:"description"`
 	Color       string    `json:"color"`
 	Position    int       `json:"position"`
+	IsComplete  bool      `json:"is_complete"`
 }
 
 type TaskPriority struct {
@@ -57,6 +58,7 @@ type CreateTaskStatusReq struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	Color       string `json:"color"`
+	IsComplete  bool   `json:"is_complete"`
 }
 
 type CreateListTaskStatusReq struct {
@@ -64,6 +66,7 @@ type CreateListTaskStatusReq struct {
 	Name        string     `json:"name"`
 	Description string     `json:"description"`
 	Color       string     `json:"color"`
+	IsComplete  bool       `json:"is_complete"`
 }
 
 type ReqReorderTaskStatus struct {

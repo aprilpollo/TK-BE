@@ -76,9 +76,9 @@ type TaskMember struct {
 
 type TaskDeadlineItem struct {
 	ID       int64        `json:"id"`
-	Key      string       `json:"key"`
+	Key      uuid.UUID    `json:"key"`
 	Name     string       `json:"name"`
-	DueDate  string       `json:"dueDate"`
+	DueDate  *int64       `json:"dueDate"`
 	Priority TaskPriority `json:"priority"`
 	Status   TaskStatus   `json:"status"`
 }

@@ -251,34 +251,33 @@ func (r *projectRepository) GetTaskVelocityChart(ctx context.Context, projectId 
 }
 
 func (r *projectRepository) GetProjectMembers(ctx context.Context, projectId int64, opts query.QueryOptions) ([]domain.TaskMember, int64, error) {
-	type memberRow struct {
+	type memberResult struct {
 		ID          int64
 		DisplayName string
 		Email       string
 		Avatar      *string
 	}
 
-	const baseSQL = ` FROM task_assignments ta
+	var total int64
+	if err := r.db.WithContext(ctx).Raw(`
+		SELECT COUNT(DISTINCT u.id)
+		FROM task_assignments ta
 		JOIN tasks t ON ta.task_id = t.id AND t.deleted_at IS NULL
 		JOIN users u ON ta.user_id = u.id AND u.deleted_at IS NULL
-		WHERE t.project_id = ? AND ta.deleted_at IS NULL`
-
-	var total int64
-	if err := r.db.WithContext(ctx).Raw("SELECT COUNT(DISTINCT u.id)"+baseSQL, projectId).Scan(&total).Error; err != nil {
+		WHERE t.project_id = ? AND ta.deleted_at IS NULL
+	`, projectId).Scan(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	limit := opts.Limit
-	if limit <= 0 {
-		limit = 10
-	}
-	offset := opts.Offset
+	base := r.db.WithContext(ctx).
+		Model(&models.UserModel{}).
+		Distinct("users.id", "users.display_name", "users.email", "users.avatar").
+		Joins("JOIN task_assignments ta ON ta.user_id = users.id AND ta.deleted_at IS NULL").
+		Joins("JOIN tasks t ON ta.task_id = t.id AND t.deleted_at IS NULL").
+		Where("t.project_id = ? AND users.deleted_at IS NULL", projectId)
 
-	var rows []memberRow
-	if err := r.db.WithContext(ctx).Raw(
-		"SELECT DISTINCT u.id, u.display_name, u.email, u.avatar"+baseSQL+" ORDER BY u.id LIMIT ? OFFSET ?",
-		projectId, limit, offset,
-	).Scan(&rows).Error; err != nil {
+	var rows []memberResult
+	if err := gormq.ApplyToGorm(base, opts).Scan(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -305,22 +304,12 @@ func (r *projectRepository) GetUpcomingDeadlines(ctx context.Context, projectId 
 		Where("tasks.project_id = ? AND tasks.end_date BETWEEN ? AND ? AND tasks.deleted_at IS NULL", projectId, startMs, endMs)
 
 	var total int64
-	if err := r.db.WithContext(ctx).Model(&models.TasksModel{}).
-		Joins("JOIN task_statuses ts ON tasks.status_id = ts.id AND ts.is_complete = false AND ts.deleted_at IS NULL").
-		Where("tasks.project_id = ? AND tasks.end_date BETWEEN ? AND ? AND tasks.deleted_at IS NULL", projectId, startMs, endMs).
-		Count(&total).Error; err != nil {
+	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	limit := opts.Limit
-	if limit <= 0 {
-		limit = 10
-	}
-
 	var rows []models.TasksModel
-	if err := base.Preload("Status").Preload("Priority").
-		Limit(limit).Offset(opts.Offset).
-		Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(base, opts).Preload("Status").Preload("Priority").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -329,8 +318,6 @@ func (r *projectRepository) GetUpcomingDeadlines(ctx context.Context, projectId 
 		if row.EndDate == nil {
 			continue
 		}
-		dueDate := time.UnixMilli(*row.EndDate).Format("2006-01-02")
-
 		status := domain.TaskStatus{}
 		if row.Status != nil {
 			status = *row.Status.ToDomain()
@@ -342,9 +329,9 @@ func (r *projectRepository) GetUpcomingDeadlines(ctx context.Context, projectId 
 
 		items = append(items, domain.TaskDeadlineItem{
 			ID:       row.ID,
-			Key:      row.Key.String(),
+			Key:      row.Key,
 			Name:     row.Title,
-			DueDate:  dueDate,
+			DueDate:  row.EndDate,
 			Priority: priority,
 			Status:   status,
 		})

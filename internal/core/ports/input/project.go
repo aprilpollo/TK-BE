@@ -19,4 +19,6 @@ type ProjectService interface {
 	Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error
 	UpdateLogo(ctx context.Context, projectId int64, orgId int64, file *domain.LogoUploadReq) error
 	Delete(ctx context.Context, projectId int64, orgId int64) error
+    GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error)
+	UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error
 }

@@ -54,11 +54,13 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Get("/statuses", h.GetStatuses)
 	projects.Get("/key/:key", h.GetByKey)
 	projects.Get("/:id", h.GetByID)
+	projects.Get("/:id/notification", h.GetNotificationSettings)
 
 	projects.Post("/", h.Create)
 	projects.Post("/:id/logo", h.UpdateLogo)
 
 	projects.Put("/:id", h.Update)
+	projects.Put("/:id/notification", h.UpdateNotificationSettings)
 
 	projects.Delete("/:id", h.Delete)
 }

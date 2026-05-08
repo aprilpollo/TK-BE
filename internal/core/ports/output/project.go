@@ -17,4 +17,6 @@ type ProjectRepository interface {
 	CreateNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error)
 	Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error
 	Delete(ctx context.Context, projectId int64, orgId int64) error
+	GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error)
+	UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error
 }

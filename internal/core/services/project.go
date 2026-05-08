@@ -125,3 +125,12 @@ func (s *projectService) UpdateLogo(ctx context.Context, projectId int64, orgId 
 func (s *projectService) Delete(ctx context.Context, projectId int64, orgId int64) error {
 	return s.repo.Delete(ctx, projectId, orgId)
 }
+
+
+func (s *projectService) GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error) {
+	return s.repo.GetNotificationSettings(ctx, projectId)
+}
+
+func (s *projectService) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error {
+	return s.repo.UpdateNotificationSettings(ctx, projectId, req)
+}

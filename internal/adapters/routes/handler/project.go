@@ -179,3 +179,36 @@ func (h *ProjectHandler) Delete(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
+
+func (h *ProjectHandler) GetNotificationSettings(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	settings, err := h.svc.GetNotificationSettings(c.Context(), id)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch notification settings", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, settings, nil, nil)
+}
+
+func (h *ProjectHandler) UpdateNotificationSettings(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var body domain.ProjectNotificationSettings
+	if err := c.BodyParser(&body); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request", err.Error())
+	}
+
+	err = h.svc.UpdateNotificationSettings(c.Context(), id, &body)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to update notification settings", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}

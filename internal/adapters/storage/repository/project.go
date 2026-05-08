@@ -117,3 +117,19 @@ func (r *projectRepository) Update(ctx context.Context, projectId int64, orgId i
 func (r *projectRepository) Delete(ctx context.Context, projectId int64, orgId int64) error {
 	return r.db.WithContext(ctx).Where("id = ? AND organization_id = ?", projectId, orgId).Delete(&models.ProjectModel{}).Error
 }
+
+func (r *projectRepository) GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error) {
+	var settings models.ProjectNotificationSettingModel
+	if err := r.db.WithContext(ctx).Where("project_id = ?", projectId).First(&settings).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return settings.ToDomain(), nil
+}
+
+func (r *projectRepository) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error {
+	return r.db.WithContext(ctx).Model(&models.ProjectNotificationSettingModel{}).Where("project_id = ?", projectId).Updates(utils.StructToMap(req)).Error
+}

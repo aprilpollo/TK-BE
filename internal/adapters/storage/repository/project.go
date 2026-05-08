@@ -98,6 +98,18 @@ func (r *projectRepository) Create(ctx context.Context, orgId int64, project *do
 	return model.ToDomain(), nil
 }
 
+func (r *projectRepository) CreateNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error) {
+	settings := models.ProjectNotificationSettingModel{
+		ProjectID: projectId,
+	}
+
+	if err := r.db.WithContext(ctx).Create(&settings).Error; err != nil {
+		return nil, err
+	}
+
+	return settings.ToDomain(), nil
+}
+
 func (r *projectRepository) Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error {
 	return r.db.WithContext(ctx).Model(&models.ProjectModel{}).Where("id = ? AND organization_id = ?", projectId, orgId).Updates(utils.StructToMap(req)).Error
 }

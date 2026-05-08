@@ -65,7 +65,16 @@ func (s *projectService) Create(ctx context.Context, orgId int64, req *domain.Cr
 		return nil, err
 	}
 
+	_, err = s.CreateNotificationSettings(ctx, pRepo.ID)
+	if err != nil {
+		return nil, err
+	}
+
 	return pRepo, nil
+}
+
+func (s *projectService) CreateNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error) {
+	return s.repo.CreateNotificationSettings(ctx, projectId)
 }
 
 func (s *projectService) Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error {

@@ -14,6 +14,7 @@ type ProjectRepository interface {
 	FindByID(ctx context.Context, projectId int64, orgId int64) (*domain.Project, error)
 	FindByKey(ctx context.Context, key uuid.UUID, orgId int64) (*domain.Project, error)
 	Create(ctx context.Context, orgId int64, project *domain.CreateProjectReq) (*domain.Project, error)
+	CreateNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error)
 	Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error
 	Delete(ctx context.Context, projectId int64, orgId int64) error
 }

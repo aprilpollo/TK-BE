@@ -16,8 +16,8 @@ type ProjectModel struct {
 	Key            uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
 	Description    string    `gorm:"type:text"`
 	LogoURL        *string   `gorm:"type:text"`
-	StartDate      *int64 
-	EndDate        *int64 
+	StartDate      *int64
+	EndDate        *int64
 	StatusID       int64 `gorm:"not null;index;default:1"`
 
 	CreatedAt time.Time      `gorm:"not null"`
@@ -35,12 +35,42 @@ type ProjectStatusModel struct {
 	Description string `gorm:"type:text;size:255"`
 }
 
+type ProjectNotificationSettingModel struct {
+	ProjectID int64 `gorm:"not null;uniqueIndex:uq_project_user_notif"`
+
+	TaskAssignedEmail       bool `gorm:"default:true"`
+	TaskAssignedInapp       bool `gorm:"default:true"`
+	TaskStatusChangedEmail  bool `gorm:"default:false"`
+	TaskStatusChangedInapp  bool `gorm:"default:true"`
+	MentionedInCommentEmail bool `gorm:"default:true"`
+	MentionedInCommentInapp bool `gorm:"default:true"`
+	DueDateApproachingEmail bool `gorm:"default:true"`
+	DueDateApproachingInapp bool `gorm:"default:true"`
+	ProjectUpdatesEmail     bool `gorm:"default:false"`
+	ProjectUpdatesInapp     bool `gorm:"default:true"`
+	NewMemberJoinedEmail    bool `gorm:"default:false"`
+	NewMemberJoinedInapp    bool `gorm:"default:false"`
+
+	DailyDigest  bool `gorm:"default:false"`
+	WeeklyDigest bool `gorm:"default:true"`
+
+	CreatedAt time.Time      `gorm:"not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	Project *ProjectModel `gorm:"foreignKey:ProjectID;constraint:OnDelete:CASCADE"`
+}
+
 func (ProjectModel) TableName() string {
 	return "projects"
 }
 
 func (ProjectStatusModel) TableName() string {
 	return "project_statuses"
+}
+
+func (ProjectNotificationSettingModel) TableName() string {
+	return "project_notification_settings"
 }
 
 func (m *ProjectModel) ToDomain() *domain.Project {
@@ -69,5 +99,30 @@ func (m *ProjectStatusModel) ToDomain() *domain.ProjectStatus {
 		ID:          m.ID,
 		Name:        m.Name,
 		Description: m.Description,
+	}
+}
+
+func (m *ProjectNotificationSettingModel) ToDomain() *domain.ProjectNotificationSettings {
+	return &domain.ProjectNotificationSettings{
+		ProjectID: m.ProjectID,
+
+		TaskAssignedEmail:       m.TaskAssignedEmail,
+		TaskAssignedInapp:       m.TaskAssignedInapp,
+		TaskStatusChangedEmail:  m.TaskStatusChangedEmail,
+		TaskStatusChangedInapp:  m.TaskStatusChangedInapp,
+		MentionedInCommentEmail: m.MentionedInCommentEmail,
+		MentionedInCommentInapp: m.MentionedInCommentInapp,
+		DueDateApproachingEmail: m.DueDateApproachingEmail,
+		DueDateApproachingInapp: m.DueDateApproachingInapp,
+		ProjectUpdatesEmail:     m.ProjectUpdatesEmail,
+		ProjectUpdatesInapp:     m.ProjectUpdatesInapp,
+		NewMemberJoinedEmail:    m.NewMemberJoinedEmail,
+		NewMemberJoinedInapp:    m.NewMemberJoinedInapp,
+
+		DailyDigest:  m.DailyDigest,
+		WeeklyDigest: m.WeeklyDigest,
+
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
 	}
 }

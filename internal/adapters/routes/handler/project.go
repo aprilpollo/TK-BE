@@ -195,6 +195,72 @@ func (h *ProjectHandler) GetNotificationSettings(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, settings, nil, nil)
 }
 
+func (h *ProjectHandler) GetTaskSummary(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	summary, err := h.svc.GetTaskSummary(c.Context(), id)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch task summary", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, summary, nil, nil)
+}
+
+func (h *ProjectHandler) GetTaskVelocityChart(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	points, err := h.svc.GetTaskVelocityChart(c.Context(), id)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch chart data", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, points, nil, nil)
+}
+
+func (h *ProjectHandler) GetProjectMembers(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	opts, err := query.Parse(c.Queries())
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid query", err.Error())
+	}
+
+	members, total, err := h.svc.GetProjectMembers(c.Context(), id, opts)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch project members", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, members, &total, &opts)
+}
+
+func (h *ProjectHandler) GetUpcomingDeadlines(c *fiber.Ctx) error {
+	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	opts, err := query.Parse(c.Queries())
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid query", err.Error())
+	}
+
+	deadlines, total, err := h.svc.GetUpcomingDeadlines(c.Context(), id, opts)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch upcoming deadlines", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, deadlines, &total, &opts)
+}
+
 func (h *ProjectHandler) UpdateNotificationSettings(c *fiber.Ctx) error {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {

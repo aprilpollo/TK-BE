@@ -134,3 +134,19 @@ func (s *projectService) GetNotificationSettings(ctx context.Context, projectId 
 func (s *projectService) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.UpdateProjectNotificationSettingsReq) error {
 	return s.repo.UpdateNotificationSettings(ctx, projectId, req)
 }
+
+func (s *projectService) GetTaskSummary(ctx context.Context, projectId int64) (*domain.TaskSummary, error) {
+	return s.repo.GetTaskSummary(ctx, projectId)
+}
+
+func (s *projectService) GetTaskVelocityChart(ctx context.Context, projectId int64) ([]domain.TaskVelocityPoint, error) {
+	return s.repo.GetTaskVelocityChart(ctx, projectId)
+}
+
+func (s *projectService) GetProjectMembers(ctx context.Context, projectId int64, opts query.QueryOptions) ([]domain.TaskMember, int64, error) {
+	return s.repo.GetProjectMembers(ctx, projectId, opts)
+}
+
+func (s *projectService) GetUpcomingDeadlines(ctx context.Context, projectId int64, opts query.QueryOptions) ([]domain.TaskDeadlineItem, int64, error) {
+	return s.repo.GetUpcomingDeadlines(ctx, projectId, opts)
+}

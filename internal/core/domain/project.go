@@ -50,6 +50,39 @@ type ProjectNotificationSettings struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type TaskSummary struct {
+	Total             int64 `json:"total"`
+	TotalThisWeek     int64 `json:"total_this_week"`
+	Completed         int64 `json:"completed"`
+	CompletedThisWeek int64 `json:"completed_this_week"`
+	Pending           int64 `json:"pending"`
+	PendingThisWeek   int64 `json:"pending_this_week"`
+	Cancelled         int64 `json:"cancelled"`
+	CancelledThisWeek int64 `json:"cancelled_this_week"`
+}
+
+type TaskVelocityPoint struct {
+	Date      string `json:"date"`
+	Created   int64  `json:"created"`
+	Completed int64  `json:"completed"`
+}
+
+type TaskMember struct {
+	ID     int64   `json:"id"`
+	Name   string  `json:"name"`
+	Email  string  `json:"email"`
+	Avatar *string `json:"avatar"`
+}
+
+type TaskDeadlineItem struct {
+	ID       int64        `json:"id"`
+	Key      string       `json:"key"`
+	Name     string       `json:"name"`
+	DueDate  string       `json:"dueDate"`
+	Priority TaskPriority `json:"priority"`
+	Status   TaskStatus   `json:"status"`
+}
+
 type CreateProjectReq struct {
 	Name        string  `json:"name" validate:"required,min=3,max=255"`
 	Description string  `json:"description"`

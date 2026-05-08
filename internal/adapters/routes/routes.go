@@ -55,6 +55,10 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Get("/key/:key", h.GetByKey)
 	projects.Get("/:id", h.GetByID)
 	projects.Get("/:id/notification", h.GetNotificationSettings)
+	projects.Get("/:id/task_summary", h.GetTaskSummary)
+	projects.Get("/:id/chart", h.GetTaskVelocityChart)
+	projects.Get("/:id/members", h.GetProjectMembers)
+	projects.Get("/:id/task_deadlines", h.GetUpcomingDeadlines)
 
 	projects.Post("/", h.Create)
 	projects.Post("/:id/logo", h.UpdateLogo)

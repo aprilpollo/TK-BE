@@ -21,4 +21,8 @@ type ProjectService interface {
 	Delete(ctx context.Context, projectId int64, orgId int64) error
 	GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error)
 	UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.UpdateProjectNotificationSettingsReq) error
+	GetTaskSummary(ctx context.Context, projectId int64) (*domain.TaskSummary, error)
+	GetTaskVelocityChart(ctx context.Context, projectId int64) ([]domain.TaskVelocityPoint, error)
+	GetProjectMembers(ctx context.Context, projectId int64, opts query.QueryOptions) ([]domain.TaskMember, int64, error)
+	GetUpcomingDeadlines(ctx context.Context, projectId int64, opts query.QueryOptions) ([]domain.TaskDeadlineItem, int64, error)
 }

@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"aprilpollo/internal/utils"
 	"github.com/google/uuid"
 	"io"
 	"time"
@@ -33,8 +34,8 @@ type ProjectNotificationSettings struct {
 	TaskAssignedInapp       bool `json:"task_assigned_inapp"`
 	TaskStatusChangedEmail  bool `json:"task_status_changed_email"`
 	TaskStatusChangedInapp  bool `json:"task_status_changed_inapp"`
-	MentionedInCommentEmail bool `json:"mentionedincomment_email"`
-	MentionedInCommentInapp bool `json:"mentionedincomment_inapp"`
+	MentionedInCommentEmail bool `json:"mentioned_in_comment_email"`
+	MentionedInCommentInapp bool `json:"mentioned_in_comment_inapp"`
 	DueDateApproachingEmail bool `json:"due_date_approaching_email"`
 	DueDateApproachingInapp bool `json:"due_date_approaching_inapp"`
 	ProjectUpdatesEmail     bool `json:"project_updates_email"`
@@ -75,19 +76,19 @@ type LogoUploadReq struct {
 }
 
 type UpdateProjectNotificationSettingsReq struct {
-	TaskAssignedEmail       bool `json:"task_assigned_email"`
-	TaskAssignedInapp       bool `json:"task_assigned_inapp"`
-	TaskStatusChangedEmail  bool `json:"task_status_changed_email"`
-	TaskStatusChangedInapp  bool `json:"task_status_changed_inapp"`
-	MentionedInCommentEmail bool `json:"mentioned_in_comment_email"`
-	MentionedInCommentInapp bool `json:"mentioned_in_comment_inapp"`
-	DueDateApproachingEmail bool `json:"due_date_approaching_email"`
-	DueDateApproachingInapp bool `json:"due_date_approaching_inapp"`
-	ProjectUpdatesEmail     bool `json:"project_updates_email"`
-	ProjectUpdatesInapp     bool `json:"project_updates_inapp"`
-	NewMemberJoinedEmail    bool `json:"new_member_joined_email"`
-	NewMemberJoinedInapp    bool `json:"new_member_joined_inapp"`
+	TaskAssignedEmail       utils.Nullable[bool] `json:"task_assigned_email"`
+	TaskAssignedInapp       utils.Nullable[bool] `json:"task_assigned_inapp"`
+	TaskStatusChangedEmail  utils.Nullable[bool] `json:"task_status_changed_email"`
+	TaskStatusChangedInapp  utils.Nullable[bool] `json:"task_status_changed_inapp"`
+	MentionedInCommentEmail utils.Nullable[bool] `json:"mentioned_in_comment_email"`
+	MentionedInCommentInapp utils.Nullable[bool] `json:"mentioned_in_comment_inapp"`
+	DueDateApproachingEmail utils.Nullable[bool] `json:"due_date_approaching_email"`
+	DueDateApproachingInapp utils.Nullable[bool] `json:"due_date_approaching_inapp"`
+	ProjectUpdatesEmail     utils.Nullable[bool] `json:"project_updates_email"`
+	ProjectUpdatesInapp     utils.Nullable[bool] `json:"project_updates_inapp"`
+	NewMemberJoinedEmail    utils.Nullable[bool] `json:"new_member_joined_email"`
+	NewMemberJoinedInapp    utils.Nullable[bool] `json:"new_member_joined_inapp"`
 
-	DailyDigest  bool `json:"daily_digest"`
-	WeeklyDigest bool `json:"weekly_digest"`
+	DailyDigest  utils.Nullable[bool] `json:"daily_digest"`
+	WeeklyDigest utils.Nullable[bool] `json:"weekly_digest"`
 }

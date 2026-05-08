@@ -10,6 +10,7 @@ import (
 	"aprilpollo/internal/pkg/query"
 	"aprilpollo/internal/pkg/query/gormq"
 	"aprilpollo/internal/utils"
+
 	"github.com/google/uuid"
 
 	"gorm.io/gorm"
@@ -130,6 +131,6 @@ func (r *projectRepository) GetNotificationSettings(ctx context.Context, project
 	return settings.ToDomain(), nil
 }
 
-func (r *projectRepository) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error {
+func (r *projectRepository) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.UpdateProjectNotificationSettingsReq) error {
 	return r.db.WithContext(ctx).Model(&models.ProjectNotificationSettingModel{}).Where("project_id = ?", projectId).Updates(utils.StructToMap(req)).Error
 }

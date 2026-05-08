@@ -5,6 +5,7 @@ import (
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/pkg/query"
+
 	"github.com/google/uuid"
 )
 
@@ -18,5 +19,5 @@ type ProjectRepository interface {
 	Update(ctx context.Context, projectId int64, orgId int64, req *domain.UpdateProjectReq) error
 	Delete(ctx context.Context, projectId int64, orgId int64) error
 	GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error)
-	UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error
+	UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.UpdateProjectNotificationSettingsReq) error
 }

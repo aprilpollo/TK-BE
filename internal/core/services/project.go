@@ -9,6 +9,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/google/uuid"
 )
 
@@ -126,11 +127,10 @@ func (s *projectService) Delete(ctx context.Context, projectId int64, orgId int6
 	return s.repo.Delete(ctx, projectId, orgId)
 }
 
-
 func (s *projectService) GetNotificationSettings(ctx context.Context, projectId int64) (*domain.ProjectNotificationSettings, error) {
 	return s.repo.GetNotificationSettings(ctx, projectId)
 }
 
-func (s *projectService) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.ProjectNotificationSettings) error {
+func (s *projectService) UpdateNotificationSettings(ctx context.Context, projectId int64, req *domain.UpdateProjectNotificationSettingsReq) error {
 	return s.repo.UpdateNotificationSettings(ctx, projectId, req)
 }

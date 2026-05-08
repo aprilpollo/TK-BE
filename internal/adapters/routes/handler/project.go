@@ -6,6 +6,7 @@ import (
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
+
 	"github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
@@ -200,7 +201,7 @@ func (h *ProjectHandler) UpdateNotificationSettings(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
 
-	var body domain.ProjectNotificationSettings
+	var body domain.UpdateProjectNotificationSettingsReq
 	if err := c.BodyParser(&body); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request", err.Error())
 	}

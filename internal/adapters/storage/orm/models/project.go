@@ -36,6 +36,7 @@ type ProjectStatusModel struct {
 }
 
 type ProjectNotificationSettingModel struct {
+	ID        int64 `gorm:"primaryKey"`
 	ProjectID int64 `gorm:"not null;uniqueIndex:uq_project_user_notif"`
 
 	TaskAssignedEmail       bool `gorm:"default:true"`

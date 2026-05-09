@@ -317,7 +317,7 @@ func (r *taskRepository) FindByWeekday(ctx context.Context, opts query.QueryOpti
 	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).
 		Joins("JOIN task_assignments ta ON ta.task_id = tasks.id AND ta.user_id = ? AND ta.deleted_at IS NULL", userID).
 		Joins("JOIN projects p ON p.id = tasks.project_id AND p.organization_id = ? AND p.deleted_at IS NULL", orgID).
-		Where("tasks.deleted_at IS NULL AND tasks.end_date BETWEEN ? AND ?", startMs, endMs)
+		Where("tasks.deleted_at IS NULL AND tasks.start_date <= ? AND tasks.end_date >= ?", endMs, startMs)
 
 	var total int64
 	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {

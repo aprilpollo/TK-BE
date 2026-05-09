@@ -3,12 +3,12 @@ package handler
 import (
 	"fmt"
 	"strconv"
+	"strings"
+	"time"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
-
-	// "github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -235,4 +235,36 @@ func (h *TaskHandler) ReorderTask(c *fiber.Ctx) error {
 	}
 
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}
+
+var dayNames = map[string]time.Weekday{
+	"sunday":    time.Sunday,
+	"monday":    time.Monday,
+	"tuesday":   time.Tuesday,
+	"wednesday": time.Wednesday,
+	"thursday":  time.Thursday,
+	"friday":    time.Friday,
+	"saturday":  time.Saturday,
+}
+
+func (h *TaskHandler) ListByWeekday(c *fiber.Ctx) error {
+	weekday, ok := dayNames[strings.ToLower(c.Params("day"))]
+	if !ok {
+		return ResError(c, fiber.StatusBadRequest, "invalid day", "use monday, tuesday, wednesday, thursday, friday, saturday, or sunday")
+	}
+
+	opts, err := query.Parse(c.Queries())
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid query", err.Error())
+	}
+
+	userID := getCallerID(c)
+	orgID := getCallerOrgID(c)
+
+	tasks, total, err := h.svc.ListByWeekday(c.Context(), opts, userID, orgID, weekday)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch tasks", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, tasks, &total, &opts)
 }

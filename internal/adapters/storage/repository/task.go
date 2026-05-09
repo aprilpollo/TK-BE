@@ -298,6 +298,82 @@ func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReord
 	})
 }
 
+func (r *taskRepository) FindByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64, weekday time.Weekday) ([]domain.WeekdayTask, int64, error) {
+	now := time.Now()
+	wd := int(now.Weekday())
+	if wd == 0 {
+		wd = 7
+	}
+	monday := now.AddDate(0, 0, -(wd - 1))
+
+	targetOffset := int(weekday) - 1
+	if weekday == time.Sunday {
+		targetOffset = 6
+	}
+	targetDay := monday.AddDate(0, 0, targetOffset)
+	startMs := time.Date(targetDay.Year(), targetDay.Month(), targetDay.Day(), 0, 0, 0, 0, targetDay.Location()).UnixMilli()
+	endMs := time.Date(targetDay.Year(), targetDay.Month(), targetDay.Day(), 23, 59, 59, 999999999, targetDay.Location()).UnixMilli()
+
+	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).
+		Joins("JOIN task_assignments ta ON ta.task_id = tasks.id AND ta.user_id = ? AND ta.deleted_at IS NULL", userID).
+		Joins("JOIN projects p ON p.id = tasks.project_id AND p.organization_id = ? AND p.deleted_at IS NULL", orgID).
+		Where("tasks.deleted_at IS NULL AND tasks.end_date BETWEEN ? AND ?", startMs, endMs)
+
+	var total int64
+	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var rows []models.TasksModel
+	if err := gormq.ApplyToGorm(base, opts).
+		Preload("Status").Preload("Priority").Preload("Assigns.User").Preload("Project").
+		Find(&rows).Error; err != nil {
+		return nil, 0, err
+	}
+
+	items := make([]domain.WeekdayTask, 0, len(rows))
+	for _, row := range rows {
+		status := domain.TaskStatus{ID: row.StatusID}
+		if row.Status != nil {
+			status = *row.Status.ToDomain()
+		}
+		priority := domain.TaskPriority{ID: row.PriorityID}
+		if row.Priority != nil {
+			priority = *row.Priority.ToDomain()
+		}
+		assigns := make([]domain.TaskAssign, 0, len(row.Assigns))
+		for _, a := range row.Assigns {
+			item := domain.TaskAssign{ID: a.UserID}
+			if a.User != nil {
+				item.Name = a.User.DisplayName
+				item.Email = a.User.Email
+				if a.User.Avatar != nil {
+					item.Avatar = *a.User.Avatar
+				}
+			}
+			assigns = append(assigns, item)
+		}
+		projectName := ""
+		if row.Project != nil {
+			projectName = row.Project.Name
+		}
+		items = append(items, domain.WeekdayTask{
+			ID:          row.ID,
+			Key:         row.Key,
+			Title:       row.Title,
+			StartDate:   row.StartDate,
+			EndDate:     row.EndDate,
+			AllDay:      row.AllDay != nil && *row.AllDay,
+			Priority:    priority,
+			Status:      status,
+			Assignees:   assigns,
+			ProjectID:   row.ProjectID,
+			ProjectName: projectName,
+		})
+	}
+	return items, total, nil
+}
+
 func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {

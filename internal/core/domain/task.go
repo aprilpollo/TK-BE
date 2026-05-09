@@ -53,6 +53,20 @@ type TaskPriority struct {
 	Color       string `json:"color"`
 }
 
+type WeekdayTask struct {
+	ID          int64        `json:"id"`
+	Key         uuid.UUID    `json:"key"`
+	Title       string       `json:"title"`
+	StartDate   *int64       `json:"start_date"`
+	EndDate     *int64       `json:"end_date"`
+	AllDay      bool         `json:"all_day"`
+	Priority    TaskPriority `json:"priority"`
+	Status      TaskStatus   `json:"status"`
+	Assignees   []TaskAssign `json:"assignees"`
+	ProjectID   int64        `json:"project_id"`
+	ProjectName string       `json:"project_name"`
+}
+
 type CreateTaskStatusReq struct {
 	ProjectID   int64  `json:"project_id"`
 	Name        string `json:"name"`

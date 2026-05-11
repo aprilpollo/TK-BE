@@ -298,26 +298,15 @@ func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReord
 	})
 }
 
-func (r *taskRepository) FindByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64, weekday time.Weekday) ([]domain.WeekdayTask, int64, error) {
+func (r *taskRepository) FindByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error) {
 	now := time.Now()
-	wd := int(now.Weekday())
-	if wd == 0 {
-		wd = 7
-	}
-	monday := now.AddDate(0, 0, -(wd - 1))
-
-	targetOffset := int(weekday) - 1
-	if weekday == time.Sunday {
-		targetOffset = 6
-	}
-	targetDay := monday.AddDate(0, 0, targetOffset)
-	startMs := time.Date(targetDay.Year(), targetDay.Month(), targetDay.Day(), 0, 0, 0, 0, targetDay.Location()).UnixMilli()
-	endMs := time.Date(targetDay.Year(), targetDay.Month(), targetDay.Day(), 23, 59, 59, 999999999, targetDay.Location()).UnixMilli()
+	unix := now.UnixMilli()
 
 	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).
 		Joins("JOIN task_assignments ta ON ta.task_id = tasks.id AND ta.user_id = ? AND ta.deleted_at IS NULL", userID).
 		Joins("JOIN projects p ON p.id = tasks.project_id AND p.organization_id = ? AND p.deleted_at IS NULL", orgID).
-		Where("tasks.deleted_at IS NULL AND tasks.start_date <= ? AND tasks.end_date >= ?", endMs, startMs)
+		Joins("JOIN task_statuses ts ON ts.id = tasks.status_id AND ts.deleted_at IS NULL AND ts.is_complete != ?", true).
+		Where("tasks.deleted_at IS NULL AND tasks.start_date <= ? AND tasks.end_date >= ?", unix, unix)
 
 	var total int64
 	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {

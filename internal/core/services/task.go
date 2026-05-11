@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"time"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
@@ -66,6 +65,6 @@ func (s *taskService) ReorderTask(ctx context.Context, req *domain.ReqReorderTas
 	return s.repo.ReorderTask(ctx, req, project_id)
 }
 
-func (s *taskService) ListByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64, weekday time.Weekday) ([]domain.WeekdayTask, int64, error) {
-	return s.repo.FindByWeekday(ctx, opts, userID, orgID, weekday)
+func (s *taskService) ListByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error) {
+	return s.repo.FindByWeekday(ctx, opts, userID, orgID)
 }

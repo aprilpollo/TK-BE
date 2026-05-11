@@ -91,14 +91,14 @@ func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTas
 		}
 
 		if !req.IsComplete {
-			
+
 			if err := tx.Model(&models.TaskStatusModel{}).
 				Where("project_id = ? AND is_complete = ?", req.ProjectID, true).
 				UpdateColumn("position", gorm.Expr("position + 1")).Error; err != nil {
 				return err
 			}
 		} else {
-			
+
 			tx.Model(&models.TaskStatusModel{}).
 				Where("project_id = ?", req.ProjectID).
 				Select("MAX(position)").
@@ -298,7 +298,7 @@ func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReord
 	})
 }
 
-func (r *taskRepository) FindByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error) {
+func (r *taskRepository) FindByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error) {
 	now := time.Now()
 	unix := now.UnixMilli()
 

@@ -20,5 +20,5 @@ type TaskRepository interface {
 	Delete(ctx context.Context, task_id int64) error
 	ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error
 	ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error
-	FindByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error)
+	FindByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error)
 }

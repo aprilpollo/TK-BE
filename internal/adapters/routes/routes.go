@@ -75,7 +75,7 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 	tasks := api.Group("/tasks", jwtMiddleware, orgMiddleware)
 	tasks.Get("/priorities", h.ListPriority)
 	tasks.Get("/statuses/:project_id", h.ListStatus)
-	tasks.Get("/me/today", h.ListByWeekday)
+	tasks.Get("/me/today", h.ListByToday)
 	tasks.Get("/:project_id/:status_id", h.List)
 
 	tasks.Post("/", h.Create)
@@ -91,7 +91,6 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 	tasks.Delete("/:task_id", h.Delete)
 	tasks.Delete("/statuses/:status_id", h.DeleteStatus)
 }
-
 
 func RegisterCalendarRoutes(app *fiber.App, h *handler.CalendarHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
 	api := app.Group("/api/v1")

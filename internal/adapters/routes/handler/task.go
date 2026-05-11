@@ -235,7 +235,7 @@ func (h *TaskHandler) ReorderTask(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
 
-func (h *TaskHandler) ListByWeekday(c *fiber.Ctx) error {
+func (h *TaskHandler) ListByToday(c *fiber.Ctx) error {
 
 	opts, err := query.Parse(c.Queries())
 	if err != nil {
@@ -245,7 +245,7 @@ func (h *TaskHandler) ListByWeekday(c *fiber.Ctx) error {
 	userID := getCallerID(c)
 	orgID := getCallerOrgID(c)
 
-	tasks, total, err := h.svc.ListByWeekday(c.Context(), opts, userID, orgID)
+	tasks, total, err := h.svc.ListByToday(c.Context(), opts, userID, orgID)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to fetch tasks", err.Error())
 	}

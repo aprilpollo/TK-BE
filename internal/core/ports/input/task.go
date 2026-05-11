@@ -20,5 +20,5 @@ type TaskService interface {
 	Delete(ctx context.Context, task_id int64) error
 	ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error
 	ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error
-	ListByWeekday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error)
+	ListByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error)
 }

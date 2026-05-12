@@ -65,6 +65,10 @@ func (s *taskService) ReorderTask(ctx context.Context, req *domain.ReqReorderTas
 	return s.repo.ReorderTask(ctx, req, project_id)
 }
 
-func (s *taskService) ListByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error) {
+func (s *taskService) ListByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error) {
 	return s.repo.FindByToday(ctx, opts, userID, orgID)
+}
+
+func (s *taskService) ListOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error) {
+	return s.repo.FindOverdue(ctx, opts, userID, orgID)
 }

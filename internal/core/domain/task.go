@@ -53,7 +53,7 @@ type TaskPriority struct {
 	Color       string `json:"color"`
 }
 
-type WeekdayTask struct {
+type TaskToday struct {
 	ID          int64        `json:"id"`
 	Key         uuid.UUID    `json:"key"`
 	Title       string       `json:"title"`

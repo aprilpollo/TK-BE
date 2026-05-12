@@ -252,3 +252,20 @@ func (h *TaskHandler) ListByToday(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, tasks, &total, &opts)
 }
+
+func (h *TaskHandler) ListOverdue(c *fiber.Ctx) error {
+	opts, err := query.Parse(c.Queries())
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid query", err.Error())
+	}
+
+	userID := getCallerID(c)
+	orgID := getCallerOrgID(c)
+
+	tasks, total, err := h.svc.ListOverdue(c.Context(), opts, userID, orgID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch tasks", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, tasks, &total, &opts)
+}

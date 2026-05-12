@@ -298,7 +298,7 @@ func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReord
 	})
 }
 
-func (r *taskRepository) FindByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.WeekdayTask, int64, error) {
+func (r *taskRepository) FindByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error) {
 	now := time.Now()
 	unix := now.UnixMilli()
 
@@ -320,7 +320,7 @@ func (r *taskRepository) FindByToday(ctx context.Context, opts query.QueryOption
 		return nil, 0, err
 	}
 
-	items := make([]domain.WeekdayTask, 0, len(rows))
+	items := make([]domain.TaskToday, 0, len(rows))
 	for _, row := range rows {
 		status := domain.TaskStatus{ID: row.StatusID}
 		if row.Status != nil {
@@ -346,7 +346,72 @@ func (r *taskRepository) FindByToday(ctx context.Context, opts query.QueryOption
 		if row.Project != nil {
 			projectName = row.Project.Name
 		}
-		items = append(items, domain.WeekdayTask{
+		items = append(items, domain.TaskToday{
+			ID:          row.ID,
+			Key:         row.Key,
+			Title:       row.Title,
+			StartDate:   row.StartDate,
+			EndDate:     row.EndDate,
+			AllDay:      row.AllDay != nil && *row.AllDay,
+			Priority:    priority,
+			Status:      status,
+			Assignees:   assigns,
+			ProjectID:   row.ProjectID,
+			ProjectName: projectName,
+		})
+	}
+	return items, total, nil
+}
+
+func (r *taskRepository) FindOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error) {
+	now := time.Now()
+	unix := now.UnixMilli()
+
+	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).
+		Joins("JOIN task_assignments ta ON ta.task_id = tasks.id AND ta.user_id = ? AND ta.deleted_at IS NULL", userID).
+		Joins("JOIN projects p ON p.id = tasks.project_id AND p.organization_id = ? AND p.deleted_at IS NULL", orgID).
+		Joins("JOIN task_statuses ts ON ts.id = tasks.status_id AND ts.deleted_at IS NULL AND ts.is_complete != ?", true).
+		Where("tasks.deleted_at IS NULL AND tasks.end_date < ?", unix)
+
+	var total int64
+	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var rows []models.TasksModel
+	if err := gormq.ApplyToGorm(base, opts).
+		Preload("Status").Preload("Priority").Preload("Assigns.User").Preload("Project").
+		Find(&rows).Error; err != nil {
+		return nil, 0, err
+	}
+
+	items := make([]domain.TaskToday, 0, len(rows))
+	for _, row := range rows {
+		status := domain.TaskStatus{ID: row.StatusID}
+		if row.Status != nil {
+			status = *row.Status.ToDomain()
+		}
+		priority := domain.TaskPriority{ID: row.PriorityID}
+		if row.Priority != nil {
+			priority = *row.Priority.ToDomain()
+		}
+		assigns := make([]domain.TaskAssign, 0, len(row.Assigns))
+		for _, a := range row.Assigns {
+			item := domain.TaskAssign{ID: a.UserID}
+			if a.User != nil {
+				item.Name = a.User.DisplayName
+				item.Email = a.User.Email
+				if a.User.Avatar != nil {
+					item.Avatar = *a.User.Avatar
+				}
+			}
+			assigns = append(assigns, item)
+		}
+		projectName := ""
+		if row.Project != nil {
+			projectName = row.Project.Name
+		}
+		items = append(items, domain.TaskToday{
 			ID:          row.ID,
 			Key:         row.Key,
 			Title:       row.Title,

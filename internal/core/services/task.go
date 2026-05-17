@@ -21,6 +21,10 @@ func (s *taskService) List(ctx context.Context, opts query.QueryOptions, project
 	return s.repo.Find(ctx, opts, project_id, status_id)
 }
 
+func (s *taskService) GetByKey(ctx context.Context, key string) (*domain.Task, error) {
+	return s.repo.FindByKey(ctx, key)
+}
+
 func (s *taskService) ListPriority(ctx context.Context) ([]domain.TaskPriority, error) {
 	return s.repo.FindPriority(ctx)
 }

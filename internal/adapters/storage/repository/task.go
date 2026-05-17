@@ -44,6 +44,15 @@ func (r *taskRepository) Find(ctx context.Context, opts query.QueryOptions, proj
 	return tasks, total, nil
 }
 
+func (r *taskRepository) FindByKey(ctx context.Context, key string) (*domain.Task, error) {
+	var model models.TasksModel
+	if err := r.db.WithContext(ctx).Where("key = ?", key).Preload("Status").Preload("Priority").Preload("Assigns.User").First(&model).Error; err != nil {
+		return nil, err
+	}
+
+	return model.ToDomain(), nil
+}
+
 func (r *taskRepository) FindPriority(ctx context.Context) ([]domain.TaskPriority, error) {
 	var models []models.TaskPriorityModel
 	if err := r.db.WithContext(ctx).Find(&models).Error; err != nil {
@@ -357,6 +366,7 @@ func (r *taskRepository) FindByToday(ctx context.Context, opts query.QueryOption
 			Status:      status,
 			Assignees:   assigns,
 			ProjectID:   row.ProjectID,
+			ProjectKey:  row.Project.Key,
 			ProjectName: projectName,
 		})
 	}
@@ -422,6 +432,7 @@ func (r *taskRepository) FindOverdue(ctx context.Context, opts query.QueryOption
 			Status:      status,
 			Assignees:   assigns,
 			ProjectID:   row.ProjectID,
+			ProjectKey:  row.Project.Key,
 			ProjectName: projectName,
 		})
 	}

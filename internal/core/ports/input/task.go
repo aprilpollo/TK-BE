@@ -1,14 +1,14 @@
 package input
 
 import (
-	"context"
-
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/pkg/query"
+	"context"
 )
 
 type TaskService interface {
 	List(ctx context.Context, opts query.QueryOptions, project_id int64, status_id int64) ([]domain.Task, int64, error)
+	GetByKey(ctx context.Context, key string) (*domain.Task, error)
 	ListPriority(ctx context.Context) ([]domain.TaskPriority, error)
 	ListStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error)
 	CreateStatus(ctx context.Context, req *domain.CreateTaskStatusReq) (*domain.TaskStatus, error)

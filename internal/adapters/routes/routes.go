@@ -77,6 +77,7 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 	tasks.Get("/statuses/:project_id", h.ListStatus)
 	tasks.Get("/me/today", h.ListByToday)
 	tasks.Get("/me/overdue", h.ListOverdue)
+	tasks.Get("/key/:key", h.GetByKey)
 	tasks.Get("/:project_id/:status_id", h.List)
 
 	tasks.Post("/", h.Create)

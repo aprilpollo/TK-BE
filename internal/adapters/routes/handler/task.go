@@ -43,6 +43,7 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 		taskMap = append(taskMap, map[string]interface{}{
 			"id":          v.ID,
 			"columnId":    v.Status.UUID,
+			"key":         v.Key,
 			"title":       v.Title,
 			"description": v.Description,
 			"priority":    v.Priority,
@@ -55,6 +56,17 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 	}
 
 	return ResOk(c, fiber.StatusOK, taskMap, &total, &opts)
+}
+
+func (h *TaskHandler) GetByKey(c *fiber.Ctx) error {
+	key := c.Params("key")
+
+	task, err := h.svc.GetByKey(c.Context(), key)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch task", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, task, nil, nil)
 }
 
 func (h *TaskHandler) ListPriority(c *fiber.Ctx) error {

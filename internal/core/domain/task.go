@@ -64,6 +64,7 @@ type TaskToday struct {
 	Status      TaskStatus   `json:"status"`
 	Assignees   []TaskAssign `json:"assignees"`
 	ProjectID   int64        `json:"project_id"`
+	ProjectKey  uuid.UUID    `json:"project_key"`
 	ProjectName string       `json:"project_name"`
 }
 

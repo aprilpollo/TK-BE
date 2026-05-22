@@ -17,9 +17,9 @@ type Task struct {
 	PriorityID  int64     `json:"priority_id"`
 	ParentID    *int64    `json:"parent_id"`
 	Position    int       `json:"position"`
-	StartDate   *int64    `json:"start_date"`
-	EndDate     *int64    `json:"end_date"`
-	AllDay      bool      `json:"all_day"`
+	StartDate   *int64    `json:"startDate"`
+	EndDate     *int64    `json:"endDate"`
+	AllDay      bool      `json:"allDay"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 

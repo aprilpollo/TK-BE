@@ -248,24 +248,28 @@ func (m *TaskCommentModel) ToDomain() *domain.TaskComment {
 			files = append(files, *d)
 		}
 	}
-	actor := "Unknown User"
+	var actor domain.TaskCommentActor
 	if m.User != nil {
-		if m.User.DisplayName != "" {
-			actor = m.User.DisplayName
-		} else {
-			actor = m.User.FirstName + " " + m.User.LastName
+		name := m.User.DisplayName
+		if name == "" {
+			name = m.User.FirstName + " " + m.User.LastName
+		}
+		avatar := ""
+		if m.User.Avatar != nil {
+			avatar = *m.User.Avatar
+		}
+		actor = domain.TaskCommentActor{
+			ID:     m.User.ID,
+			Name:   name,
+			Email:  m.User.Email,
+			Avatar: avatar,
 		}
 	}
 
 	return &domain.TaskComment{
-		ID:     m.ID,
-		TaskID: m.TaskID,
-		Actor: domain.TaskCommentActor{
-			ID:     m.User.ID,
-			Name:   actor,
-			Email:  m.User.Email,
-			Avatar: *m.User.Avatar,
-		},
+		ID:        m.ID,
+		TaskID:    m.TaskID,
+		Actor:     actor,
 		Type:      domain.TaskCommentModelTyoe(m.Type),
 		Text:      m.Text,
 		Action:    m.Action,

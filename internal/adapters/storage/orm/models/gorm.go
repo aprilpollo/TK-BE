@@ -21,6 +21,7 @@ func All() ModelList {
 		&TasksModel{},
 		&TaskAssignModel{},
 		&TaskCommentModel{},
+		&TaskCommentFileModel{},
 		&TaskAttachmentModel{},
 		&TaskStatusModel{},
 		&TaskPriorityModel{},

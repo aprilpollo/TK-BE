@@ -129,3 +129,35 @@ type UpdateTaskReq struct {
 	EndDate     utils.Nullable[int64] `json:"end_date"`
 	AllDay      *bool                 `json:"all_day"`
 }
+
+type TaskCommentModelTyoe string
+
+const (
+	TaskCommentTypeText  TaskCommentModelTyoe = "comment"
+	TaskCommentTypeImage TaskCommentModelTyoe = "event"
+)
+
+type TaskComment struct {
+	ID        int64                `json:"id"`
+	TaskID    int64                `json:"task_id"`
+	Actor     TaskCommentActor     `json:"actor"`
+	Type      TaskCommentModelTyoe `json:"type"`
+	Text      string               `json:"text"`
+	Action    string               `json:"action"`
+	TimeStamp int64                `json:"timestamp"`
+	Files     []TaskCommentFile    `json:"files"`
+}
+
+type TaskCommentActor struct {
+	ID     int64  `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Avatar string `json:"avatar"`
+}
+type TaskCommentFile struct {
+	ID            int64  `json:"id"`
+	TaskCommentID int64  `json:"task_comment_id"`
+	URL           string `json:"url"`
+	Name          string `json:"name"`
+	Type          string `json:"type"`
+}

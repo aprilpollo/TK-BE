@@ -51,18 +51,43 @@ type TaskAssignModel struct {
 	User *UserModel  `gorm:"foreignKey:UserID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
 }
 
+type TaskCommentModelTyoe string
+
+const (
+	TaskCommentTypeText  TaskCommentModelTyoe = "comment"
+	TaskCommentTypeImage TaskCommentModelTyoe = "event"
+)
+
 type TaskCommentModel struct {
-	ID      int64  `gorm:"primaryKey"`
-	TaskID  int64  `gorm:"not null;index:idx_comment_task"`
-	UserID  int64  `gorm:"not null;index"`
-	Content string `gorm:"not null;type:text"`
+	ID        int64                `gorm:"primaryKey"`
+	TaskID    int64                `gorm:"not null;index:idx_comment_task"`
+	UserID    int64                `gorm:"not null;index"`
+	Type      TaskCommentModelTyoe `gorm:"not null;size:50"`
+	Text      string               `gorm:"type:text"`
+	Action    string               `gorm:"type:text"`
+	TimeStamp int64                `gorm:"not null"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Task *TasksModel `gorm:"foreignKey:TaskID"`
-	User *UserModel  `gorm:"foreignKey:UserID"`
+	Task  *TasksModel            `gorm:"foreignKey:TaskID"`
+	User  *UserModel             `gorm:"foreignKey:UserID"`
+	Files []TaskCommentFileModel `gorm:"foreignKey:TaskCommentID"`
+}
+
+type TaskCommentFileModel struct {
+	ID            int64  `gorm:"primaryKey"`
+	TaskCommentID int64  `gorm:"not null;index:idx_comment_file"`
+	Url           string `gorm:"not null;size:255"`
+	Name          string `gorm:"not null;size:255"`
+	MimeType      string `gorm:"size:100"`
+
+	CreatedAt time.Time      `gorm:"not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	TaskComment *TaskCommentModel `gorm:"foreignKey:TaskCommentID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 }
 
 type TaskAttachmentModel struct {
@@ -116,6 +141,10 @@ func (TaskAssignModel) TableName() string {
 
 func (TaskCommentModel) TableName() string {
 	return "task_comments"
+}
+
+func (TaskCommentFileModel) TableName() string {
+	return "task_comment_files"
 }
 
 func (TaskAttachmentModel) TableName() string {
@@ -206,5 +235,54 @@ func (m *TasksModel) ToDomain() *domain.Task {
 		Status:      status,
 		Priority:    priority,
 		Assigns:     assigns,
+	}
+}
+
+func (m *TaskCommentModel) ToDomain() *domain.TaskComment {
+	if m == nil {
+		return nil
+	}
+	files := make([]domain.TaskCommentFile, 0, len(m.Files))
+	for _, f := range m.Files {
+		if d := f.ToDomain(); d != nil {
+			files = append(files, *d)
+		}
+	}
+	actor := "Unknown User"
+	if m.User != nil {
+		if m.User.DisplayName != "" {
+			actor = m.User.DisplayName
+		} else {
+			actor = m.User.FirstName + " " + m.User.LastName
+		}
+	}
+
+	return &domain.TaskComment{
+		ID:     m.ID,
+		TaskID: m.TaskID,
+		Actor: domain.TaskCommentActor{
+			ID:     m.User.ID,
+			Name:   actor,
+			Email:  m.User.Email,
+			Avatar: *m.User.Avatar,
+		},
+		Type:      domain.TaskCommentModelTyoe(m.Type),
+		Text:      m.Text,
+		Action:    m.Action,
+		TimeStamp: m.TimeStamp,
+		Files:     files,
+	}
+}
+
+func (m *TaskCommentFileModel) ToDomain() *domain.TaskCommentFile {
+	if m == nil {
+		return nil
+	}
+	return &domain.TaskCommentFile{
+		ID:            m.ID,
+		TaskCommentID: m.TaskCommentID,
+		URL:           m.Url,
+		Name:          m.Name,
+		Type:          m.MimeType,
 	}
 }

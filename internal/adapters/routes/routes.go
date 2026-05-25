@@ -69,7 +69,7 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Delete("/:id", h.Delete)
 }
 
-func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
+func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.TaskCommentHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
 	api := app.Group("/api/v1")
 
 	tasks := api.Group("/tasks", jwtMiddleware, orgMiddleware)
@@ -78,6 +78,14 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 	tasks.Get("/me/today", h.ListByToday)
 	tasks.Get("/me/overdue", h.ListOverdue)
 	tasks.Get("/key/:key", h.GetByKey)
+
+	// comment routes registered before the /:project_id/:status_id wildcard
+	// so Fiber's radix tree prefers the static "comments" segment
+	tasks.Get("/:task_id/comments", ch.List)
+	tasks.Post("/:task_id/comments", ch.Create)
+	tasks.Put("/:task_id/comments/:comment_id", ch.Update)
+	tasks.Delete("/:task_id/comments/:comment_id", ch.Delete)
+
 	tasks.Get("/:project_id/:status_id", h.List)
 
 	tasks.Post("/", h.Create)
@@ -87,7 +95,6 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, jwtMiddleware fi
 	tasks.Put("/:task_id", h.Update)
 	tasks.Put("/statuses/reorder/:project_id", h.ReorderStatus)
 	tasks.Put("/statuses/:status_id", h.UpdateStatus)
-
 	tasks.Put("/reorder/:project_id", h.ReorderTask)
 
 	tasks.Delete("/:task_id", h.Delete)

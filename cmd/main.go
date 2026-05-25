@@ -63,6 +63,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db.GetDB())
 	projectRepo := repository.NewProjectRepository(db.GetDB())
 	taskRepo := repository.NewTaskRepository(db.GetDB())
+	taskCommentRepo := repository.NewTaskCommentRepository(db.GetDB())
 	calendarRepo := repository.NewCalendarRepository(db.GetDB())
 
 	// --- Services (core / use cases) ---
@@ -78,6 +79,7 @@ func main() {
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
 	projectSvc := services.NewProjectService(projectRepo, taskRepo, minioClient)
 	taskSvc := services.NewTaskService(taskRepo)
+	taskCommentSvc := services.NewTaskCommentService(taskCommentRepo)
 	calendarSvc := services.NewCalendarService(calendarRepo)
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)
@@ -89,6 +91,7 @@ func main() {
 	userHandler := handler.NewUserHandler(userSvc, orgSvc)
 	projectHandler := handler.NewProjectHandler(projectSvc)
 	taskHandler := handler.NewTaskHandler(taskSvc)
+	taskCommentHandler := handler.NewTaskCommentHandler(taskCommentSvc)
 	calendarHandler := handler.NewCalendarHandler(calendarSvc)
 
 	// --- Fiber app ---
@@ -134,7 +137,7 @@ func main() {
 	routes.RegisterUserRoutes(app, userHandler, jwtMiddleware)
 	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterProjectRoutes(app, projectHandler, jwtMiddleware, orgMiddleware)
-	routes.RegisterTaskRoutes(app, taskHandler, jwtMiddleware, orgMiddleware)
+	routes.RegisterTaskRoutes(app, taskHandler, taskCommentHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterCalendarRoutes(app, calendarHandler, jwtMiddleware, orgMiddleware)
 	if err := app.Listen(fmt.Sprintf(":%s", cfg.App.ApiPort)); err != nil {
 		log.Println(err)

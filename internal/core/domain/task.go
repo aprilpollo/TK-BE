@@ -130,18 +130,18 @@ type UpdateTaskReq struct {
 	AllDay      *bool                 `json:"all_day"`
 }
 
-type TaskCommentModelTyoe string
+type TaskCommentModelType string
 
 const (
-	TaskCommentTypeText  TaskCommentModelTyoe = "comment"
-	TaskCommentTypeImage TaskCommentModelTyoe = "event"
+	TaskCommentTypeComment TaskCommentModelType = "comment"
+	TaskCommentTypeEvent   TaskCommentModelType = "event"
 )
 
 type TaskComment struct {
 	ID        int64                `json:"id"`
 	TaskID    int64                `json:"task_id"`
 	Actor     TaskCommentActor     `json:"actor"`
-	Type      TaskCommentModelTyoe `json:"type"`
+	Type      TaskCommentModelType `json:"type"`
 	Text      string               `json:"text"`
 	Action    string               `json:"action"`
 	TimeStamp int64                `json:"timestamp"`
@@ -163,7 +163,7 @@ type TaskCommentFile struct {
 }
 
 type CreateTaskCommentReq struct {
-	Type   TaskCommentModelTyoe `json:"type"`
+	Type   TaskCommentModelType `json:"type"`
 	Text   string               `json:"text"`
 	Action string               `json:"action"`
 }

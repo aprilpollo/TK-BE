@@ -57,7 +57,7 @@ func (s *taskService) Create(ctx context.Context, req *domain.TaskReq, createBy 
 	}
 
 	_, _ = s.commentRepo.Create(ctx, &domain.CreateTaskCommentReq{
-		Type:   domain.TaskCommentTypeImage,
+		Type:   domain.TaskCommentTypeEvent,
 		Action: "created_task",
 	}, task.ID, createBy)
 

@@ -39,7 +39,7 @@ func (s *taskCommentService) Delete(ctx context.Context, commentID int64) error 
 	return s.repo.Delete(ctx, commentID)
 }
 
-func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, size int64, contentType string, filename string, taskID int64) (*domain.TaskCommentFileUploadRes, error) {
+func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, size int64, contentType string, filename string, taskID int64, userID int64) (*domain.TaskCommentFileUploadRes, error) {
 	ext := filepath.Ext(filename)
 	objectName := fmt.Sprintf("tasks/comments/%d/%s%s", taskID, uuid.New().String(), ext)
 
@@ -48,8 +48,15 @@ func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, siz
 		return nil, err
 	}
 
+	comment, err := s.repo.Create(ctx, &domain.CreateTaskCommentReq{
+		Type: domain.TaskCommentTypeComment,
+	}, taskID, userID)
+	if err != nil {
+		return nil, err
+	}
+
 	commentFileUpload := &domain.TaskCommentFileUpload{
-		TaskCommentID: taskID,
+		TaskCommentID: comment.ID,
 		URL:           url,
 		Name:          filename,
 		MimeType:      contentType,

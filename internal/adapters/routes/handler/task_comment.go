@@ -96,6 +96,8 @@ func (h *TaskCommentHandler) UploadFile(c *fiber.Ctx) error {
 		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
 	}
 
+	userID := getCallerID(c)
+
 	form, err := c.MultipartForm()
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid multipart form", err.Error())
@@ -120,7 +122,7 @@ func (h *TaskCommentHandler) UploadFile(c *fiber.Ctx) error {
 		}
 
 		contentType := fh.Header.Get("Content-Type")
-		result, err := h.svc.UploadFile(c.Context(), file, fh.Size, contentType, fh.Filename, taskID)
+		result, err := h.svc.UploadFile(c.Context(), file, fh.Size, contentType, fh.Filename, taskID, userID)
 		file.Close()
 		if err != nil {
 			return ResError(c, fiber.StatusInternalServerError, "failed to upload file", err.Error())

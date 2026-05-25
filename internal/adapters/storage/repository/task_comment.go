@@ -50,7 +50,7 @@ func (r *taskCommentRepository) Create(ctx context.Context, req *domain.CreateTa
 		comment = models.TaskCommentModel{
 			TaskID:    taskID,
 			UserID:    userID,
-			Type:      models.TaskCommentModelTyoe(req.Type),
+			Type:      models.TaskCommentModelType(req.Type),
 			Text:      req.Text,
 			Action:    req.Action,
 			TimeStamp: time.Now().Unix(),

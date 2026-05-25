@@ -51,18 +51,18 @@ type TaskAssignModel struct {
 	User *UserModel  `gorm:"foreignKey:UserID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
 }
 
-type TaskCommentModelTyoe string
+type TaskCommentModelType string
 
 const (
-	TaskCommentTypeText  TaskCommentModelTyoe = "comment"
-	TaskCommentTypeImage TaskCommentModelTyoe = "event"
+	TaskCommentTypeComment TaskCommentModelType = "comment"
+	TaskCommentTypeEvent   TaskCommentModelType = "event"
 )
 
 type TaskCommentModel struct {
 	ID        int64                `gorm:"primaryKey"`
 	TaskID    int64                `gorm:"not null;index:idx_comment_task"`
 	UserID    int64                `gorm:"not null;index"`
-	Type      TaskCommentModelTyoe `gorm:"not null;size:50"`
+	Type      TaskCommentModelType `gorm:"not null;size:50"`
 	Text      string               `gorm:"type:text"`
 	Action    string               `gorm:"type:text"`
 	TimeStamp int64                `gorm:"not null"`
@@ -270,7 +270,7 @@ func (m *TaskCommentModel) ToDomain() *domain.TaskComment {
 		ID:        m.ID,
 		TaskID:    m.TaskID,
 		Actor:     actor,
-		Type:      domain.TaskCommentModelTyoe(m.Type),
+		Type:      domain.TaskCommentModelType(m.Type),
 		Text:      m.Text,
 		Action:    m.Action,
 		TimeStamp: m.TimeStamp,

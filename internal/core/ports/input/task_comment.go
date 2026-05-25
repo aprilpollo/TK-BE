@@ -13,5 +13,5 @@ type TaskCommentService interface {
 	Create(ctx context.Context, req *domain.CreateTaskCommentReq, taskID int64, userID int64) (*domain.TaskComment, error)
 	Update(ctx context.Context, req *domain.UpdateTaskCommentReq, commentID int64) (*domain.TaskComment, error)
 	Delete(ctx context.Context, commentID int64) error
-	UploadFile(ctx context.Context, file io.Reader, size int64, contentType string, filename string, taskID int64) (*domain.TaskCommentFileUploadRes, error)
+	UploadFile(ctx context.Context, file io.Reader, size int64, contentType string, filename string, taskID int64, userID int64) (*domain.TaskCommentFileUploadRes, error)
 }

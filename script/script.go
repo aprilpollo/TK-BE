@@ -7,15 +7,16 @@ import (
 	"aprilpollo/internal/adapters/storage/orm/views"
 	"aprilpollo/internal/utils"
 	"fmt"
-	"github.com/jedib0t/go-pretty/v6/table"
-	"github.com/jedib0t/go-pretty/v6/text"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 	"log"
 	"os"
 	"regexp"
 	"strconv"
 	"time"
+
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 // parseErrorMessage extracts the essential error information
@@ -231,38 +232,85 @@ func initDataDefault(db *gorm.DB, mTable table.Writer, failCount *int, successCo
 		appendResultRow(mTable, "TASK PRIORITY ID: "+strconv.Itoa(int(tp.ID)), err, failCount, successCount)
 	}
 
-	// Insert Default User
-	if err := db.Create(&userDefault).Error; err != nil {
-		appendResultRow(mTable, "DEFAULT USER", err, failCount, successCount)
-		// If user already exists (duplicate) or any other error, skip Oauth/Organization/OrganizationMember
+	// Insert Default Users (three users)
+	defaultUsers := []models.UserModel{
+		{
+			Email:       "phonsing1@gmail.com",
+			FirstName:   "Phonsing",
+			LastName:    "Taleman",
+			DisplayName: "Phonsing One",
+			IsActive:    true,
+			IsVerified:  true,
+		},
+		{
+			Email:       "phonsing2@gmail.com",
+			FirstName:   "April",
+			LastName:    "Pollo",
+			DisplayName: "April Two",
+			IsActive:    true,
+			IsVerified:  true,
+		},
+		{
+			Email:       "phonsing3@gmail.com",
+			FirstName:   "User",
+			LastName:    "Three",
+			DisplayName: "User Three",
+			IsActive:    true,
+			IsVerified:  true,
+		},
+	}
+
+	createdUsers := make([]models.UserModel, 0, len(defaultUsers))
+	for _, u := range defaultUsers {
+		// attempt insert
+		if err := db.Create(&u).Error; err != nil {
+			appendResultRow(mTable, "DEFAULT USER: "+u.Email, err, failCount, successCount)
+			if !isDuplicateError(err) {
+				return
+			}
+			// fetch existing user to get its ID
+			var existing models.UserModel
+			if ferr := db.Where("email = ?", u.Email).First(&existing).Error; ferr == nil {
+				createdUsers = append(createdUsers, existing)
+			}
+			continue
+		}
+		appendResultRow(mTable, "DEFAULT USER: "+u.Email, nil, failCount, successCount)
+		createdUsers = append(createdUsers, u)
+	}
+
+	if len(createdUsers) == 0 {
 		return
 	}
-	appendResultRow(mTable, "DEFAULT USER", nil, failCount, successCount)
 
-	// Create OAuth for default user
-	hashPassword, err := utils.HashPassword("@aplps9921")
-	if err != nil {
-		mTable.AppendRow(table.Row{"PASSWORD HASH", text.Colors{text.FgRed}.Sprint("✗ Failed"), err.Error()})
+	// Create OAuth entries for each created user (use same password)
+	hashPassword, hErr := utils.HashPassword("@aplps9921")
+	if hErr != nil {
+		mTable.AppendRow(table.Row{"PASSWORD HASH", text.Colors{text.FgRed}.Sprint("✗ Failed"), hErr.Error()})
 		*failCount++
 		return
 	}
 
-	oauthDefault := models.OauthModel{
-		UserID:     userDefault.ID,
-		Provider:   "basic",
-		ProviderID: "1234567890",
-		Email:      "phonsing@gmail.com",
-		Password:   &hashPassword,
+	for _, cu := range createdUsers {
+		oauth := models.OauthModel{
+			UserID:     cu.ID,
+			Provider:   "basic",
+			ProviderID: strconv.FormatInt(cu.ID, 10),
+			Email:      cu.Email,
+			Password:   &hashPassword,
+		}
+		if err := db.Create(&oauth).Error; err != nil {
+			appendResultRow(mTable, "DEFAULT OAUTH: "+cu.Email, err, failCount, successCount)
+			if !isDuplicateError(err) {
+				return
+			}
+		} else {
+			appendResultRow(mTable, "DEFAULT OAUTH: "+cu.Email, nil, failCount, successCount)
+		}
 	}
 
-	if err := db.Create(&oauthDefault).Error; err != nil {
-		appendResultRow(mTable, "DEFAULT OAUTH", err, failCount, successCount)
-		if !isDuplicateError(err) {
-			return
-		}
-	} else {
-		appendResultRow(mTable, "DEFAULT OAUTH", nil, failCount, successCount)
-	}
+	// use the first created user as the primary default user for org creation below
+	userDefault = createdUsers[0]
 
 	// Insert Default Organizations
 	var logo1URL = "https://upload.wikimedia.org/wikipedia/commons/9/94/Cloudflare_Logo.png"

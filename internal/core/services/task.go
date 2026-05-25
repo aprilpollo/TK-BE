@@ -10,11 +10,12 @@ import (
 )
 
 type taskService struct {
-	repo output.TaskRepository
+	repo        output.TaskRepository
+	commentRepo output.TaskCommentRepository
 }
 
-func NewTaskService(repo output.TaskRepository) input.TaskService {
-	return &taskService{repo: repo}
+func NewTaskService(repo output.TaskRepository, commentRepo output.TaskCommentRepository) input.TaskService {
+	return &taskService{repo: repo, commentRepo: commentRepo}
 }
 
 func (s *taskService) List(ctx context.Context, opts query.QueryOptions, project_id int64, status_id int64) ([]domain.Task, int64, error) {
@@ -50,7 +51,17 @@ func (s *taskService) DeleteStatus(ctx context.Context, status_id int64) error {
 }
 
 func (s *taskService) Create(ctx context.Context, req *domain.TaskReq, createBy int64) (*domain.Task, error) {
-	return s.repo.Create(ctx, req, createBy)
+	task, err := s.repo.Create(ctx, req, createBy)
+	if err != nil {
+		return nil, err
+	}
+
+	_, _ = s.commentRepo.Create(ctx, &domain.CreateTaskCommentReq{
+		Type:   domain.TaskCommentTypeImage,
+		Action: "created_task",
+	}, task.ID, createBy)
+
+	return task, nil
 }
 
 func (s *taskService) Update(ctx context.Context, req *domain.UpdateTaskReq, task_id int64) (*domain.Task, error) {

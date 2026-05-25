@@ -163,9 +163,9 @@ type TaskCommentFile struct {
 }
 
 type CreateTaskCommentReq struct {
-	Type  TaskCommentModelTyoe       `json:"type"`
-	Text  string                     `json:"text"`
-	Files []CreateTaskCommentFileReq `json:"files"`
+	Type   TaskCommentModelTyoe       `json:"type"`
+	Text   string                     `json:"text"`
+	Action string                     `json:"action"`
 }
 
 type CreateTaskCommentFileReq struct {

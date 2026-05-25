@@ -52,23 +52,13 @@ func (r *taskCommentRepository) Create(ctx context.Context, req *domain.CreateTa
 			UserID:    userID,
 			Type:      models.TaskCommentModelTyoe(req.Type),
 			Text:      req.Text,
+			Action:    req.Action,
 			TimeStamp: time.Now().Unix(),
 		}
 		if err := tx.Create(&comment).Error; err != nil {
 			return err
 		}
 
-		for _, f := range req.Files {
-			file := models.TaskCommentFileModel{
-				TaskCommentID: comment.ID,
-				Url:           f.URL,
-				Name:          f.Name,
-				MimeType:      f.MimeType,
-			}
-			if err := tx.Create(&file).Error; err != nil {
-				return err
-			}
-		}
 		return nil
 	})
 	if err != nil {

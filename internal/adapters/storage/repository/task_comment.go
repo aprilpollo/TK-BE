@@ -73,6 +73,25 @@ func (r *taskCommentRepository) Create(ctx context.Context, req *domain.CreateTa
 	return result.ToDomain(), nil
 }
 
+func (r *taskCommentRepository) UploadFile(ctx context.Context, req *domain.TaskCommentFileUpload) (*domain.TaskCommentFileUploadRes, error) {
+	commentFile := models.TaskCommentFileModel{
+		TaskCommentID: req.TaskCommentID,
+		Url:           req.URL,
+		Name:          req.Name,
+		MimeType:      req.MimeType,
+	}
+
+	if err := r.db.WithContext(ctx).Create(&commentFile).Error; err != nil {
+		return nil, err
+	}
+
+	return &domain.TaskCommentFileUploadRes{
+		URL:      commentFile.Url,
+		Name:     commentFile.Name,
+		MimeType: commentFile.MimeType,
+	}, nil
+}
+
 func (r *taskCommentRepository) Update(ctx context.Context, req *domain.UpdateTaskCommentReq, commentID int64) (*domain.TaskComment, error) {
 	if err := r.db.WithContext(ctx).Model(&models.TaskCommentModel{}).Where("id = ?", commentID).Update("text", req.Text).Error; err != nil {
 		return nil, err

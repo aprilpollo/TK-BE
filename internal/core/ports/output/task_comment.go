@@ -12,4 +12,5 @@ type TaskCommentRepository interface {
 	Create(ctx context.Context, req *domain.CreateTaskCommentReq, taskID int64, userID int64) (*domain.TaskComment, error)
 	Update(ctx context.Context, req *domain.UpdateTaskCommentReq, commentID int64) (*domain.TaskComment, error)
 	Delete(ctx context.Context, commentID int64) error
+	UploadFile(ctx context.Context, req *domain.TaskCommentFileUpload) (*domain.TaskCommentFileUploadRes, error)
 }

@@ -163,9 +163,9 @@ type TaskCommentFile struct {
 }
 
 type CreateTaskCommentReq struct {
-	Type   TaskCommentModelTyoe       `json:"type"`
-	Text   string                     `json:"text"`
-	Action string                     `json:"action"`
+	Type   TaskCommentModelTyoe `json:"type"`
+	Text   string               `json:"text"`
+	Action string               `json:"action"`
 }
 
 type CreateTaskCommentFileReq struct {
@@ -182,4 +182,11 @@ type TaskCommentFileUploadRes struct {
 	URL      string `json:"url"`
 	Name     string `json:"name"`
 	MimeType string `json:"mime_type"`
+}
+
+type TaskCommentFileUpload struct {
+	TaskCommentID int64  `json:"task_comment_id"`
+	URL           string `json:"url"`
+	Name          string `json:"name"`
+	MimeType      string `json:"mime_type"`
 }

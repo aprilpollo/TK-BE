@@ -48,9 +48,12 @@ func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, siz
 		return nil, err
 	}
 
-	return &domain.TaskCommentFileUploadRes{
-		URL:      url,
-		Name:     filename,
-		MimeType: contentType,
-	}, nil
+	commentFileUpload := &domain.TaskCommentFileUpload{
+		TaskCommentID: taskID,
+		URL:           url,
+		Name:          filename,
+		MimeType:      contentType,
+	}
+
+	return s.repo.UploadFile(ctx, commentFileUpload)
 }

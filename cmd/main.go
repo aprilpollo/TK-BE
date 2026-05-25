@@ -79,7 +79,7 @@ func main() {
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
 	projectSvc := services.NewProjectService(projectRepo, taskRepo, minioClient)
 	taskSvc := services.NewTaskService(taskRepo, taskCommentRepo)
-	taskCommentSvc := services.NewTaskCommentService(taskCommentRepo)
+	taskCommentSvc := services.NewTaskCommentService(taskCommentRepo, minioClient)
 	calendarSvc := services.NewCalendarService(calendarRepo)
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)

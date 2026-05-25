@@ -82,6 +82,7 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.Task
 	// comment routes registered before the /:project_id/:status_id wildcard
 	// so Fiber's radix tree prefers the static "comments" segment
 	tasks.Get("/:task_id/comments", ch.List)
+	tasks.Post("/:task_id/comments/upload", ch.UploadFile)
 	tasks.Post("/:task_id/comments", ch.Create)
 	tasks.Put("/:task_id/comments/:comment_id", ch.Update)
 	tasks.Delete("/:task_id/comments/:comment_id", ch.Delete)

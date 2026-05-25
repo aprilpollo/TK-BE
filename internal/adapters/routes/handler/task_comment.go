@@ -89,3 +89,45 @@ func (h *TaskCommentHandler) Delete(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
+
+func (h *TaskCommentHandler) UploadFile(c *fiber.Ctx) error {
+	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid multipart form", err.Error())
+	}
+
+	fileHeaders := form.File["files"]
+	if len(fileHeaders) == 0 {
+		return ResError(c, fiber.StatusBadRequest, "files are required", "at least one file must be provided")
+	}
+
+	const maxSize = 10 << 20 // 10MB per file
+
+	results := make([]*domain.TaskCommentFileUploadRes, 0, len(fileHeaders))
+	for _, fh := range fileHeaders {
+		if fh.Size > maxSize {
+			return ResError(c, fiber.StatusBadRequest, "file too large", fh.Filename+" exceeds 10MB limit")
+		}
+
+		file, err := fh.Open()
+		if err != nil {
+			return ResError(c, fiber.StatusInternalServerError, "failed to open file", err.Error())
+		}
+
+		contentType := fh.Header.Get("Content-Type")
+		result, err := h.svc.UploadFile(c.Context(), file, fh.Size, contentType, fh.Filename, taskID)
+		file.Close()
+		if err != nil {
+			return ResError(c, fiber.StatusInternalServerError, "failed to upload file", err.Error())
+		}
+
+		results = append(results, result)
+	}
+
+	return ResOk(c, fiber.StatusOK, results, nil, nil)
+}

@@ -2,6 +2,11 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"io"
+	"path/filepath"
+
+	"github.com/google/uuid"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
@@ -10,11 +15,12 @@ import (
 )
 
 type taskCommentService struct {
-	repo output.TaskCommentRepository
+	repo  output.TaskCommentRepository
+	minio output.FileStorage
 }
 
-func NewTaskCommentService(repo output.TaskCommentRepository) input.TaskCommentService {
-	return &taskCommentService{repo: repo}
+func NewTaskCommentService(repo output.TaskCommentRepository, minio output.FileStorage) input.TaskCommentService {
+	return &taskCommentService{repo: repo, minio: minio}
 }
 
 func (s *taskCommentService) List(ctx context.Context, opts query.QueryOptions, taskID int64) ([]domain.TaskComment, int64, error) {
@@ -31,4 +37,20 @@ func (s *taskCommentService) Update(ctx context.Context, req *domain.UpdateTaskC
 
 func (s *taskCommentService) Delete(ctx context.Context, commentID int64) error {
 	return s.repo.Delete(ctx, commentID)
+}
+
+func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, size int64, contentType string, filename string, taskID int64) (*domain.TaskCommentFileUploadRes, error) {
+	ext := filepath.Ext(filename)
+	objectName := fmt.Sprintf("tasks/comments/%d/%s%s", taskID, uuid.New().String(), ext)
+
+	url, err := s.minio.UploadFile(ctx, objectName, file, size, contentType)
+	if err != nil {
+		return nil, err
+	}
+
+	return &domain.TaskCommentFileUploadRes{
+		URL:      url,
+		Name:     filename,
+		MimeType: contentType,
+	}, nil
 }

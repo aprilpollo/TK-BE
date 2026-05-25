@@ -177,3 +177,9 @@ type CreateTaskCommentFileReq struct {
 type UpdateTaskCommentReq struct {
 	Text string `json:"text"`
 }
+
+type TaskCommentFileUploadRes struct {
+	URL      string `json:"url"`
+	Name     string `json:"name"`
+	MimeType string `json:"mime_type"`
+}

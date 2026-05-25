@@ -162,6 +162,7 @@ type TaskCommentFile struct {
 	URL           string `json:"url"`
 	Name          string `json:"name"`
 	Type          string `json:"type"`
+	Size          int64  `json:"size"`
 }
 
 type CreateTaskCommentReq struct {
@@ -184,6 +185,7 @@ type TaskCommentFileUploadRes struct {
 	URL      string `json:"url"`
 	Name     string `json:"name"`
 	MimeType string `json:"mime_type"`
+	Size     int64  `json:"size"`
 }
 
 type TaskCommentFileUpload struct {
@@ -191,6 +193,7 @@ type TaskCommentFileUpload struct {
 	URL           string `json:"url"`
 	Name          string `json:"name"`
 	MimeType      string `json:"mime_type"`
+	Size          int64  `json:"size"`
 }
 
 type UploadFileItem struct {

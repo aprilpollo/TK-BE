@@ -79,6 +79,7 @@ func (r *taskCommentRepository) UploadFile(ctx context.Context, req *domain.Task
 		Url:           req.URL,
 		Name:          req.Name,
 		MimeType:      req.MimeType,
+		Size:          req.Size,
 	}
 
 	if err := r.db.WithContext(ctx).Create(&commentFile).Error; err != nil {
@@ -89,6 +90,7 @@ func (r *taskCommentRepository) UploadFile(ctx context.Context, req *domain.Task
 		URL:      commentFile.Url,
 		Name:     commentFile.Name,
 		MimeType: commentFile.MimeType,
+		Size:     commentFile.Size,
 	}, nil
 }
 

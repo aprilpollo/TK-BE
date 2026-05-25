@@ -82,6 +82,7 @@ type TaskCommentFileModel struct {
 	Url           string `gorm:"not null;size:255"`
 	Name          string `gorm:"not null;size:255"`
 	MimeType      string `gorm:"size:100"`
+	Size          int64  `gorm:"not null"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`
@@ -288,5 +289,6 @@ func (m *TaskCommentFileModel) ToDomain() *domain.TaskCommentFile {
 		URL:           m.Url,
 		Name:          m.Name,
 		Type:          m.MimeType,
+		Size:          m.Size,
 	}
 }

@@ -49,7 +49,7 @@ func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.Upl
 		return nil, err
 	}
 
-	
+
 	for _, item := range items {
 		ext := filepath.Ext(item.Filename)
 		objectName := fmt.Sprintf("tasks/comments/%d/%s%s", taskID, uuid.New().String(), ext)
@@ -64,6 +64,7 @@ func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.Upl
 			URL:           url,
 			Name:          item.Filename,
 			MimeType:      item.ContentType,
+			Size:          item.Size,
 		})
 		if err != nil {
 			return nil, err

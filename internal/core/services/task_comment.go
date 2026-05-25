@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"fmt"
-	"io"
 	"path/filepath"
 
 	"github.com/google/uuid"
@@ -39,14 +38,9 @@ func (s *taskCommentService) Delete(ctx context.Context, commentID int64) error 
 	return s.repo.Delete(ctx, commentID)
 }
 
-func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, size int64, contentType string, filename string, taskID int64, userID int64) (*domain.TaskCommentFileUploadRes, error) {
-	ext := filepath.Ext(filename)
-	objectName := fmt.Sprintf("tasks/comments/%d/%s%s", taskID, uuid.New().String(), ext)
+func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.UploadFileItem, taskID int64, userID int64) ([]*domain.TaskCommentFileUploadRes, error) {
 
-	url, err := s.minio.UploadFile(ctx, objectName, file, size, contentType)
-	if err != nil {
-		return nil, err
-	}
+	results := make([]*domain.TaskCommentFileUploadRes, 0, len(items))
 
 	comment, err := s.repo.Create(ctx, &domain.CreateTaskCommentReq{
 		Type: domain.TaskCommentTypeComment,
@@ -55,12 +49,27 @@ func (s *taskCommentService) UploadFile(ctx context.Context, file io.Reader, siz
 		return nil, err
 	}
 
-	commentFileUpload := &domain.TaskCommentFileUpload{
-		TaskCommentID: comment.ID,
-		URL:           url,
-		Name:          filename,
-		MimeType:      contentType,
-	}
+	
+	for _, item := range items {
+		ext := filepath.Ext(item.Filename)
+		objectName := fmt.Sprintf("tasks/comments/%d/%s%s", taskID, uuid.New().String(), ext)
 
-	return s.repo.UploadFile(ctx, commentFileUpload)
+		url, err := s.minio.UploadFile(ctx, objectName, item.File, item.Size, item.ContentType)
+		if err != nil {
+			return nil, err
+		}
+
+		result, err := s.repo.UploadFile(ctx, &domain.TaskCommentFileUpload{
+			TaskCommentID: comment.ID,
+			URL:           url,
+			Name:          item.Filename,
+			MimeType:      item.ContentType,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, result)
+	}
+	return results, nil
 }

@@ -110,7 +110,14 @@ func (h *TaskCommentHandler) UploadFile(c *fiber.Ctx) error {
 
 	const maxSize = 10 << 20 // 10MB per file
 
-	results := make([]*domain.TaskCommentFileUploadRes, 0, len(fileHeaders))
+	items := make([]domain.UploadFileItem, 0, len(fileHeaders))
+	closers := make([]func(), 0, len(fileHeaders))
+	defer func() {
+		for _, close := range closers {
+			close()
+		}
+	}()
+
 	for _, fh := range fileHeaders {
 		if fh.Size > maxSize {
 			return ResError(c, fiber.StatusBadRequest, "file too large", fh.Filename+" exceeds 10MB limit")
@@ -120,15 +127,19 @@ func (h *TaskCommentHandler) UploadFile(c *fiber.Ctx) error {
 		if err != nil {
 			return ResError(c, fiber.StatusInternalServerError, "failed to open file", err.Error())
 		}
+		closers = append(closers, func() { file.Close() })
 
-		contentType := fh.Header.Get("Content-Type")
-		result, err := h.svc.UploadFile(c.Context(), file, fh.Size, contentType, fh.Filename, taskID, userID)
-		file.Close()
-		if err != nil {
-			return ResError(c, fiber.StatusInternalServerError, "failed to upload file", err.Error())
-		}
+		items = append(items, domain.UploadFileItem{
+			File:        file,
+			Size:        fh.Size,
+			ContentType: fh.Header.Get("Content-Type"),
+			Filename:    fh.Filename,
+		})
+	}
 
-		results = append(results, result)
+	results, err := h.svc.UploadFiles(c.Context(), items, taskID, userID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to upload files", err.Error())
 	}
 
 	return ResOk(c, fiber.StatusOK, results, nil, nil)

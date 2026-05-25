@@ -1,8 +1,10 @@
 package domain
 
 import (
-	"aprilpollo/internal/utils"
+	"io"
 	"time"
+
+	"aprilpollo/internal/utils"
 
 	"github.com/google/uuid"
 )
@@ -189,4 +191,11 @@ type TaskCommentFileUpload struct {
 	URL           string `json:"url"`
 	Name          string `json:"name"`
 	MimeType      string `json:"mime_type"`
+}
+
+type UploadFileItem struct {
+	File        io.Reader
+	Size        int64
+	ContentType string
+	Filename    string
 }

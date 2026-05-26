@@ -254,6 +254,21 @@ func (m *TasksModel) ToDomain() *domain.Task {
 	}
 }
 
+func (m *SubTasksModel) ToDomain() *domain.SubTasks {
+	if m == nil {
+		return nil
+	}
+	return &domain.SubTasks{
+		ID:        m.ID,
+		Name:      m.Name,
+		TaskID:    m.TaskID,
+		Position:  m.Position,
+		IsSuccess: m.IsSuccess,
+		CreatedAt: m.CreatedAt,
+		UpdatedAt: m.UpdatedAt,
+	}
+}
+
 func (m *TaskCommentModel) ToDomain() *domain.TaskComment {
 	if m == nil {
 		return nil

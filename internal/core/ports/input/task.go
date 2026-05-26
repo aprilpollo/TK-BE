@@ -22,4 +22,10 @@ type TaskService interface {
 	ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error
 	ListByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
 	ListOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
+
+	ListSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error)
+	CreateSubTask(ctx context.Context, req *domain.SubTaskReq) (*domain.SubTasks, error)
+	UpdateSubTask(ctx context.Context, req *domain.UpdateSubTaskReq, subtaskID int64) (*domain.SubTasks, error)
+	DeleteSubTask(ctx context.Context, subtaskID int64) error
+	ReorderSubTask(ctx context.Context, req *domain.ReqReorderSubTask, taskID int64) error
 }

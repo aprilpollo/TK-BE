@@ -438,6 +438,81 @@ func (r *taskRepository) FindOverdue(ctx context.Context, opts query.QueryOption
 	return items, total, nil
 }
 
+func (r *taskRepository) FindSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error) {
+	var rows []models.SubTasksModel
+	if err := r.db.WithContext(ctx).Where("task_id = ?", taskID).Order("position ASC").Find(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	result := make([]domain.SubTasks, len(rows))
+	for i, row := range rows {
+		result[i] = *row.ToDomain()
+	}
+	return result, nil
+}
+
+func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskReq) (*domain.SubTasks, error) {
+	var model models.SubTasksModel
+
+	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var maxPosition *int
+		tx.Model(&models.SubTasksModel{}).Where("task_id = ?", req.TaskID).Select("MAX(position)").Scan(&maxPosition)
+
+		nextPosition := 1
+		if maxPosition != nil {
+			nextPosition = *maxPosition + 1
+		}
+
+		model = models.SubTasksModel{
+			Name:     req.Name,
+			TaskID:   req.TaskID,
+			Position: nextPosition,
+		}
+		return tx.Create(&model).Error
+	})
+	if err != nil {
+		return nil, err
+	}
+	return model.ToDomain(), nil
+}
+
+func (r *taskRepository) UpdateSubTask(ctx context.Context, req *domain.UpdateSubTaskReq, subtaskID int64) (*domain.SubTasks, error) {
+	var model models.SubTasksModel
+	if err := r.db.WithContext(ctx).Where("id = ?", subtaskID).First(&model).Error; err != nil {
+		return nil, err
+	}
+
+	updates := map[string]any{}
+	if req.Name != "" {
+		updates["name"] = req.Name
+	}
+	if req.IsSuccess != nil {
+		updates["is_success"] = *req.IsSuccess
+	}
+
+	if err := r.db.WithContext(ctx).Model(&model).Updates(updates).Error; err != nil {
+		return nil, err
+	}
+	return model.ToDomain(), nil
+}
+
+func (r *taskRepository) DeleteSubTask(ctx context.Context, subtaskID int64) error {
+	return r.db.WithContext(ctx).Where("id = ?", subtaskID).Delete(&models.SubTasksModel{}).Error
+}
+
+func (r *taskRepository) ReorderSubTask(ctx context.Context, req *domain.ReqReorderSubTask, taskID int64) error {
+	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		for _, item := range req.Updates {
+			if err := tx.Model(&models.SubTasksModel{}).
+				Where("id = ? AND task_id = ?", item.ID, taskID).
+				Update("position", item.Position).Error; err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
 func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {

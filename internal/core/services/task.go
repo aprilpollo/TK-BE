@@ -87,3 +87,23 @@ func (s *taskService) ListByToday(ctx context.Context, opts query.QueryOptions, 
 func (s *taskService) ListOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error) {
 	return s.repo.FindOverdue(ctx, opts, userID, orgID)
 }
+
+func (s *taskService) ListSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error) {
+	return s.repo.FindSubTasks(ctx, taskID)
+}
+
+func (s *taskService) CreateSubTask(ctx context.Context, req *domain.SubTaskReq) (*domain.SubTasks, error) {
+	return s.repo.CreateSubTask(ctx, req)
+}
+
+func (s *taskService) UpdateSubTask(ctx context.Context, req *domain.UpdateSubTaskReq, subtaskID int64) (*domain.SubTasks, error) {
+	return s.repo.UpdateSubTask(ctx, req, subtaskID)
+}
+
+func (s *taskService) DeleteSubTask(ctx context.Context, subtaskID int64) error {
+	return s.repo.DeleteSubTask(ctx, subtaskID)
+}
+
+func (s *taskService) ReorderSubTask(ctx context.Context, req *domain.ReqReorderSubTask, taskID int64) error {
+	return s.repo.ReorderSubTask(ctx, req, taskID)
+}

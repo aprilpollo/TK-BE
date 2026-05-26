@@ -91,6 +91,13 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.Task
 	// real-time comments via WebSocket: ws://.../api/v1/tasks/:task_id/comments/live
 	tasks.Get("/:task_id/comments/live", wsHandler.RequireUpgrade, websocket.New(wsHandler.Handle))
 
+	// subtask routes
+	tasks.Get("/:task_id/subtasks", h.ListSubTasks)
+	tasks.Post("/:task_id/subtasks", h.CreateSubTask)
+	tasks.Put("/:task_id/subtasks/reorder", h.ReorderSubTask)
+	tasks.Put("/:task_id/subtasks/:subtask_id", h.UpdateSubTask)
+	tasks.Delete("/:task_id/subtasks/:subtask_id", h.DeleteSubTask)
+
 	tasks.Get("/:project_id/:status_id", h.List)
 
 	tasks.Post("/", h.Create)

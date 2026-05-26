@@ -281,3 +281,87 @@ func (h *TaskHandler) ListOverdue(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, tasks, &total, &opts)
 }
+
+func (h *TaskHandler) ListSubTasks(c *fiber.Ctx) error {
+	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	subtasks, err := h.svc.ListSubTasks(c.Context(), taskID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to fetch subtasks", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, subtasks, nil, nil)
+}
+
+func (h *TaskHandler) CreateSubTask(c *fiber.Ctx) error {
+	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var req domain.SubTaskReq
+	if err := c.BodyParser(&req); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
+	}
+	req.TaskID = taskID
+
+	subtask, err := h.svc.CreateSubTask(c.Context(), &req)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to create subtask", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusCreated, subtask, nil, nil)
+}
+
+func (h *TaskHandler) UpdateSubTask(c *fiber.Ctx) error {
+	subtaskID, err := strconv.ParseInt(c.Params("subtask_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var req domain.UpdateSubTaskReq
+	if err := c.BodyParser(&req); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
+	}
+
+	subtask, err := h.svc.UpdateSubTask(c.Context(), &req, subtaskID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to update subtask", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, subtask, nil, nil)
+}
+
+func (h *TaskHandler) DeleteSubTask(c *fiber.Ctx) error {
+	subtaskID, err := strconv.ParseInt(c.Params("subtask_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	if err := h.svc.DeleteSubTask(c.Context(), subtaskID); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to delete subtask", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}
+
+func (h *TaskHandler) ReorderSubTask(c *fiber.Ctx) error {
+	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
+	}
+
+	var req domain.ReqReorderSubTask
+	if err := c.BodyParser(&req); err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
+	}
+
+	if err := h.svc.ReorderSubTask(c.Context(), &req, taskID); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to reorder subtasks", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}

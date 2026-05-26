@@ -234,3 +234,17 @@ type SubTaskReq struct {
 	Name   string `json:"name"`
 	TaskID int64  `json:"task_id"`
 }
+
+type UpdateSubTaskReq struct {
+	Name      string `json:"name"`
+	IsSuccess *bool  `json:"is_success"`
+}
+
+type ReqReorderSubTask struct {
+	Updates []ReorderSubTask `json:"updates"`
+}
+
+type ReorderSubTask struct {
+	ID       int64 `json:"id"`
+	Position int   `json:"position"`
+}

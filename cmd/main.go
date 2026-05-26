@@ -3,6 +3,7 @@ package main
 import (
 	"aprilpollo/internal/adapters/config"
 	googleAdapter "aprilpollo/internal/adapters/google"
+	"aprilpollo/internal/adapters/hub"
 	"aprilpollo/internal/adapters/middleware"
 	"aprilpollo/internal/adapters/routes"
 	"aprilpollo/internal/adapters/routes/handler"
@@ -12,6 +13,7 @@ import (
 	"aprilpollo/internal/adapters/storage/repository"
 	"aprilpollo/internal/core/services"
 	"aprilpollo/internal/utils"
+	"context"
 	"fmt"
 	"log"
 	"runtime/debug"
@@ -50,6 +52,11 @@ func main() {
 
 	fmt.Println("✔ [INFO] Redis Connection")
 
+	pubsub := cache.NewRedisPubSub(redis)
+
+	wsHub := hub.New()
+	wsHub.StartSubscriber(context.Background(), redis.GetClient())
+
 	minioClient, err := minioAdapter.NewMinIOClient(cfg.Minios3)
 	if err != nil {
 		log.Fatal(err)
@@ -79,7 +86,7 @@ func main() {
 	userSvc := services.NewUserService(userRepo, orgRepo, minioClient)
 	projectSvc := services.NewProjectService(projectRepo, taskRepo, minioClient)
 	taskSvc := services.NewTaskService(taskRepo, taskCommentRepo)
-	taskCommentSvc := services.NewTaskCommentService(taskCommentRepo, minioClient)
+	taskCommentSvc := services.NewTaskCommentService(taskCommentRepo, minioClient, pubsub)
 	calendarSvc := services.NewCalendarService(calendarRepo)
 	// --- Middleware ---
 	jwtMiddleware := middleware.JWTProtected(cfg.JWT.SecretKey)
@@ -92,6 +99,7 @@ func main() {
 	projectHandler := handler.NewProjectHandler(projectSvc)
 	taskHandler := handler.NewTaskHandler(taskSvc)
 	taskCommentHandler := handler.NewTaskCommentHandler(taskCommentSvc)
+	taskCommentWSHandler := handler.NewTaskCommentWSHandler(wsHub)
 	calendarHandler := handler.NewCalendarHandler(calendarSvc)
 
 	// --- Fiber app ---
@@ -137,7 +145,7 @@ func main() {
 	routes.RegisterUserRoutes(app, userHandler, jwtMiddleware)
 	routes.RegisterOrganizationRoutes(app, orgHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterProjectRoutes(app, projectHandler, jwtMiddleware, orgMiddleware)
-	routes.RegisterTaskRoutes(app, taskHandler, taskCommentHandler, jwtMiddleware, orgMiddleware)
+	routes.RegisterTaskRoutes(app, taskHandler, taskCommentHandler, taskCommentWSHandler, jwtMiddleware, orgMiddleware)
 	routes.RegisterCalendarRoutes(app, calendarHandler, jwtMiddleware, orgMiddleware)
 	if err := app.Listen(fmt.Sprintf(":%s", cfg.App.ApiPort)); err != nil {
 		log.Println(err)

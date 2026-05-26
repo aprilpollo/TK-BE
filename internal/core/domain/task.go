@@ -202,3 +202,18 @@ type UploadFileItem struct {
 	ContentType string
 	Filename    string
 }
+
+type CommentEventType string
+
+const (
+	CommentEventCreated CommentEventType = "created"
+	CommentEventUpdated CommentEventType = "updated"
+	CommentEventDeleted CommentEventType = "deleted"
+)
+
+type CommentEvent struct {
+	Type    CommentEventType `json:"type"`
+	TaskID  int64            `json:"task_id"`
+	Comment *TaskComment     `json:"comment,omitempty"`
+	ID      int64            `json:"id,omitempty"`
+}

@@ -94,6 +94,14 @@ func (r *taskCommentRepository) UploadFile(ctx context.Context, req *domain.Task
 	}, nil
 }
 
+func (r *taskCommentRepository) FindByID(ctx context.Context, commentID int64) (*domain.TaskComment, error) {
+	var result models.TaskCommentModel
+	if err := r.db.WithContext(ctx).Preload("User").Preload("Files").First(&result, commentID).Error; err != nil {
+		return nil, err
+	}
+	return result.ToDomain(), nil
+}
+
 func (r *taskCommentRepository) Update(ctx context.Context, req *domain.UpdateTaskCommentReq, commentID int64) (*domain.TaskComment, error) {
 	if err := r.db.WithContext(ctx).Model(&models.TaskCommentModel{}).Where("id = ?", commentID).Update("text", req.Text).Error; err != nil {
 		return nil, err

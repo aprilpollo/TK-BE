@@ -3,6 +3,7 @@ package routes
 import (
 	"aprilpollo/internal/adapters/routes/handler"
 
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -69,7 +70,7 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Delete("/:id", h.Delete)
 }
 
-func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.TaskCommentHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
+func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.TaskCommentHandler, wsHandler *handler.TaskCommentWSHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
 	api := app.Group("/api/v1")
 
 	tasks := api.Group("/tasks", jwtMiddleware, orgMiddleware)
@@ -86,6 +87,9 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.Task
 	tasks.Post("/:task_id/comments", ch.Create)
 	tasks.Put("/:task_id/comments/:comment_id", ch.Update)
 	tasks.Delete("/:task_id/comments/:comment_id", ch.Delete)
+
+	// real-time comments via WebSocket: ws://.../api/v1/tasks/:task_id/comments/live
+	tasks.Get("/:task_id/comments/live", wsHandler.RequireUpgrade, websocket.New(wsHandler.Handle))
 
 	tasks.Get("/:project_id/:status_id", h.List)
 

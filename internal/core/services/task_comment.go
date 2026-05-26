@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/google/uuid"
@@ -14,12 +15,19 @@ import (
 )
 
 type taskCommentService struct {
-	repo  output.TaskCommentRepository
-	minio output.FileStorage
+	repo      output.TaskCommentRepository
+	minio     output.FileStorage
+	publisher output.CommentPublisher
 }
 
-func NewTaskCommentService(repo output.TaskCommentRepository, minio output.FileStorage) input.TaskCommentService {
-	return &taskCommentService{repo: repo, minio: minio}
+func NewTaskCommentService(repo output.TaskCommentRepository, minio output.FileStorage, publisher output.CommentPublisher) input.TaskCommentService {
+	return &taskCommentService{repo: repo, minio: minio, publisher: publisher}
+}
+
+func (s *taskCommentService) publish(ctx context.Context, taskID int64, event domain.CommentEvent) {
+	if err := s.publisher.PublishComment(ctx, taskID, event); err != nil {
+		log.Printf("task_comment: publish error task=%d err=%v", taskID, err)
+	}
 }
 
 func (s *taskCommentService) List(ctx context.Context, opts query.QueryOptions, taskID int64) ([]domain.TaskComment, int64, error) {
@@ -27,15 +35,33 @@ func (s *taskCommentService) List(ctx context.Context, opts query.QueryOptions, 
 }
 
 func (s *taskCommentService) Create(ctx context.Context, req *domain.CreateTaskCommentReq, taskID int64, userID int64) (*domain.TaskComment, error) {
-	return s.repo.Create(ctx, req, taskID, userID)
+	comment, err := s.repo.Create(ctx, req, taskID, userID)
+	if err != nil {
+		return nil, err
+	}
+	s.publish(ctx, taskID, domain.CommentEvent{Type: domain.CommentEventCreated, TaskID: taskID, Comment: comment})
+	return comment, nil
 }
 
 func (s *taskCommentService) Update(ctx context.Context, req *domain.UpdateTaskCommentReq, commentID int64) (*domain.TaskComment, error) {
-	return s.repo.Update(ctx, req, commentID)
+	comment, err := s.repo.Update(ctx, req, commentID)
+	if err != nil {
+		return nil, err
+	}
+	s.publish(ctx, comment.TaskID, domain.CommentEvent{Type: domain.CommentEventUpdated, TaskID: comment.TaskID, Comment: comment})
+	return comment, nil
 }
 
 func (s *taskCommentService) Delete(ctx context.Context, commentID int64) error {
-	return s.repo.Delete(ctx, commentID)
+	comment, err := s.repo.FindByID(ctx, commentID)
+	if err != nil {
+		return err
+	}
+	if err := s.repo.Delete(ctx, commentID); err != nil {
+		return err
+	}
+	s.publish(ctx, comment.TaskID, domain.CommentEvent{Type: domain.CommentEventDeleted, TaskID: comment.TaskID, ID: commentID})
+	return nil
 }
 
 func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.UploadFileItem, taskID int64, userID int64) ([]*domain.TaskCommentFileUploadRes, error) {

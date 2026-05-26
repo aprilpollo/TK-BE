@@ -17,8 +17,17 @@ const (
 
 func JWTProtected(secretKey string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
+		tokenStr := ""
+
 		auth := c.Get("Authorization")
-		if !strings.HasPrefix(auth, "Bearer ") {
+		if strings.HasPrefix(auth, "Bearer ") {
+			tokenStr = strings.TrimPrefix(auth, "Bearer ")
+		} else if q := c.Query("token"); q != "" {
+			// fallback for WebSocket clients that cannot set headers
+			tokenStr = q
+		}
+
+		if tokenStr == "" {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"code":    fiber.StatusUnauthorized,
 				"message": "unauthorized",
@@ -27,7 +36,6 @@ func JWTProtected(secretKey string) fiber.Handler {
 			})
 		}
 
-		tokenStr := strings.TrimPrefix(auth, "Bearer ")
 		claims, err := utils.ParseToken(tokenStr, secretKey)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
@@ -48,6 +56,11 @@ func JWTProtected(secretKey string) fiber.Handler {
 func OrganizationProtected() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 		orgID := c.Get("Organization-ID")
+		if orgID == "" {
+			// fallback for WebSocket clients that cannot set headers
+			orgID = c.Query("org_id")
+		}
+
 		if orgID == "" || !utils.IsValidInt64(orgID) {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 				"code":    fiber.StatusUnauthorized,

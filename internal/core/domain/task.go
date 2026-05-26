@@ -217,3 +217,20 @@ type CommentEvent struct {
 	Comment *TaskComment     `json:"comment,omitempty"`
 	ID      int64            `json:"id,omitempty"`
 }
+
+type SubTasks struct {
+	ID        int64  `json:"id"`
+	Name      string `json:"name"`
+	TaskID    int64  `json:"task_id"`
+	Position  int    `json:"position"`
+	IsSuccess bool   `json:"is_success"`
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+
+type SubTaskReq struct {
+	Name   string `json:"name"`
+	TaskID int64  `json:"task_id"`
+}

@@ -65,7 +65,6 @@ func (s *taskCommentService) Delete(ctx context.Context, commentID int64) error 
 }
 
 func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.UploadFileItem, taskID int64, userID int64) ([]*domain.TaskCommentFileUploadRes, error) {
-
 	results := make([]*domain.TaskCommentFileUploadRes, 0, len(items))
 
 	comment, err := s.repo.Create(ctx, &domain.CreateTaskCommentReq{
@@ -74,7 +73,6 @@ func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.Upl
 	if err != nil {
 		return nil, err
 	}
-
 
 	for _, item := range items {
 		ext := filepath.Ext(item.Filename)
@@ -98,5 +96,12 @@ func (s *taskCommentService) UploadFiles(ctx context.Context, items []domain.Upl
 
 		results = append(results, result)
 	}
+
+	// fetch full comment with all attached files before publishing
+	full, err := s.repo.FindByID(ctx, comment.ID)
+	if err == nil {
+		s.publish(ctx, taskID, domain.CommentEvent{Type: domain.CommentEventCreated, TaskID: taskID, Comment: full})
+	}
+
 	return results, nil
 }

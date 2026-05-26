@@ -16,7 +16,6 @@ type TasksModel struct {
 	Key         uuid.UUID `gorm:"type:uuid;default:gen_random_uuid()"`
 	StatusID    int64     `gorm:"not null;index"`
 	PriorityID  int64     `gorm:"not null;index"`
-	ParentID    *int64    `gorm:"index"`
 	Position    int       `gorm:"default:0;index"`
 	StartDate   *int64    `gorm:"index"`
 	EndDate     *int64    `gorm:"index"`
@@ -29,8 +28,21 @@ type TasksModel struct {
 	Project  *ProjectModel      `gorm:"foreignKey:ProjectID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 	Status   *TaskStatusModel   `gorm:"foreignKey:StatusID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
 	Priority *TaskPriorityModel `gorm:"foreignKey:PriorityID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
-	Parent   *TasksModel        `gorm:"foreignKey:ParentID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
 	Assigns  []TaskAssignModel  `gorm:"foreignKey:TaskID"`
+}
+
+type SubTasksModel struct {
+	ID        int64  `gorm:"primaryKey"`
+	Name      string `gorm:"not null;size:255"`
+	TaskID    int64  `gorm:"not null;index"`
+	Position  int    `gorm:"default:0;index"`
+	IsSuccess bool   `gorm:"default:false"`
+
+	CreatedAt time.Time      `gorm:"not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	Task *TasksModel `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 }
 
 type TaskAssignModel struct {
@@ -136,6 +148,10 @@ func (TasksModel) TableName() string {
 	return "tasks"
 }
 
+func (SubTasksModel) TableName() string {
+	return "sub_tasks"
+}
+
 func (TaskAssignModel) TableName() string {
 	return "task_assignments"
 }
@@ -226,7 +242,6 @@ func (m *TasksModel) ToDomain() *domain.Task {
 		Description: m.Description,
 		StatusID:    m.StatusID,
 		PriorityID:  m.PriorityID,
-		ParentID:    m.ParentID,
 		Position:    m.Position,
 		StartDate:   m.StartDate,
 		EndDate:     m.EndDate,

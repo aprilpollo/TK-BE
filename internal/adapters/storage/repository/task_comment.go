@@ -31,7 +31,7 @@ func (r *taskCommentRepository) FindByTaskID(ctx context.Context, opts query.Que
 		return nil, 0, err
 	}
 
-	if err := gormq.ApplyToGorm(base, opts).Preload("User").Preload("Files").Order("created_at ASC").Find(&rows).Error; err != nil {
+	if err := gormq.ApplyToGorm(base, opts).Preload("User").Preload("Files").Find(&rows).Error; err != nil {
 		return nil, 0, err
 	}
 

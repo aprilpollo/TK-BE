@@ -92,8 +92,8 @@ func (s *taskService) ListSubTasks(ctx context.Context, taskID int64) ([]domain.
 	return s.repo.FindSubTasks(ctx, taskID)
 }
 
-func (s *taskService) CreateSubTask(ctx context.Context, req *domain.SubTaskReq) (*domain.SubTasks, error) {
-	return s.repo.CreateSubTask(ctx, req)
+func (s *taskService) CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createBy int64) (*domain.SubTasks, error) {
+	return s.repo.CreateSubTask(ctx, req, createBy)
 }
 
 func (s *taskService) UpdateSubTask(ctx context.Context, req *domain.UpdateSubTaskReq, subtaskID int64) (*domain.SubTasks, error) {

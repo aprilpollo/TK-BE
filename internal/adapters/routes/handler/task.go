@@ -307,7 +307,9 @@ func (h *TaskHandler) CreateSubTask(c *fiber.Ctx) error {
 	}
 	req.TaskID = taskID
 
-	subtask, err := h.svc.CreateSubTask(c.Context(), &req)
+	userID := getCallerID(c)
+
+	subtask, err := h.svc.CreateSubTask(c.Context(), &req, userID)
 	if err != nil {
 		return ResError(c, fiber.StatusInternalServerError, "failed to create subtask", err.Error())
 	}

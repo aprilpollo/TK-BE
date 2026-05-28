@@ -451,8 +451,9 @@ func (r *taskRepository) FindSubTasks(ctx context.Context, taskID int64) ([]doma
 	return result, nil
 }
 
-func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskReq) (*domain.SubTasks, error) {
+func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createBy int64) (*domain.SubTasks, error) {
 	var model models.SubTasksModel
+	now := time.Now()
 
 	err := r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var maxPosition *int
@@ -464,11 +465,55 @@ func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskR
 		}
 
 		model = models.SubTasksModel{
-			Name:     req.Name,
-			TaskID:   req.TaskID,
-			Position: nextPosition,
+			Name:       req.Name,
+			TaskID:     req.TaskID,
+			Position:   nextPosition,
+			PriorityID: req.PriorityID,
+			StartDate:  req.StartDate,
+			EndDate:    req.EndDate,
+			AllDay:     req.AllDay,
 		}
-		return tx.Create(&model).Error
+
+		if err := tx.Create(&model).Error; err != nil {
+			return err
+		}
+
+		if len(req.AssigneeIDs) > 0 {
+			var taskAssignees []models.SubTaskAssignModel
+			for _, assigneeID := range req.AssigneeIDs {
+				taskAssignees = append(taskAssignees, models.SubTaskAssignModel{
+					SubTaskID: model.ID,
+					UserID:    assigneeID,
+					InvitedBy: &createBy,
+					InvitedAt: &now,
+					JoinedAt:  &now,
+				})
+			}
+			if err := tx.Create(&taskAssignees).Error; err != nil {
+				return err
+			}
+
+			// upsert assignees for TaskAssignModel
+			var taskAssigns []models.TaskAssignModel
+			for _, assigneeID := range req.AssigneeIDs {
+				taskAssigns = append(taskAssigns, models.TaskAssignModel{
+					TaskID:    req.TaskID,
+					UserID:    assigneeID,
+					InvitedBy: &createBy,
+					InvitedAt: &now,
+					JoinedAt:  &now,
+				})
+			}
+			for _, ta := range taskAssigns {
+				if err := tx.Where("task_id = ? AND user_id = ?", ta.TaskID, ta.UserID).
+					Assign(ta).
+					FirstOrCreate(&models.TaskAssignModel{}).Error; err != nil {
+					return err
+				}
+			}
+		}
+
+		return nil
 	})
 	if err != nil {
 		return nil, err

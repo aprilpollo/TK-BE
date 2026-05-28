@@ -20,6 +20,7 @@ func All() ModelList {
 		&ProjectNotificationSettingModel{},
 		&TasksModel{},
 		&SubTasksModel{},
+		&SubTaskAssignModel{},
 		&TaskAssignModel{},
 		&TaskCommentModel{},
 		&TaskCommentFileModel{},

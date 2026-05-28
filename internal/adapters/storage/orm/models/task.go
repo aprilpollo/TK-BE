@@ -32,17 +32,24 @@ type TasksModel struct {
 }
 
 type SubTasksModel struct {
-	ID        int64  `gorm:"primaryKey"`
-	Name      string `gorm:"not null;size:255"`
-	TaskID    int64  `gorm:"not null;index"`
-	Position  int    `gorm:"default:0;index"`
-	IsSuccess bool   `gorm:"default:false"`
+	ID         int64  `gorm:"primaryKey"`
+	Name       string `gorm:"not null;size:255"`
+	TaskID     int64  `gorm:"not null;index"`
+	Position   int    `gorm:"default:0;index"`
+	StartDate  *int64 `gorm:"index"`
+	EndDate    *int64 `gorm:"index"`
+	AllDay     *bool  `gorm:"default:true"`
+	PriorityID int64  `gorm:"not null;index"`
+
+	IsSuccess bool `gorm:"default:false"`
 
 	CreatedAt time.Time      `gorm:"not null"`
 	UpdatedAt time.Time      `gorm:"not null"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 
-	Task *TasksModel `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
+	Task     *TasksModel          `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
+	Assigns  []SubTaskAssignModel `gorm:"foreignKey:SubTaskID"`
+	Priority *TaskPriorityModel   `gorm:"foreignKey:PriorityID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
 }
 
 type TaskAssignModel struct {
@@ -61,6 +68,23 @@ type TaskAssignModel struct {
 
 	Task *TasksModel `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
 	User *UserModel  `gorm:"foreignKey:UserID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
+}
+
+type SubTaskAssignModel struct {
+	ID        int64 `gorm:"primaryKey"`
+	SubTaskID int64 `gorm:"not null;index"`
+	UserID    int64 `gorm:"not null;index"`
+	StatusID  int64 `gorm:"not null;index;default:1"`
+	JoinedAt  *time.Time
+	InvitedAt *time.Time
+	InvitedBy *int64
+
+	CreatedAt time.Time      `gorm:"not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+
+	SubTask *SubTasksModel `gorm:"foreignKey:SubTaskID;constraint:OnDelete:CASCADE,OnUpdate:CASCADE"`
+	User    *UserModel     `gorm:"foreignKey:UserID;constraint:OnDelete:SET NULL,OnUpdate:CASCADE"`
 }
 
 type TaskCommentModelType string
@@ -154,6 +178,10 @@ func (SubTasksModel) TableName() string {
 
 func (TaskAssignModel) TableName() string {
 	return "task_assignments"
+}
+
+func (SubTaskAssignModel) TableName() string {
+	return "sub_task_assignments"
 }
 
 func (TaskCommentModel) TableName() string {
@@ -258,14 +286,40 @@ func (m *SubTasksModel) ToDomain() *domain.SubTasks {
 	if m == nil {
 		return nil
 	}
+
+	priority := domain.TaskPriority{ID: m.PriorityID}
+	if m.Priority != nil {
+		priority = *m.Priority.ToDomain()
+	}
+
+	assigns := make([]domain.TaskAssign, 0, len(m.Assigns))
+	for _, assign := range m.Assigns {
+		item := domain.TaskAssign{ID: assign.UserID}
+
+		if assign.User != nil {
+			item.Name = assign.User.DisplayName
+			item.Email = assign.User.Email
+			if assign.User.Avatar != nil {
+				item.Avatar = *assign.User.Avatar
+			}
+		}
+
+		assigns = append(assigns, item)
+	}
+
 	return &domain.SubTasks{
 		ID:        m.ID,
 		Name:      m.Name,
 		TaskID:    m.TaskID,
 		Position:  m.Position,
 		IsSuccess: m.IsSuccess,
+		StartDate: m.StartDate,
+		EndDate:   m.EndDate,
+		AllDay:    m.AllDay != nil && *m.AllDay,
 		CreatedAt: m.CreatedAt,
 		UpdatedAt: m.UpdatedAt,
+		Priority:  priority,
+		Assigns:   assigns,
 	}
 }
 

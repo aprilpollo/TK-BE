@@ -17,13 +17,13 @@ type Task struct {
 	Description string    `json:"description"`
 	StatusID    int64     `json:"status_id"`
 	PriorityID  int64     `json:"priority_id"`
-	ParentID    *int64    `json:"parent_id"`
-	Position    int       `json:"position"`
-	StartDate   *int64    `json:"startDate"`
-	EndDate     *int64    `json:"endDate"`
-	AllDay      bool      `json:"allDay"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	//ParentID    *int64    `json:"parent_id"`
+	Position  int       `json:"position"`
+	StartDate *int64    `json:"startDate"`
+	EndDate   *int64    `json:"endDate"`
+	AllDay    bool      `json:"allDay"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 
 	Status   TaskStatus   `json:"status"`
 	Priority TaskPriority `json:"priority"`
@@ -219,20 +219,32 @@ type CommentEvent struct {
 }
 
 type SubTasks struct {
-	ID        int64  `json:"id"`
-	Name      string `json:"name"`
-	TaskID    int64  `json:"task_id"`
-	Position  int    `json:"position"`
-	IsSuccess bool   `json:"is_success"`
+	ID         int64  `json:"id"`
+	Name       string `json:"name"`
+	TaskID     int64  `json:"task_id"`
+	Position   int    `json:"position"`
+	StartDate  *int64 `json:"start_date"`
+	EndDate    *int64 `json:"end_date"`
+	AllDay     bool   `json:"all_day"`
+	PriorityID int64  `json:"priority_id"`
+
+	IsSuccess bool `json:"is_success"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+
+	Priority TaskPriority `json:"priority"`
+	Assigns  []TaskAssign `json:"assignees"`
 }
 
-
 type SubTaskReq struct {
-	Name   string `json:"name"`
-	TaskID int64  `json:"task_id"`
+	Name        string  `json:"name"`
+	TaskID      int64   `json:"task_id"`
+	PriorityID  int64   `json:"priority_id"`
+	StartDate   *int64  `json:"start_date"`
+	EndDate     *int64  `json:"end_date"`
+	AllDay      *bool   `json:"all_day"`
+	AssigneeIDs []int64 `json:"assignee_ids"`
 }
 
 type UpdateSubTaskReq struct {

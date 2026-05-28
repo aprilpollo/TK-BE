@@ -50,7 +50,6 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 			"startDate":   v.StartDate,
 			"endDate":     v.EndDate,
 			"allDay":      v.AllDay,
-			"subtasks":    v.ParentID,
 			"assignees":   v.Assigns,
 		})
 	}

@@ -287,9 +287,3 @@ type TaskAttachmentItem struct {
 	UploadedBy int64  `json:"uploaded_by"`
 }
 
-type TaskAttachmentDownload struct {
-	Reader   io.ReadCloser
-	Filename string
-	MimeType string
-	Size     int64
-}

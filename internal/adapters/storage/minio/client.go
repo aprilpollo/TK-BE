@@ -82,10 +82,3 @@ func (m *MinIOClient) GetPresignedURLFromURL(ctx context.Context, fileURL string
 	return m.GetPresignedURL(ctx, m.objectNameFromURL(fileURL), expiry)
 }
 
-func (m *MinIOClient) GetFileByURL(ctx context.Context, fileURL string) (io.ReadCloser, error) {
-	obj, err := m.client.GetObject(ctx, m.cfg.Bucket, m.objectNameFromURL(fileURL), minio.GetObjectOptions{})
-	if err != nil {
-		return nil, fmt.Errorf("minio: get object failed: %w", err)
-	}
-	return obj, nil
-}

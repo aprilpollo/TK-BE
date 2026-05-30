@@ -2,20 +2,25 @@ package services
 
 import (
 	"context"
+	"fmt"
+	"path/filepath"
 
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/core/ports/output"
 	"aprilpollo/internal/pkg/query"
+
+	"github.com/google/uuid"
 )
 
 type taskService struct {
 	repo        output.TaskRepository
 	commentRepo output.TaskCommentRepository
+	minio       output.FileStorage
 }
 
-func NewTaskService(repo output.TaskRepository, commentRepo output.TaskCommentRepository) input.TaskService {
-	return &taskService{repo: repo, commentRepo: commentRepo}
+func NewTaskService(repo output.TaskRepository, commentRepo output.TaskCommentRepository, minio output.FileStorage) input.TaskService {
+	return &taskService{repo: repo, commentRepo: commentRepo, minio: minio}
 }
 
 func (s *taskService) List(ctx context.Context, opts query.QueryOptions, project_id int64, status_id int64) ([]domain.Task, int64, error) {
@@ -106,4 +111,34 @@ func (s *taskService) DeleteSubTask(ctx context.Context, subtaskID int64) error 
 
 func (s *taskService) ReorderSubTask(ctx context.Context, req *domain.ReqReorderSubTask, taskID int64) error {
 	return s.repo.ReorderSubTask(ctx, req, taskID)
+}
+
+func (s *taskService) CreateAttachments(ctx context.Context, items []domain.UploadFileItem, taskID int64, uploadedBy int64) ([]*domain.TaskAttachmentFileUploadRes, error) {
+	results := make([]*domain.TaskAttachmentFileUploadRes, 0, len(items))
+
+	for _, item := range items {
+		ext := filepath.Ext(item.Filename)
+		objectName := fmt.Sprintf("tasks/attachments/%d/%s%s", taskID, uuid.New().String(), ext)
+
+		url, err := s.minio.UploadFile(ctx, objectName, item.File, item.Size, item.ContentType)
+		if err != nil {
+			return nil, err
+		}
+
+		result, err := s.repo.CreateAttachments(ctx, &domain.TaskAttachment{
+			TaskID:     taskID,
+			Filename:   item.Filename,
+			FilePath:   url,
+			FileSize:   item.Size,
+			MimeType:   item.ContentType,
+			UploadedBy: uploadedBy,
+		}, taskID)
+		if err != nil {
+			return nil, err
+		}
+
+		results = append(results, result)
+	}
+
+	return results, nil
 }

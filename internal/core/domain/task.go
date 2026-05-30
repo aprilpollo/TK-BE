@@ -260,3 +260,19 @@ type ReorderSubTask struct {
 	ID       int64 `json:"id"`
 	Position int   `json:"position"`
 }
+
+type TaskAttachment struct {
+	TaskID     int64  `json:"task_id"`
+	Filename   string `json:"filename"`
+	FilePath   string `json:"file_path"`
+	FileSize   int64  `json:"file_size"`
+	MimeType   string `json:"mime_type"`
+	UploadedBy int64  `json:"uploaded_by"`
+}
+
+type TaskAttachmentFileUploadRes struct {
+	URL      string `json:"url"`
+	Name     string `json:"name"`
+	MimeType string `json:"mime_type"`
+	Size     int64  `json:"size"`
+}

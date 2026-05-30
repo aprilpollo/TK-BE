@@ -23,6 +23,7 @@ type TaskRepository interface {
 	ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error
 	FindByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
 	FindOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
+	CreateAttachments(ctx context.Context, req *domain.TaskAttachment, taskID int64) (*domain.TaskAttachmentFileUploadRes, error)
 
 	FindSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error)
 	CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createBy int64) (*domain.SubTasks, error)

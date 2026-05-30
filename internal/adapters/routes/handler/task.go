@@ -366,3 +366,59 @@ func (h *TaskHandler) ReorderSubTask(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
+
+
+func (h *TaskHandler) CreateAttachments(c *fiber.Ctx) error {
+		taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
+	}
+
+	userID := getCallerID(c)
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid multipart form", err.Error())
+	}
+
+	fileHeaders := form.File["files"]
+	if len(fileHeaders) == 0 {
+		return ResError(c, fiber.StatusBadRequest, "files are required", "at least one file must be provided")
+	}
+
+	const maxSize = 10 << 20 // 10MB per file
+
+	items := make([]domain.UploadFileItem, 0, len(fileHeaders))
+	closers := make([]func(), 0, len(fileHeaders))
+	defer func() {
+		for _, close := range closers {
+			close()
+		}
+	}()
+
+	for _, fh := range fileHeaders {
+		if fh.Size > maxSize {
+			return ResError(c, fiber.StatusBadRequest, "file too large", fh.Filename+" exceeds 10MB limit")
+		}
+
+		file, err := fh.Open()
+		if err != nil {
+			return ResError(c, fiber.StatusInternalServerError, "failed to open file", err.Error())
+		}
+		closers = append(closers, func() { file.Close() })
+
+		items = append(items, domain.UploadFileItem{
+			File:        file,
+			Size:        fh.Size,
+			ContentType: fh.Header.Get("Content-Type"),
+			Filename:    fh.Filename,
+		})
+	}
+
+	results, err := h.svc.CreateAttachments(c.Context(), items, taskID, userID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to upload files", err.Error())
+	}
+
+	return ResOk(c, fiber.StatusOK, results, nil, nil)
+}

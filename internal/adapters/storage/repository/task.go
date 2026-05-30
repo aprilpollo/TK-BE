@@ -580,6 +580,46 @@ func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorder
 	})
 }
 
+func (r *taskRepository) FindAttachments(ctx context.Context, taskID int64) ([]domain.TaskAttachmentItem, error) {
+	var rows []models.TaskAttachmentModel
+	if err := r.db.WithContext(ctx).Where("task_id = ?", taskID).Find(&rows).Error; err != nil {
+		return nil, err
+	}
+	items := make([]domain.TaskAttachmentItem, len(rows))
+	for i, row := range rows {
+		items[i] = domain.TaskAttachmentItem{
+			ID:         row.ID,
+			TaskID:     row.TaskID,
+			Filename:   row.Filename,
+			FilePath:   row.FilePath,
+			FileSize:   row.FileSize,
+			MimeType:   row.MimeType,
+			UploadedBy: row.UploadedBy,
+		}
+	}
+	return items, nil
+}
+
+func (r *taskRepository) FindAttachment(ctx context.Context, attachmentID int64) (*domain.TaskAttachmentItem, error) {
+	var row models.TaskAttachmentModel
+	if err := r.db.WithContext(ctx).First(&row, attachmentID).Error; err != nil {
+		return nil, err
+	}
+	return &domain.TaskAttachmentItem{
+		ID:         row.ID,
+		TaskID:     row.TaskID,
+		Filename:   row.Filename,
+		FilePath:   row.FilePath,
+		FileSize:   row.FileSize,
+		MimeType:   row.MimeType,
+		UploadedBy: row.UploadedBy,
+	}, nil
+}
+
+func (r *taskRepository) DeleteAttachment(ctx context.Context, attachmentID int64) error {
+	return r.db.WithContext(ctx).Delete(&models.TaskAttachmentModel{}, attachmentID).Error
+}
+
 func (r *taskRepository) CreateAttachments(ctx context.Context, req *domain.TaskAttachment, taskID int64) (*domain.TaskAttachmentFileUploadRes, error) {
 	model := models.TaskAttachmentModel{
 		TaskID:     req.TaskID,

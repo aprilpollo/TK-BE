@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -66,4 +67,25 @@ func (m *MinIOClient) DeleteFile(ctx context.Context, objectName string) error {
 		return fmt.Errorf("minio: delete failed: %w", err)
 	}
 	return nil
+}
+
+func (m *MinIOClient) objectNameFromURL(fileURL string) string {
+	prefix := m.cfg.EndpointPublic + "/" + m.cfg.Bucket + "/"
+	return strings.TrimPrefix(fileURL, prefix)
+}
+
+func (m *MinIOClient) DeleteFileByURL(ctx context.Context, fileURL string) error {
+	return m.DeleteFile(ctx, m.objectNameFromURL(fileURL))
+}
+
+func (m *MinIOClient) GetPresignedURLFromURL(ctx context.Context, fileURL string, expiry time.Duration) (string, error) {
+	return m.GetPresignedURL(ctx, m.objectNameFromURL(fileURL), expiry)
+}
+
+func (m *MinIOClient) GetFileByURL(ctx context.Context, fileURL string) (io.ReadCloser, error) {
+	obj, err := m.client.GetObject(ctx, m.cfg.Bucket, m.objectNameFromURL(fileURL), minio.GetObjectOptions{})
+	if err != nil {
+		return nil, fmt.Errorf("minio: get object failed: %w", err)
+	}
+	return obj, nil
 }

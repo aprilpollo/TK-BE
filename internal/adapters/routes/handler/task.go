@@ -368,6 +368,46 @@ func (h *TaskHandler) ReorderSubTask(c *fiber.Ctx) error {
 }
 
 
+func (h *TaskHandler) GetAttachments(c *fiber.Ctx) error {
+	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
+	}
+	items, err := h.svc.GetAttachments(c.Context(), taskID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to get attachments", err.Error())
+	}
+	return ResOk(c, fiber.StatusOK, items, nil, nil)
+}
+
+func (h *TaskHandler) DeleteAttachment(c *fiber.Ctx) error {
+	attachmentID, err := strconv.ParseInt(c.Params("attachment_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid attachment id", err.Error())
+	}
+	if err := h.svc.DeleteAttachment(c.Context(), attachmentID); err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to delete attachment", err.Error())
+	}
+	return ResOk(c, fiber.StatusOK, nil, nil, nil)
+}
+
+func (h *TaskHandler) DownloadAttachment(c *fiber.Ctx) error {
+	attachmentID, err := strconv.ParseInt(c.Params("attachment_id"), 10, 64)
+	if err != nil {
+		return ResError(c, fiber.StatusBadRequest, "invalid attachment id", err.Error())
+	}
+	res, err := h.svc.DownloadAttachment(c.Context(), attachmentID)
+	if err != nil {
+		return ResError(c, fiber.StatusInternalServerError, "failed to download attachment", err.Error())
+	}
+	defer res.Reader.Close()
+
+	c.Set("Content-Type", res.MimeType)
+	c.Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, res.Filename))
+	c.Set("Content-Length", strconv.FormatInt(res.Size, 10))
+	return c.SendStream(res.Reader, int(res.Size))
+}
+
 func (h *TaskHandler) CreateAttachments(c *fiber.Ctx) error {
 		taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
 	if err != nil {

@@ -276,3 +276,20 @@ type TaskAttachmentFileUploadRes struct {
 	MimeType string `json:"mime_type"`
 	Size     int64  `json:"size"`
 }
+
+type TaskAttachmentItem struct {
+	ID         int64  `json:"id"`
+	TaskID     int64  `json:"task_id"`
+	Filename   string `json:"filename"`
+	FilePath   string `json:"file_path"`
+	FileSize   int64  `json:"file_size"`
+	MimeType   string `json:"mime_type"`
+	UploadedBy int64  `json:"uploaded_by"`
+}
+
+type TaskAttachmentDownload struct {
+	Reader   io.ReadCloser
+	Filename string
+	MimeType string
+	Size     int64
+}

@@ -142,3 +142,35 @@ func (s *taskService) CreateAttachments(ctx context.Context, items []domain.Uplo
 
 	return results, nil
 }
+
+func (s *taskService) GetAttachments(ctx context.Context, taskID int64) ([]domain.TaskAttachmentItem, error) {
+	return s.repo.FindAttachments(ctx, taskID)
+}
+
+func (s *taskService) DeleteAttachment(ctx context.Context, attachmentID int64) error {
+	att, err := s.repo.FindAttachment(ctx, attachmentID)
+	if err != nil {
+		return err
+	}
+	if err := s.minio.DeleteFileByURL(ctx, att.FilePath); err != nil {
+		return err
+	}
+	return s.repo.DeleteAttachment(ctx, attachmentID)
+}
+
+func (s *taskService) DownloadAttachment(ctx context.Context, attachmentID int64) (*domain.TaskAttachmentDownload, error) {
+	att, err := s.repo.FindAttachment(ctx, attachmentID)
+	if err != nil {
+		return nil, err
+	}
+	reader, err := s.minio.GetFileByURL(ctx, att.FilePath)
+	if err != nil {
+		return nil, err
+	}
+	return &domain.TaskAttachmentDownload{
+		Reader:   reader,
+		Filename: att.Filename,
+		MimeType: att.MimeType,
+		Size:     att.FileSize,
+	}, nil
+}

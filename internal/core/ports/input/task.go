@@ -23,6 +23,9 @@ type TaskService interface {
 	ListByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
 	ListOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
 	CreateAttachments(ctx context.Context, items []domain.UploadFileItem, taskID int64, uploadedBy int64) ([]*domain.TaskAttachmentFileUploadRes, error)
+	GetAttachments(ctx context.Context, taskID int64) ([]domain.TaskAttachmentItem, error)
+	DeleteAttachment(ctx context.Context, attachmentID int64) error
+	DownloadAttachment(ctx context.Context, attachmentID int64) (*domain.TaskAttachmentDownload, error)
 
 	ListSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error)
 	CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createBy int64) (*domain.SubTasks, error)

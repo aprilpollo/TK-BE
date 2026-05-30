@@ -24,6 +24,9 @@ type TaskRepository interface {
 	FindByToday(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
 	FindOverdue(ctx context.Context, opts query.QueryOptions, userID int64, orgID int64) ([]domain.TaskToday, int64, error)
 	CreateAttachments(ctx context.Context, req *domain.TaskAttachment, taskID int64) (*domain.TaskAttachmentFileUploadRes, error)
+	FindAttachments(ctx context.Context, taskID int64) ([]domain.TaskAttachmentItem, error)
+	FindAttachment(ctx context.Context, attachmentID int64) (*domain.TaskAttachmentItem, error)
+	DeleteAttachment(ctx context.Context, attachmentID int64) error
 
 	FindSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error)
 	CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createBy int64) (*domain.SubTasks, error)

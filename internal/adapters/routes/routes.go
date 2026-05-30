@@ -80,7 +80,10 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.Task
 	tasks.Get("/me/overdue", h.ListOverdue)
 	tasks.Get("/key/:key", h.GetByKey)
 
+	tasks.Get("/:task_id/attachments", h.GetAttachments)
 	tasks.Post("/:task_id/attachments", h.CreateAttachments)
+	tasks.Delete("/:task_id/attachments/:attachment_id", h.DeleteAttachment)
+	tasks.Get("/:task_id/attachments/:attachment_id/download", h.DownloadAttachment)
 
 
 	// comment routes registered before the /:project_id/:status_id wildcard

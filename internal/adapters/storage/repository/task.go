@@ -440,7 +440,7 @@ func (r *taskRepository) FindOverdue(ctx context.Context, opts query.QueryOption
 
 func (r *taskRepository) FindSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error) {
 	var rows []models.SubTasksModel
-	if err := r.db.WithContext(ctx).Where("task_id = ?", taskID).Order("position ASC").Find(&rows).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("task_id = ?", taskID).Preload("Priority").Preload("Assigns.User").Order("position ASC").Find(&rows).Error; err != nil {
 		return nil, err
 	}
 

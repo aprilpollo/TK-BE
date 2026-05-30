@@ -581,14 +581,22 @@ func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorder
 }
 
 func (r *taskRepository) CreateAttachments(ctx context.Context, req *domain.TaskAttachment, taskID int64) (*domain.TaskAttachmentFileUploadRes, error) {
-	if err := r.db.WithContext(ctx).Create(&req).Error; err != nil {
+	model := models.TaskAttachmentModel{
+		TaskID:     req.TaskID,
+		Filename:   req.Filename,
+		FilePath:   req.FilePath,
+		FileSize:   req.FileSize,
+		MimeType:   req.MimeType,
+		UploadedBy: req.UploadedBy,
+	}
+	if err := r.db.WithContext(ctx).Create(&model).Error; err != nil {
 		return nil, err
 	}
 
 	return &domain.TaskAttachmentFileUploadRes{
-		URL:      req.FilePath,
-		Name:     req.Filename,
-		MimeType: req.MimeType,
-		Size:     req.FileSize,
+		URL:      model.FilePath,
+		Name:     model.Filename,
+		MimeType: model.MimeType,
+		Size:     model.FileSize,
 	}, nil
 }

@@ -248,8 +248,12 @@ type SubTaskReq struct {
 }
 
 type UpdateSubTaskReq struct {
-	Name      string `json:"name"`
-	IsSuccess *bool  `json:"is_success"`
+	Name       string                `json:"name"`
+	PriorityID int64                 `json:"priority_id"`
+	StartDate  utils.Nullable[int64] `json:"start_date"`
+	EndDate    utils.Nullable[int64] `json:"end_date"`
+	AllDay     *bool                 `json:"all_day"`
+	IsSuccess  *bool                 `json:"is_success"`
 }
 
 type ReqReorderSubTask struct {
@@ -286,4 +290,3 @@ type TaskAttachmentItem struct {
 	MimeType   string `json:"mime_type"`
 	UploadedBy int64  `json:"uploaded_by"`
 }
-

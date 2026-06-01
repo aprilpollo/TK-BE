@@ -527,15 +527,7 @@ func (r *taskRepository) UpdateSubTask(ctx context.Context, req *domain.UpdateSu
 		return nil, err
 	}
 
-	updates := map[string]any{}
-	if req.Name != "" {
-		updates["name"] = req.Name
-	}
-	if req.IsSuccess != nil {
-		updates["is_success"] = *req.IsSuccess
-	}
-
-	if err := r.db.WithContext(ctx).Model(&model).Updates(updates).Error; err != nil {
+	if err := r.db.WithContext(ctx).Model(&model).Updates(utils.StructToMap(req)).Error; err != nil {
 		return nil, err
 	}
 	return model.ToDomain(), nil

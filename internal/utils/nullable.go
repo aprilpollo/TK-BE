@@ -17,16 +17,6 @@ type Nullable[T any] struct {
 	set   bool // true if field was in JSON
 }
 
-// NewNullable creates a Nullable with a value
-func NewNullable[T any](value T) Nullable[T] {
-	return Nullable[T]{Value: value, set: true}
-}
-
-// NewNull creates a Nullable that represents NULL
-func NewNull[T any]() Nullable[T] {
-	return Nullable[T]{null: true, set: true}
-}
-
 // IsNull returns true if this represents a NULL value
 func (n Nullable[T]) IsNull() bool {
 	return n.null

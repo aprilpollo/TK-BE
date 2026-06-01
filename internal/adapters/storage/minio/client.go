@@ -81,4 +81,3 @@ func (m *MinIOClient) DeleteFileByURL(ctx context.Context, fileURL string) error
 func (m *MinIOClient) GetPresignedURLFromURL(ctx context.Context, fileURL string, expiry time.Duration) (string, error) {
 	return m.GetPresignedURL(ctx, m.objectNameFromURL(fileURL), expiry)
 }
-

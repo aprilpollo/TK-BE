@@ -24,10 +24,6 @@ func NewUserService(repo output.UserRepository, orgRepo output.OrganizationRepos
 	return &userService{repo: repo, orgRepo: orgRepo, minio: minio}
 }
 
-func (s *userService) List(ctx context.Context, opts query.QueryOptions) ([]domain.User, int64, error) {
-	return s.repo.FindAll(ctx, opts)
-}
-
 func (s *userService) GetByID(ctx context.Context, id int64) (*domain.User, error) {
 	return s.repo.FindByID(ctx, id)
 }

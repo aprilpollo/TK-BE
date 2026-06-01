@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"aprilpollo/internal/core/domain"
-
 	// "aprilpollo/internal/pkg/query"
 )
 

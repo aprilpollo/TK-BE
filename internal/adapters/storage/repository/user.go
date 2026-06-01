@@ -7,8 +7,6 @@ import (
 	"aprilpollo/internal/adapters/storage/orm/models"
 	"aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/output"
-	"aprilpollo/internal/pkg/query"
-	"aprilpollo/internal/pkg/query/gormq"
 	"aprilpollo/internal/utils"
 
 	"gorm.io/gorm"
@@ -20,28 +18,6 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) output.UserRepository {
 	return &userRepository{db: db}
-}
-
-func (r *userRepository) FindAll(ctx context.Context, opts query.QueryOptions) ([]domain.User, int64, error) {
-	var rows []models.UserModel
-	var total int64
-
-	base := r.db.WithContext(ctx).Model(&models.UserModel{})
-
-	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
-
-	if err := gormq.ApplyToGorm(base, opts).Find(&rows).Error; err != nil {
-		return nil, 0, err
-	}
-
-	users := make([]domain.User, len(rows))
-	for i, row := range rows {
-		users[i] = *row.ToDomain()
-	}
-
-	return users, total, nil
 }
 
 func (r *userRepository) FindByID(ctx context.Context, id int64) (*domain.User, error) {

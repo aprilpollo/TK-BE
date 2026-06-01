@@ -282,7 +282,7 @@ func (m *TasksModel) ToDomain() *domain.Task {
 	}
 }
 
-func (m *SubTasksModel) ToDomain() *domain.SubTasks {
+func (m *SubTasksModel) ToDomain() *domain.SubTask {
 	if m == nil {
 		return nil
 	}
@@ -307,7 +307,7 @@ func (m *SubTasksModel) ToDomain() *domain.SubTasks {
 		assigns = append(assigns, item)
 	}
 
-	return &domain.SubTasks{
+	return &domain.SubTask{
 		ID:        m.ID,
 		Name:      m.Name,
 		TaskID:    m.TaskID,

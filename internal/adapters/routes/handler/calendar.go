@@ -3,11 +3,8 @@ package handler
 import (
 	"strconv"
 
-	// "aprilpollo/internal/core/domain"
 	"aprilpollo/internal/core/ports/input"
 	"aprilpollo/internal/pkg/query"
-
-	// "github.com/google/uuid"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -21,7 +18,7 @@ func NewCalendarHandler(svc input.CalendarService) *CalendarHandler {
 }
 
 func (h *CalendarHandler) List(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -43,7 +40,7 @@ func (h *CalendarHandler) List(c *fiber.Ctx) error {
 			"description": v.Description,
 			"start":       v.StartDate,
 			"end":         v.EndDate,
-			"allDay":      v.AllDay,
+			"all_day":     v.AllDay,
 			"category":    "task",
 			"priority":    v.Priority,
 			"assignees":   v.Assigns,
@@ -64,7 +61,7 @@ func (h *CalendarHandler) ListPriority(c *fiber.Ctx) error {
 }
 
 func (h *CalendarHandler) ListStatus(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}

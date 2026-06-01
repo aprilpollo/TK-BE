@@ -42,11 +42,3 @@ func (h *OauthHandler) SocialLogin(c *fiber.Ctx) error {
 
 	return ResOk(c, fiber.StatusOK, fiber.Map{"token": token}, nil, nil)
 }
-
-func (h *OauthHandler) Register(c *fiber.Ctx) error {
-	return nil
-}
-
-func (h *OauthHandler) RefreshToken(c *fiber.Ctx) error {
-	return nil
-}

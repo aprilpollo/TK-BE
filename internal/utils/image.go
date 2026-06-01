@@ -32,7 +32,7 @@ func ExtractObjectName(rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	parts := strings.SplitN(strings.TrimPrefix(u.Path, "/"), "/", 2)
 	if len(parts) < 2 {
 		return "", fmt.Errorf("invalid object URL: %s", rawURL)

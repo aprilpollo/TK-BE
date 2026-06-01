@@ -22,11 +22,11 @@ func NewTaskRepository(db *gorm.DB) output.TaskRepository {
 	return &taskRepository{db: db}
 }
 
-func (r *taskRepository) Find(ctx context.Context, opts query.QueryOptions, project_id int64, status_id int64) ([]domain.Task, int64, error) {
+func (r *taskRepository) Find(ctx context.Context, opts query.QueryOptions, projectID int64, statusID int64) ([]domain.Task, int64, error) {
 	var rows []models.TasksModel
 	var total int64
 
-	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).Where("project_id = ? AND status_id = ?", project_id, status_id)
+	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).Where("project_id = ? AND status_id = ?", projectID, statusID)
 
 	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -67,9 +67,9 @@ func (r *taskRepository) FindPriority(ctx context.Context) ([]domain.TaskPriorit
 	return domains, nil
 }
 
-func (r *taskRepository) FindStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error) {
+func (r *taskRepository) FindStatus(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.TaskStatus, error) {
 	var models []models.TaskStatusModel
-	base := r.db.WithContext(ctx).Where("project_id = ?", project_id).Order("is_complete ASC, position ASC")
+	base := r.db.WithContext(ctx).Where("project_id = ?", projectID).Order("is_complete ASC, position ASC")
 
 	if err := gormq.ApplyToGorm(base, opts).Find(&models).Error; err != nil {
 		return nil, err
@@ -137,14 +137,14 @@ func (r *taskRepository) CreateStatus(ctx context.Context, req *domain.CreateTas
 	return result.ToDomain(), nil
 }
 
-func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64, req []domain.CreateListTaskStatusReq) error {
+func (r *taskRepository) CreateListStatus(ctx context.Context, projectID int64, req []domain.CreateListTaskStatusReq) error {
 	var toCreate []models.TaskStatusModel
 
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for i, item := range req {
 			if item.UUID != nil {
 				if err := tx.Model(&models.TaskStatusModel{}).
-					Where("uuid = ? AND project_id = ?", item.UUID, project_id).
+					Where("uuid = ? AND project_id = ?", item.UUID, projectID).
 					Updates(map[string]any{
 						"name":        item.Name,
 						"description": item.Description,
@@ -156,7 +156,7 @@ func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64,
 				}
 			} else {
 				toCreate = append(toCreate, models.TaskStatusModel{
-					ProjectID:   project_id,
+					ProjectID:   projectID,
 					Name:        item.Name,
 					Description: item.Description,
 					Color:       item.Color,
@@ -176,9 +176,9 @@ func (r *taskRepository) CreateListStatus(ctx context.Context, project_id int64,
 	})
 }
 
-func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, status_id int64) (*domain.TaskStatus, error) {
+func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTaskStatusReq, statusID int64) (*domain.TaskStatus, error) {
 	var model models.TaskStatusModel
-	if err := r.db.WithContext(ctx).Where("id = ?", status_id).First(&model).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", statusID).First(&model).Error; err != nil {
 		return nil, err
 	}
 
@@ -189,12 +189,12 @@ func (r *taskRepository) UpdateStatus(ctx context.Context, req *domain.UpdateTas
 	return model.ToDomain(), nil
 }
 
-func (r *taskRepository) DeleteStatus(ctx context.Context, status_id int64) error {
+func (r *taskRepository) DeleteStatus(ctx context.Context, statusID int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("status_id = ?", status_id).Delete(&models.TasksModel{}).Error; err != nil {
+		if err := tx.Where("status_id = ?", statusID).Delete(&models.TasksModel{}).Error; err != nil {
 			return err
 		}
-		if err := tx.Where("id = ?", status_id).Delete(&models.TaskStatusModel{}).Error; err != nil {
+		if err := tx.Where("id = ?", statusID).Delete(&models.TaskStatusModel{}).Error; err != nil {
 			return err
 		}
 
@@ -202,7 +202,7 @@ func (r *taskRepository) DeleteStatus(ctx context.Context, status_id int64) erro
 	})
 }
 
-func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, createBy int64) (*domain.Task, error) {
+func (r *taskRepository) Create(ctx context.Context, req *domain.CreateTaskReq, createdBy int64) (*domain.Task, error) {
 	now := time.Now()
 	var model models.TasksModel
 
@@ -247,7 +247,7 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, create
 				taskAssignees = append(taskAssignees, models.TaskAssignModel{
 					TaskID:    model.ID,
 					UserID:    assigneeID,
-					InvitedBy: &createBy,
+					InvitedBy: &createdBy,
 					InvitedAt: &now,
 					JoinedAt:  &now,
 				})
@@ -266,9 +266,9 @@ func (r *taskRepository) Create(ctx context.Context, req *domain.TaskReq, create
 	return model.ToDomain(), nil
 }
 
-func (r *taskRepository) Update(ctx context.Context, req *domain.UpdateTaskReq, task_id int64) (*domain.Task, error) {
+func (r *taskRepository) Update(ctx context.Context, req *domain.UpdateTaskReq, taskID int64) (*domain.Task, error) {
 	var model models.TasksModel
-	if err := r.db.WithContext(ctx).Where("id = ?", task_id).First(&model).Error; err != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", taskID).First(&model).Error; err != nil {
 		return nil, err
 	}
 
@@ -279,13 +279,13 @@ func (r *taskRepository) Update(ctx context.Context, req *domain.UpdateTaskReq, 
 	return model.ToDomain(), nil
 }
 
-func (r *taskRepository) Delete(ctx context.Context, task_id int64) error {
+func (r *taskRepository) Delete(ctx context.Context, taskID int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		if err := tx.Where("parent_id = ?", task_id).Delete(&models.TasksModel{}).Error; err != nil {
+		if err := tx.Where("parent_id = ?", taskID).Delete(&models.TasksModel{}).Error; err != nil {
 			return err
 		}
 
-		if err := tx.Where("id = ?", task_id).Delete(&models.TasksModel{}).Error; err != nil {
+		if err := tx.Where("id = ?", taskID).Delete(&models.TasksModel{}).Error; err != nil {
 			return err
 		}
 
@@ -293,11 +293,11 @@ func (r *taskRepository) Delete(ctx context.Context, task_id int64) error {
 	})
 }
 
-func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReqReorderTaskStatus, project_id int64) error {
+func (r *taskRepository) ReorderStatus(ctx context.Context, req *domain.ReorderTaskStatusReq, projectID int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {
 			if err := tx.Model(&models.TaskStatusModel{}).
-				Where("id = ? AND project_id = ?", item.ID, project_id).
+				Where("id = ? AND project_id = ?", item.ID, projectID).
 				Update("position", item.Position).Error; err != nil {
 				return err
 			}
@@ -438,20 +438,20 @@ func (r *taskRepository) FindOverdue(ctx context.Context, opts query.QueryOption
 	return items, total, nil
 }
 
-func (r *taskRepository) FindSubTasks(ctx context.Context, taskID int64) ([]domain.SubTasks, error) {
+func (r *taskRepository) FindSubTasks(ctx context.Context, taskID int64) ([]domain.SubTask, error) {
 	var rows []models.SubTasksModel
 	if err := r.db.WithContext(ctx).Where("task_id = ?", taskID).Preload("Priority").Preload("Assigns.User").Order("position ASC").Find(&rows).Error; err != nil {
 		return nil, err
 	}
 
-	result := make([]domain.SubTasks, len(rows))
+	result := make([]domain.SubTask, len(rows))
 	for i, row := range rows {
 		result[i] = *row.ToDomain()
 	}
 	return result, nil
 }
 
-func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createBy int64) (*domain.SubTasks, error) {
+func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskReq, createdBy int64) (*domain.SubTask, error) {
 	var model models.SubTasksModel
 	now := time.Now()
 
@@ -484,7 +484,7 @@ func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskR
 				taskAssignees = append(taskAssignees, models.SubTaskAssignModel{
 					SubTaskID: model.ID,
 					UserID:    assigneeID,
-					InvitedBy: &createBy,
+					InvitedBy: &createdBy,
 					InvitedAt: &now,
 					JoinedAt:  &now,
 				})
@@ -499,7 +499,7 @@ func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskR
 				taskAssigns = append(taskAssigns, models.TaskAssignModel{
 					TaskID:    req.TaskID,
 					UserID:    assigneeID,
-					InvitedBy: &createBy,
+					InvitedBy: &createdBy,
 					InvitedAt: &now,
 					JoinedAt:  &now,
 				})
@@ -521,7 +521,7 @@ func (r *taskRepository) CreateSubTask(ctx context.Context, req *domain.SubTaskR
 	return model.ToDomain(), nil
 }
 
-func (r *taskRepository) UpdateSubTask(ctx context.Context, req *domain.UpdateSubTaskReq, subtaskID int64) (*domain.SubTasks, error) {
+func (r *taskRepository) UpdateSubTask(ctx context.Context, req *domain.UpdateSubTaskReq, subtaskID int64) (*domain.SubTask, error) {
 	var model models.SubTasksModel
 	if err := r.db.WithContext(ctx).Where("id = ?", subtaskID).First(&model).Error; err != nil {
 		return nil, err
@@ -537,7 +537,7 @@ func (r *taskRepository) DeleteSubTask(ctx context.Context, subtaskID int64) err
 	return r.db.WithContext(ctx).Where("id = ?", subtaskID).Delete(&models.SubTasksModel{}).Error
 }
 
-func (r *taskRepository) ReorderSubTask(ctx context.Context, req *domain.ReqReorderSubTask, taskID int64) error {
+func (r *taskRepository) ReorderSubTask(ctx context.Context, req *domain.ReorderSubTaskReq, taskID int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {
 			if err := tx.Model(&models.SubTasksModel{}).
@@ -550,11 +550,11 @@ func (r *taskRepository) ReorderSubTask(ctx context.Context, req *domain.ReqReor
 	})
 }
 
-func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReqReorderTask, project_id int64) error {
+func (r *taskRepository) ReorderTask(ctx context.Context, req *domain.ReorderTaskReq, projectID int64) error {
 	return r.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		for _, item := range req.Updates {
 			var status models.TaskStatusModel
-			if err := tx.Where("uuid = ? AND project_id = ?", item.StatusID, project_id).First(&status).Error; err != nil {
+			if err := tx.Where("uuid = ? AND project_id = ?", item.StatusID, projectID).First(&status).Error; err != nil {
 				return err
 			}
 

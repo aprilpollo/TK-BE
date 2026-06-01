@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	"strconv"
 
 	"aprilpollo/internal/core/domain"
@@ -20,11 +19,11 @@ func NewTaskHandler(svc input.TaskService) *TaskHandler {
 }
 
 func (h *TaskHandler) List(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
-	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
+	statusID, err := strconv.ParseInt(c.Params("statusID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -42,14 +41,14 @@ func (h *TaskHandler) List(c *fiber.Ctx) error {
 	for _, v := range tasks {
 		taskMap = append(taskMap, map[string]interface{}{
 			"id":          v.ID,
-			"columnId":    v.Status.UUID,
+			"column_id":   v.Status.UUID,
 			"key":         v.Key,
 			"title":       v.Title,
 			"description": v.Description,
 			"priority":    v.Priority,
-			"startDate":   v.StartDate,
-			"endDate":     v.EndDate,
-			"allDay":      v.AllDay,
+			"start_date":  v.StartDate,
+			"end_date":    v.EndDate,
+			"all_day":     v.AllDay,
 			"assignees":   v.Assigns,
 		})
 	}
@@ -78,7 +77,7 @@ func (h *TaskHandler) ListPriority(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) ListStatus(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -111,7 +110,7 @@ func (h *TaskHandler) CreateStatus(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) CreateListStatus(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -129,7 +128,7 @@ func (h *TaskHandler) CreateListStatus(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) UpdateStatus(c *fiber.Ctx) error {
-	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
+	statusID, err := strconv.ParseInt(c.Params("statusID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -148,7 +147,7 @@ func (h *TaskHandler) UpdateStatus(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) DeleteStatus(c *fiber.Ctx) error {
-	statusID, err := strconv.ParseInt(c.Params("status_id"), 10, 64)
+	statusID, err := strconv.ParseInt(c.Params("statusID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -161,7 +160,7 @@ func (h *TaskHandler) DeleteStatus(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) Create(c *fiber.Ctx) error {
-	var req domain.TaskReq
+	var req domain.CreateTaskReq
 	if err := c.BodyParser(&req); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
@@ -177,7 +176,7 @@ func (h *TaskHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) Update(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -186,8 +185,6 @@ func (h *TaskHandler) Update(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
-
-	fmt.Printf("Received update request: %+v\n", req)
 
 	task, err := h.svc.Update(c.Context(), &req, taskID)
 	if err != nil {
@@ -198,7 +195,7 @@ func (h *TaskHandler) Update(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) Delete(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -211,12 +208,12 @@ func (h *TaskHandler) Delete(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) ReorderStatus(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
 
-	var req domain.ReqReorderTaskStatus
+	var req domain.ReorderTaskStatusReq
 	if err := c.BodyParser(&req); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
@@ -229,12 +226,12 @@ func (h *TaskHandler) ReorderStatus(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) ReorderTask(c *fiber.Ctx) error {
-	projectID, err := strconv.ParseInt(c.Params("project_id"), 10, 64)
+	projectID, err := strconv.ParseInt(c.Params("projectID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
 
-	var req domain.ReqReorderTask
+	var req domain.ReorderTaskReq
 	if err := c.BodyParser(&req); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
@@ -282,7 +279,7 @@ func (h *TaskHandler) ListOverdue(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) ListSubTasks(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -296,7 +293,7 @@ func (h *TaskHandler) ListSubTasks(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) CreateSubTask(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -318,7 +315,7 @@ func (h *TaskHandler) CreateSubTask(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) UpdateSubTask(c *fiber.Ctx) error {
-	subtaskID, err := strconv.ParseInt(c.Params("subtask_id"), 10, 64)
+	subtaskID, err := strconv.ParseInt(c.Params("subtaskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -337,7 +334,7 @@ func (h *TaskHandler) UpdateSubTask(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) DeleteSubTask(c *fiber.Ctx) error {
-	subtaskID, err := strconv.ParseInt(c.Params("subtask_id"), 10, 64)
+	subtaskID, err := strconv.ParseInt(c.Params("subtaskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
@@ -350,12 +347,12 @@ func (h *TaskHandler) DeleteSubTask(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) ReorderSubTask(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid id", err.Error())
 	}
 
-	var req domain.ReqReorderSubTask
+	var req domain.ReorderSubTaskReq
 	if err := c.BodyParser(&req); err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid request body", err.Error())
 	}
@@ -367,9 +364,8 @@ func (h *TaskHandler) ReorderSubTask(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
 
-
 func (h *TaskHandler) GetAttachments(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
 	}
@@ -381,7 +377,7 @@ func (h *TaskHandler) GetAttachments(c *fiber.Ctx) error {
 }
 
 func (h *TaskHandler) DeleteAttachment(c *fiber.Ctx) error {
-	attachmentID, err := strconv.ParseInt(c.Params("attachment_id"), 10, 64)
+	attachmentID, err := strconv.ParseInt(c.Params("attachmentID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid attachment id", err.Error())
 	}
@@ -391,9 +387,8 @@ func (h *TaskHandler) DeleteAttachment(c *fiber.Ctx) error {
 	return ResOk(c, fiber.StatusOK, nil, nil, nil)
 }
 
-
 func (h *TaskHandler) CreateAttachments(c *fiber.Ctx) error {
-		taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
 	}

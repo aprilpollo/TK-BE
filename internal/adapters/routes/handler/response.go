@@ -25,7 +25,6 @@ func ResOk(ctx *fiber.Ctx, status int, payload any, total *int64, opts *query.Qu
 			page = uint((opts.Offset / opts.Limit) + 1)
 		}
 
-		
 		count := 0
 		if v := reflect.ValueOf(payload); v.Kind() == reflect.Slice {
 			count = v.Len()

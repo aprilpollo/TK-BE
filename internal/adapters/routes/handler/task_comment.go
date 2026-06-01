@@ -19,7 +19,7 @@ func NewTaskCommentHandler(svc input.TaskCommentService) *TaskCommentHandler {
 }
 
 func (h *TaskCommentHandler) List(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
 	}
@@ -38,7 +38,7 @@ func (h *TaskCommentHandler) List(c *fiber.Ctx) error {
 }
 
 func (h *TaskCommentHandler) Create(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
 	}
@@ -59,7 +59,7 @@ func (h *TaskCommentHandler) Create(c *fiber.Ctx) error {
 }
 
 func (h *TaskCommentHandler) Update(c *fiber.Ctx) error {
-	commentID, err := strconv.ParseInt(c.Params("comment_id"), 10, 64)
+	commentID, err := strconv.ParseInt(c.Params("commentID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid comment id", err.Error())
 	}
@@ -78,7 +78,7 @@ func (h *TaskCommentHandler) Update(c *fiber.Ctx) error {
 }
 
 func (h *TaskCommentHandler) Delete(c *fiber.Ctx) error {
-	commentID, err := strconv.ParseInt(c.Params("comment_id"), 10, 64)
+	commentID, err := strconv.ParseInt(c.Params("commentID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid comment id", err.Error())
 	}
@@ -91,7 +91,7 @@ func (h *TaskCommentHandler) Delete(c *fiber.Ctx) error {
 }
 
 func (h *TaskCommentHandler) UploadFile(c *fiber.Ctx) error {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		return ResError(c, fiber.StatusBadRequest, "invalid task id", err.Error())
 	}

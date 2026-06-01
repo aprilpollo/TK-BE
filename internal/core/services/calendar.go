@@ -17,12 +17,12 @@ func NewCalendarService(repo output.CalendarRepository) input.CalendarService {
 	return &calendarService{repo: repo}
 }
 
-func (s *calendarService) List(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.Task, int64, error) {
-	return s.repo.Find(ctx, opts, project_id)
+func (s *calendarService) List(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.Task, int64, error) {
+	return s.repo.Find(ctx, opts, projectID)
 }
 
-func (s *calendarService) ListStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error) {
-	return s.repo.FindStatus(ctx, opts, project_id)
+func (s *calendarService) ListStatus(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.TaskStatus, error) {
+	return s.repo.FindStatus(ctx, opts, projectID)
 }
 
 func (s *calendarService) ListPriority(ctx context.Context) ([]domain.TaskPriority, error) {

@@ -17,13 +17,12 @@ type Task struct {
 	Description string    `json:"description"`
 	StatusID    int64     `json:"status_id"`
 	PriorityID  int64     `json:"priority_id"`
-	//ParentID    *int64    `json:"parent_id"`
-	Position  int       `json:"position"`
-	StartDate *int64    `json:"startDate"`
-	EndDate   *int64    `json:"endDate"`
-	AllDay    bool      `json:"allDay"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	Position    int       `json:"position"`
+	StartDate   *int64    `json:"start_date"`
+	EndDate     *int64    `json:"end_date"`
+	AllDay      bool      `json:"all_day"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 
 	Status   TaskStatus   `json:"status"`
 	Priority TaskPriority `json:"priority"`
@@ -86,7 +85,7 @@ type CreateListTaskStatusReq struct {
 	IsComplete  bool       `json:"is_complete"`
 }
 
-type ReqReorderTaskStatus struct {
+type ReorderTaskStatusReq struct {
 	Updates []ReorderTaskStatus `json:"updates"`
 }
 type ReorderTaskStatus struct {
@@ -94,7 +93,7 @@ type ReorderTaskStatus struct {
 	Position int   `json:"position"`
 }
 
-type ReqReorderTask struct {
+type ReorderTaskReq struct {
 	Updates []ReorderTask `json:"updates"`
 }
 type ReorderTask struct {
@@ -103,7 +102,7 @@ type ReorderTask struct {
 	StatusID string `json:"status_id"` // UUID of the new status
 }
 
-type TaskReq struct {
+type CreateTaskReq struct {
 	ProjectID   int64   `json:"project_id"`
 	Title       string  `json:"title"`
 	Description string  `json:"description"`
@@ -218,7 +217,7 @@ type CommentEvent struct {
 	ID      int64            `json:"id,omitempty"`
 }
 
-type SubTasks struct {
+type SubTask struct {
 	ID         int64  `json:"id"`
 	Name       string `json:"name"`
 	TaskID     int64  `json:"task_id"`
@@ -256,7 +255,7 @@ type UpdateSubTaskReq struct {
 	IsSuccess  *bool                 `json:"is_success"`
 }
 
-type ReqReorderSubTask struct {
+type ReorderSubTaskReq struct {
 	Updates []ReorderSubTask `json:"updates"`
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 type CalendarRepository interface {
-	Find(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.Task, int64, error)
-	FindStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error)
+	Find(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.Task, int64, error)
+	FindStatus(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.TaskStatus, error)
 	FindPriority(ctx context.Context) ([]domain.TaskPriority, error)
 }

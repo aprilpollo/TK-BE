@@ -11,8 +11,8 @@ func RegisterOauthRoutes(app *fiber.App, h *handler.OauthHandler) {
 	api := app.Group("/api/v1")
 
 	oauth := api.Group("/auth")
-	oauth.Post("/basiclogin", h.BasicLogin)
-	oauth.Post("/sociallogin", h.SocialLogin)
+	oauth.Post("/basic-login", h.BasicLogin)
+	oauth.Post("/social-login", h.SocialLogin)
 }
 
 func RegisterUserRoutes(app *fiber.App, h *handler.UserHandler, jwtMiddleware fiber.Handler) {
@@ -56,10 +56,10 @@ func RegisterProjectRoutes(app *fiber.App, h *handler.ProjectHandler, jwtMiddlew
 	projects.Get("/key/:key", h.GetByKey)
 	projects.Get("/:id", h.GetByID)
 	projects.Get("/:id/notification", h.GetNotificationSettings)
-	projects.Get("/:id/task_summary", h.GetTaskSummary)
+	projects.Get("/:id/task-summary", h.GetTaskSummary)
 	projects.Get("/:id/chart", h.GetTaskVelocityChart)
 	projects.Get("/:id/members", h.GetProjectMembers)
-	projects.Get("/:id/task_deadlines", h.GetUpcomingDeadlines)
+	projects.Get("/:id/task-deadlines", h.GetUpcomingDeadlines)
 
 	projects.Post("/", h.Create)
 	projects.Post("/:id/logo", h.UpdateLogo)
@@ -75,47 +75,46 @@ func RegisterTaskRoutes(app *fiber.App, h *handler.TaskHandler, ch *handler.Task
 
 	tasks := api.Group("/tasks", jwtMiddleware, orgMiddleware)
 	tasks.Get("/priorities", h.ListPriority)
-	tasks.Get("/statuses/:project_id", h.ListStatus)
+	tasks.Get("/statuses/:projectID", h.ListStatus)
 	tasks.Get("/me/today", h.ListByToday)
 	tasks.Get("/me/overdue", h.ListOverdue)
 	tasks.Get("/key/:key", h.GetByKey)
 
-	tasks.Get("/:task_id/attachments", h.GetAttachments)
-	tasks.Post("/:task_id/attachments", h.CreateAttachments)
-	tasks.Delete("/:task_id/attachments/:attachment_id", h.DeleteAttachment)
+	tasks.Get("/:taskID/attachments", h.GetAttachments)
+	tasks.Post("/:taskID/attachments", h.CreateAttachments)
+	tasks.Delete("/:taskID/attachments/:attachmentID", h.DeleteAttachment)
 
-
-	// comment routes registered before the /:project_id/:status_id wildcard
+	// comment routes registered before the /:projectID/:statusID wildcard
 	// so Fiber's radix tree prefers the static "comments" segment
-	tasks.Get("/:task_id/comments", ch.List)
-	tasks.Post("/:task_id/comments/upload", ch.UploadFile)
-	tasks.Post("/:task_id/comments", ch.Create)
-	tasks.Put("/:task_id/comments/:comment_id", ch.Update)
-	tasks.Delete("/:task_id/comments/:comment_id", ch.Delete)
+	tasks.Get("/:taskID/comments", ch.List)
+	tasks.Post("/:taskID/comments/upload", ch.UploadFile)
+	tasks.Post("/:taskID/comments", ch.Create)
+	tasks.Put("/:taskID/comments/:commentID", ch.Update)
+	tasks.Delete("/:taskID/comments/:commentID", ch.Delete)
 
-	// real-time comments via WebSocket: ws://.../api/v1/tasks/:task_id/comments/live
-	tasks.Get("/:task_id/comments/live", wsHandler.RequireUpgrade, websocket.New(wsHandler.Handle))
+	// real-time comments via WebSocket: ws://.../api/v1/tasks/:taskID/comments/live
+	tasks.Get("/:taskID/comments/live", wsHandler.RequireUpgrade, websocket.New(wsHandler.Handle))
 
 	// subtask routes
-	tasks.Get("/:task_id/subtasks", h.ListSubTasks)
-	tasks.Post("/:task_id/subtasks", h.CreateSubTask)
-	tasks.Put("/:task_id/subtasks/reorder", h.ReorderSubTask)
-	tasks.Put("/:task_id/subtasks/:subtask_id", h.UpdateSubTask)
-	tasks.Delete("/:task_id/subtasks/:subtask_id", h.DeleteSubTask)
+	tasks.Get("/:taskID/subtasks", h.ListSubTasks)
+	tasks.Post("/:taskID/subtasks", h.CreateSubTask)
+	tasks.Put("/:taskID/subtasks/reorder", h.ReorderSubTask)
+	tasks.Put("/:taskID/subtasks/:subtaskID", h.UpdateSubTask)
+	tasks.Delete("/:taskID/subtasks/:subtaskID", h.DeleteSubTask)
 
-	tasks.Get("/:project_id/:status_id", h.List)
+	tasks.Get("/:projectID/:statusID", h.List)
 
 	tasks.Post("/", h.Create)
 	tasks.Post("/statuses", h.CreateStatus)
-	tasks.Post("/statuses/list/:project_id", h.CreateListStatus)
+	tasks.Post("/statuses/list/:projectID", h.CreateListStatus)
 
-	tasks.Put("/:task_id", h.Update)
-	tasks.Put("/statuses/reorder/:project_id", h.ReorderStatus)
-	tasks.Put("/statuses/:status_id", h.UpdateStatus)
-	tasks.Put("/reorder/:project_id", h.ReorderTask)
+	tasks.Put("/:taskID", h.Update)
+	tasks.Put("/statuses/reorder/:projectID", h.ReorderStatus)
+	tasks.Put("/statuses/:statusID", h.UpdateStatus)
+	tasks.Put("/reorder/:projectID", h.ReorderTask)
 
-	tasks.Delete("/:task_id", h.Delete)
-	tasks.Delete("/statuses/:status_id", h.DeleteStatus)
+	tasks.Delete("/:taskID", h.Delete)
+	tasks.Delete("/statuses/:statusID", h.DeleteStatus)
 }
 
 func RegisterCalendarRoutes(app *fiber.App, h *handler.CalendarHandler, jwtMiddleware fiber.Handler, orgMiddleware fiber.Handler) {
@@ -123,7 +122,7 @@ func RegisterCalendarRoutes(app *fiber.App, h *handler.CalendarHandler, jwtMiddl
 
 	calendar := api.Group("/calendar", jwtMiddleware, orgMiddleware)
 	calendar.Get("/priorities", h.ListPriority)
-	calendar.Get("/statuses/:project_id", h.ListStatus)
-	calendar.Get("/:project_id", h.List)
+	calendar.Get("/statuses/:projectID", h.ListStatus)
+	calendar.Get("/:projectID", h.List)
 
 }

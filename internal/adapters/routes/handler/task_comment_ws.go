@@ -28,7 +28,7 @@ func (h *TaskCommentWSHandler) RequireUpgrade(c *fiber.Ctx) error {
 // Handle is the WebSocket handler. It registers the connection in the hub,
 // keeps it alive by reading frames, and unregisters on disconnect.
 func (h *TaskCommentWSHandler) Handle(c *websocket.Conn) {
-	taskID, err := strconv.ParseInt(c.Params("task_id"), 10, 64)
+	taskID, err := strconv.ParseInt(c.Params("taskID"), 10, 64)
 	if err != nil {
 		_ = c.Close()
 		return

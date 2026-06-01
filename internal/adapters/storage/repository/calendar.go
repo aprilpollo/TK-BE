@@ -23,11 +23,11 @@ func NewCalendarRepository(db *gorm.DB) output.CalendarRepository {
 	return &calendarRepository{db: db}
 }
 
-func (r *calendarRepository) Find(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.Task, int64, error) {
+func (r *calendarRepository) Find(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.Task, int64, error) {
 	var rows []models.TasksModel
 	var total int64
 
-	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).Where("project_id = ?", project_id)
+	base := r.db.WithContext(ctx).Model(&models.TasksModel{}).Where("project_id = ?", projectID)
 
 	if err := gormq.ApplyFilters(base, opts).Count(&total).Error; err != nil {
 		return nil, 0, err
@@ -45,9 +45,9 @@ func (r *calendarRepository) Find(ctx context.Context, opts query.QueryOptions, 
 	return tasks, total, nil
 }
 
-func (r *calendarRepository) FindStatus(ctx context.Context, opts query.QueryOptions, project_id int64) ([]domain.TaskStatus, error) {
+func (r *calendarRepository) FindStatus(ctx context.Context, opts query.QueryOptions, projectID int64) ([]domain.TaskStatus, error) {
 	var models []models.TaskStatusModel
-	base := r.db.WithContext(ctx).Where("project_id = ?", project_id)
+	base := r.db.WithContext(ctx).Where("project_id = ?", projectID)
 
 	if err := gormq.ApplyToGorm(base, opts).Find(&models).Error; err != nil {
 		return nil, err

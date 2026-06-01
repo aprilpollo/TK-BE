@@ -1,9 +1,9 @@
 package views
 
 import (
+	"aprilpollo/internal/core/domain"
 	"gorm.io/gorm"
 	"time"
-	"aprilpollo/internal/core/domain"
 )
 
 type OrganizationMemberView struct {
